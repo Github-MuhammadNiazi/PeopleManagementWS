@@ -42,7 +42,7 @@ PeopleManagementWS/
 ## Installation & Setup
 ### Clone Repository
 ```sh
-git clone https://github.com/YOUR_USERNAME/PeopleManagementWS.git
+git clone https://github.com/Github-MuhammadNiazi/PeopleManagementWS.git
 cd PeopleManagementWS
 ```
 
