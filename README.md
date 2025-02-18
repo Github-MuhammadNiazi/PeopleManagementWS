@@ -4,9 +4,9 @@
 People Management WS is a web and mobile application designed to streamline communication and service management for residential communities. This project enables residents to receive notifications, apply for services, report complaints, and interact efficiently with the management team.
 
 ## Tech Stack
-### Frontend
-- **Framework**: Expo(React)
-- **Language**: TypeScript (Optional, but recommended)
+### Web (Frontend)
+- **Framework**: Vite (React)
+- **Language**: TypeScript
 - **State Management**: Context API / Redux (Future Scope)
 - **Styling**: Tailwind CSS / Styled Components
 
@@ -50,10 +50,11 @@ cd PeopleManagementWS
 
 ### Web Setup
 ```sh
+cd web
 npm install
-npm run web
+npm run dev
 ```
-Open `http://localhost:8081` to view the web app.
+Open `http://localhost:5173` to view the web app.
 
 ### Mobile Setup (React Native)
 ```sh
