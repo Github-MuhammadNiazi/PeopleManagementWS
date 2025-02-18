@@ -4,17 +4,11 @@
 People Management WS is a web and mobile application designed to streamline communication and service management for residential communities. This project enables residents to receive notifications, apply for services, report complaints, and interact efficiently with the management team.
 
 ## Tech Stack
-### Web (Frontend)
-- **Framework**: Next.js (React)
+### Frontend
+- **Framework**: Expo(React)
 - **Language**: TypeScript (Optional, but recommended)
 - **State Management**: Context API / Redux (Future Scope)
 - **Styling**: Tailwind CSS / Styled Components
-
-### Mobile (Frontend)
-- **Framework**: React Native
-- **Language**: JavaScript / TypeScript
-- **State Management**: React Context / Redux
-- **Navigation**: React Navigation
 
 ## Features (Planned)
 - 🔔 **Real-time Notifications**: Stay updated with management announcements.
@@ -25,18 +19,26 @@ People Management WS is a web and mobile application designed to streamline comm
 ## Project Structure
 ```
 PeopleManagementWS/
-├── web/         # Next.js Web App
-│   ├── pages/   # Application pages
-│   ├── components/ # Reusable UI components
-│   ├── public/  # Static assets
-│   └── styles/  # Styling (CSS, Tailwind, etc.)
-├── mobile/      # React Native Mobile App
-│   ├── src/
-│   │   ├── screens/ # App Screens
-│   │   ├── components/ # Reusable UI components
-│   │   ├── navigation/ # App navigation setup
-│   │   └── assets/    # Static assets (images, icons, etc.)
-└── README.md   # Project Documentation
+├── .expo/ # Expo configuration files
+├── app/ # Expo Router App
+│   ├── _layout.tsx # Root layout file
+│   ├── (tabs)/ # Tab navigation screens
+│   │   ├── explore.tsx # Explore screen
+│   │   ├── index.tsx # Home screen
+│   │   └── _layout.tsx # Tab layout file
+│   ├── +not-found.tsx # Not found screen
+├── assets/ # Static assets (fonts, images, etc.)
+├── components/ # Reusable UI components
+│   ├── tests/ # Component tests
+│   ├── ui/ # UI-specific components
+├── constants/ # Constants (e.g., Colors)
+├── hooks/ # Custom hooks
+├── scripts/ # Utility scripts
+├── .gitignore # Git ignore file
+├── app.json # Expo app configuration
+├── package.json # Project dependencies and scripts
+├── tsconfig.json # TypeScript configuration 
+└── README.md # Project documentation
 ```
 
 ## Installation & Setup
@@ -46,20 +48,18 @@ git clone https://github.com/Github-MuhammadNiazi/PeopleManagementWS.git
 cd PeopleManagementWS
 ```
 
-### Web Setup (Next.js)
+### Web Setup
 ```sh
-cd web
 npm install
-npm run dev
+npm run web
 ```
-Open `http://localhost:3000` to view the web app.
+Open `http://localhost:8081` to view the web app.
 
 ### Mobile Setup (React Native)
 ```sh
-cd mobile
 npm install
-npx react-native run-android  # For Android
-npx react-native run-ios       # For iOS (Mac required)
+npm run android  # For Android
+npm run ios       # For iOS (Mac required)
 ```
 
 ## Contributing
