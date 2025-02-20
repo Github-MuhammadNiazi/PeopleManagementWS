@@ -4,8 +4,9 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var usersRouter = require('./routes/users');
+var routes =  require('./routes/index');
 var responseWrapper = require('./middlewares/responseWrapper');
+var packageJson = require('./package.json')
 
 var app = express();
 
@@ -18,6 +19,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Custom response wrapper middleware
 app.use(responseWrapper);
 
-app.use('/user', usersRouter);
+app.use(`/${packageJson.name}/${packageJson.version}`, routes);
 
 module.exports = app;
