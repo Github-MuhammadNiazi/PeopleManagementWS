@@ -4,6 +4,10 @@
 
 // REMOVE AFTER INTEGRATING WITH DATABASE
 
+const mockLogin = {
+    username: 'admin@admin.com',
+    password: 'admin'
+};
 const response = {
     user: {
         getUsers: [
@@ -23,8 +27,16 @@ const response = {
     }
 };
 
+// Mock Methods
+const verifyLogin = (requestObject) => {
+    const { username, password } = requestObject.body;
+    return username === mockLogin.username && password === mockLogin.password;
+};
+
 const mockData = {
     response,
+    mockLogin,
+    verifyLogin
 };
 
 module.exports = mockData;
