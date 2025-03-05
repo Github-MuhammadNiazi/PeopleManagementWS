@@ -7,12 +7,13 @@
 var app = require('../app');
 var debug = require('debug')('api:server');
 var http = require('http');
+var packageJson = require('../package.json');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.API_PORT || '3000');
+var port = normalizePort(process.env.API_PORT || packageJson.defaultPort);
 app.set('port', port);
 
 /**
@@ -87,4 +88,5 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  console.log('Listening on ' + bind);
 }

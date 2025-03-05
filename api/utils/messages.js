@@ -9,4 +9,11 @@ module.exports = {
         allUsersRetrieved: 'All users retrieved successfully',
         failedToRetrieveAllUsers: 'Failed to retrieve all users',
     },
+    properties: {
+        userRoles: {
+            allUserRolesRetrieved: 'All user roles retrieved successfully',
+            noUserRoles: 'No user roles found',
+            failedToRetrieveAllUserRoles: 'Failed to retrieve all user roles',
+        },
+    }
 };
