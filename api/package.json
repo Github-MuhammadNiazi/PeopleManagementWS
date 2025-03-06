@@ -3,6 +3,7 @@
   "defaultPort": 3000,
   "version": "v1.0",
   "private": true,
+  "dbSchema": "public",
   "scripts": {
     "start": "node ./bin/www",
     "nodemon": "npx nodemon ./bin/www"
