@@ -12,7 +12,7 @@ const getUserRoles = async (req, res, next) => {
                 ? messages.properties.userRoles.allUserRolesRetrieved
                 : messages.properties.userRoles.noUserRoles))
     } catch (error) {
-        return res.status(401).send(generateResponseBody(
+        return res.status(500).send(generateResponseBody(
             {},
             messages.properties.userRoles.failedToRetrieveAllUserRoles,
             error.message));

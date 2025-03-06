@@ -1,17 +1,11 @@
-const generateResponseBody = require('../../utils/responseGenerator');
-
-const messages = require('../../utils/messages');
-const { verifyLogin } = require('../../mockData');
+const authHelper = require('../helpers/authHelper');
 
 const authenticateConnection = (req, res, next) => {
-  res.send(generateResponseBody({}, messages.auth.connectionAuthenticated));
+  return authHelper.authenticateConnection(req, res, next);
 };
 
 const login = (req, res, next) => {
-  if (verifyLogin(req)) {
-    return res.send(generateResponseBody(req.body, messages.auth.loginSuccess));
-  }
-  return res.status(401).send(generateResponseBody({}, messages.auth.loginFailed, messages.auth.invalidUsernameOrPassword));
+  return authHelper.verifyLogin(req, res, next);
 };
 
 module.exports = {
