@@ -9,10 +9,9 @@ const authenticateConnection = (req, res, next) => {
 
 const verifyLogin = async (req, res, next) => {
     try {
-        const query = queries.systemUsers.login
-            .replace('{{username}}', `'${req.body.username}'`)
-            .replace('{{password}}', `'${req.body.password}'`);
-        const data = await pool.query(query);
+        const query = queries.systemUsers.login;
+        const values = [req.body.username, req.body.password];
+        const data = await pool.query(query, values);
         return res
             .status(data.rows.length ? 200 : 401)
             .send(generateResponseBody(

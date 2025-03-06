@@ -5,6 +5,6 @@ module.exports = {
         getAllUserRoles: `SELECT * FROM ${packageJson.dbSchema}."UserRoles"`,
     },
     systemUsers: {
-        login: `SELECT * FROM ${packageJson.dbSchema}."SystemUsers" WHERE "Username" = {{username}} AND "Password" = {{password}}`,
+        login: `SELECT * FROM ${packageJson.dbSchema}."SystemUsers" WHERE "Username" = $1 AND "Password" = $2`,
     }
 };
