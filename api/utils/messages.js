@@ -4,6 +4,10 @@ module.exports = {
         loginSuccess: 'Login successful',
         loginFailed: 'Login failed',
         invalidUsernameOrPassword: 'Invalid username or password',
+        accountSuspended: 'Your Account has been temporarily suspended. Please contact the administrator',
+        accountDeleted: 'Your Account has been blocked. Please contact the administrator',
+        noTokenProvided: 'No token provided',
+        failedToAuthenticateToken: 'Failed to authenticate jwt token',
     },
     users: {
         allUsersRetrieved: 'All users retrieved successfully',
