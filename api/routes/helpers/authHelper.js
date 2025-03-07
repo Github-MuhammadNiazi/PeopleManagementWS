@@ -24,7 +24,7 @@ const verifyLogin = async (req, res, next) => {
             }
             const token = jwt.sign({
                 id: user.SystemUserId,
-                username: user.username,
+                username: user.Username,
             }, process.env.JWT_SECRET, { expiresIn: '1h' });
             return res.status(200).send(generateResponseBody({
                 username: user.Username,

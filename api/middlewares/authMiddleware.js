@@ -3,7 +3,10 @@ const messages = require('../utils/messages');
 const generateResponseBody = require('../utils/responseGenerator');
 
 const authenticateToken = (req, res, next) => {
-    const token = req.headers['authorization'];
+    let token = req.headers['authorization'];
+    if (token && token.startsWith('Bearer ')) {
+        token = token.slice(7, token.length);
+    }
     if (!token) {
         return res.status(401).send(generateResponseBody({}, messages.auth.noTokenProvided));
     }
