@@ -9,6 +9,7 @@
     "nodemon": "npx nodemon ./bin/www"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "dotenv": "^16.4.7",
@@ -16,6 +17,7 @@
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
     "nodemon": "^3.1.9",
     "pg": "^8.13.3"
