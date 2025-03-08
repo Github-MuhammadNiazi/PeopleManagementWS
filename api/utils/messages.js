@@ -7,6 +7,8 @@ module.exports = {
         accountSuspended: 'Your Account has been temporarily suspended. Please contact the administrator',
         accountDeleted: 'Your Account has been blocked. Please contact the administrator',
         noTokenProvided: 'No token provided',
+        signupSuccess: 'Signup successful',
+        signupFailed: 'Signup failed',
         failedToAuthenticateToken: 'Failed to authenticate jwt token',
     },
     users: {

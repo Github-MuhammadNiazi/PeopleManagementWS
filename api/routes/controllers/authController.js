@@ -1,14 +1,19 @@
 const authHelper = require('../helpers/authHelper');
 
-const authenticateConnection = (req, res, next) => {
-  return authHelper.authenticateConnection(req, res, next);
+const AuthenticateConnection = (req, res, next) => {
+  return authHelper.AuthenticateConnection(req, res, next);
 };
 
-const login = (req, res, next) => {
-  return authHelper.verifyLogin(req, res, next);
+const Login = (req, res, next) => {
+  return authHelper.Login(req, res, next);
 };
+
+const Signup = (req, res, next) => {
+  return authHelper.Signup(req, res, next);
+}
 
 module.exports = {
-  authenticateConnection,
-  login
+  AuthenticateConnection,
+  Login,
+  Signup
 };
