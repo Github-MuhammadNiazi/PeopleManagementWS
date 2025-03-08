@@ -7,13 +7,13 @@
 var app = require('../app');
 var debug = require('debug')('api:server');
 var http = require('http');
-var packageJson = require('../package.json');
+var constants = require('../utils/constants');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.API_PORT || packageJson.defaultPort);
+var port = normalizePort(process.env.API_PORT || constants.defaultConfigurations.defaultPort);
 app.set('port', port);
 
 /**

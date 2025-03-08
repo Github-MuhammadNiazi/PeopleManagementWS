@@ -8,7 +8,7 @@ var logger = require('morgan');
 
 var routes = require('./routes/index');
 var responseWrapper = require('./middlewares/responseWrapper');
-var packageJson = require('./package.json');
+var constants = require('./utils/constants');
 
 var app = express();
 
@@ -21,6 +21,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Custom response wrapper middleware
 app.use(responseWrapper);
 
-app.use(`/${packageJson.name}/${packageJson.version}`, routes);
+app.use(`${constants.defaultConfigurations.apiPrefix}/${constants.defaultConfigurations.apiVersion}`, routes);
 
 module.exports = app;
