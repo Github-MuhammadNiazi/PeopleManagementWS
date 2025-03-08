@@ -1,10 +1,10 @@
-var packageJson = require('../package.json');
+var constants = require('../utils/constants');
 
 module.exports = {
     userRoles: {
-        getAllUserRoles: `SELECT * FROM ${packageJson.dbSchema}."UserRoles"`,
+        getAllUserRoles: `SELECT * FROM ${constants.defaultConfigurations.dbSchema}."UserRoles"`,
     },
     systemUsers: {
-        login: `SELECT * FROM ${packageJson.dbSchema}."SystemUsers" WHERE "Username" = $1 AND "Password" = $2`,
+        login: `SELECT * FROM ${constants.defaultConfigurations.dbSchema}."SystemUsers" WHERE "Username" = $1 AND "Password" = $2`,
     }
 };
