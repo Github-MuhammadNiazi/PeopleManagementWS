@@ -5,6 +5,16 @@ const defaultConfigurations = {
     dbSchema: 'public',
 }
 
+const userRoles = {
+    Admin: 1,
+    ManagementUser: 2,
+    OperatingUser: 3,
+    ResidentUser: 4,
+    RegisteredUser: 5,
+    UnregisteredUser: 6,
+}
+
 module.exports = {
     defaultConfigurations,
+    userRoles,
 };
