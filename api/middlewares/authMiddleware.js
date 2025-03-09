@@ -8,12 +8,12 @@ const authenticateToken = (req, res, next) => {
         token = token.slice(7, token.length);
     }
     if (!token) {
-        return res.status(401).send(generateResponseBody({}, messages.auth.noTokenProvided));
+        return res.status(401).send(generateResponseBody({}, messages.auth.token.noTokenProvided));
     }
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
         if (err) {
-            return res.status(403).send(generateResponseBody({}, messages.auth.failedToAuthenticateToken));
+            return res.status(403).send(generateResponseBody({}, messages.auth.token.failedToAuthenticateToken));
         }
         req.user = user;
         next();
