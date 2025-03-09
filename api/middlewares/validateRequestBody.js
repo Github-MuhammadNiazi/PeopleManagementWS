@@ -4,9 +4,9 @@ const validateRequestBody = (schema) => {
         if (error) {
             return res.status(400).send({
                 success: false,
-                message: 'Invalid request body',
+                message: error.details[0].message,
                 data: null,
-                error: error.details[0].message
+                error: error.details[0]
             });
         }
         next();
