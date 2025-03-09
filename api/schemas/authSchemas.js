@@ -33,19 +33,18 @@ const signupSchema = Joi.object({
         'string.email': 'Email must be a valid email address',
         'any.required': 'Email is required'
     }),
-    isAppartment: Joi.alternatives().try(Joi.boolean(), Joi.allow(null)).optional(),
-    appartment: Joi.alternatives().try(Joi.string(), Joi.allow(null))
-        .when('isAppartment', { is: true, then: Joi.required() }).messages({
-            'any.required': 'Appartment is required when isAppartment is true'
+    isApartment: Joi.alternatives().try(Joi.boolean(), Joi.allow(null)).optional(),
+    apartment: Joi.alternatives().try(Joi.string(), Joi.allow(null))
+        .when('isApartment', { is: true, then: Joi.required() }).messages({
+            'any.required': 'Apartment is required when isApartment is true'
         }),
     building: Joi.alternatives().try(Joi.string()).optional()
-        .when('isAppartment', { is: false, then: Joi.required() }).messages({
-            'any.required': 'Building is required when isAppartment is false'
+        .when('isApartment', { is: false, then: Joi.required() }).messages({
+            'any.required': 'Building is required when isApartment is false'
         }),
     street: Joi.alternatives().try(Joi.string()).optional()
-        .when('building', { not: null, then: Joi.required() })
-        .when('appartment', { not: null, then: Joi.required() }).messages({
-            'any.required': 'Street is required when building or appartment is provided'
+        .when('building', { not: null, then: Joi.required() }).messages({
+            'any.required': 'Street is required when building'
         }),
     region: Joi.alternatives().try(Joi.string()).optional()
         .when('street', { not: null, then: Joi.required() }).messages({

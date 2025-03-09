@@ -47,8 +47,6 @@ const Login = async (req, res, next) => {
 
 const Signup = async (req, res, next) => {
     try {
-        await pool.query(queries.dbTransactions.begin);
-
         // Confirming if userRole is valid
         const userRoleQuery = queries.userRoles.getUserRoleById;
         const userRoleValues = [req.body.userRoleId];
@@ -57,11 +55,14 @@ const Signup = async (req, res, next) => {
             await pool.query(queries.dbTransactions.rollback);
             return res.status(400).send(generateResponseBody({}, messages.auth.signup.invalidUserRole));
         }
-
+        
         // Preventing any high level account creation
         if (req.body.userRoleId !== constants.userRoles.UnregisteredUser) {
             return res.status(401).send(generateResponseBody({}, messages.systemMessages.unauthorizedOperation));
         }
+        
+        // Starting transaction
+        await pool.query(queries.dbTransactions.begin);
 
         // Creating User record
         const userQuery = queries.Users.createUser;
@@ -71,8 +72,8 @@ const Signup = async (req, res, next) => {
             req.body.identificationNumber,
             req.body.contactNumber,
             req.body.email,
-            req.body.isAppartment || false,
-            req.body.appartment || null,
+            req.body.isApartment || false,
+            req.body.apartment || null,
             req.body.building || null,
             req.body.street || null,
             req.body.region || null,
