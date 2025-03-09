@@ -52,7 +52,6 @@ const Signup = async (req, res, next) => {
         const userRoleValues = [req.body.userRoleId];
         const userRoleData = await pool.query(userRoleQuery, userRoleValues);
         if (userRoleData.rows.length === 0 || userRoleData.rows.length > 1) {
-            await pool.query(queries.dbTransactions.rollback);
             return res.status(400).send(generateResponseBody({}, messages.auth.signup.invalidUserRole));
         }
         
