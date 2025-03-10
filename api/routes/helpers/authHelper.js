@@ -17,8 +17,8 @@ const Login = async (req, res, next) => {
         const data = await pool.query(query, values);
 
         if (data.rows.length > 0) {
-            if(data.rows.length > 1) {
-                return res.status(500).send(generateResponseBody({}, messages.auth.login.multipleUsersFound));
+            if (data.rows.length > 1) {
+                return res.status(500).send(generateResponseBody({}, messages.auth.generalResponse.multipleUsersFound));
             }
             const user = data.rows[0];
             const isPasswordValid = await bcrypt.compare(req.body.password, user.Password);
@@ -36,7 +36,7 @@ const Login = async (req, res, next) => {
                 id: user.SystemUserId,
                 username: user.Username,
                 role: user.UserRoleId,
-            }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            }, process.env.JWT_SECRET, { expiresIn: constants.defaultConfigurations.tokenExpiry.accessToken });
             return res.status(200).send(generateResponseBody({
                 username: user.Username,
                 role: user.UserRoleId,
@@ -50,6 +50,133 @@ const Login = async (req, res, next) => {
     }
 };
 
+const GenerateResetToken = async (req, res, next) => {
+    try {
+        const query = queries.systemUsers.getUserByUsername;
+        const values = [req.body.username];
+        const data = await pool.query(query, values);
+
+        if (data.rows.length > 0) {
+            if (data.rows.length > 1) {
+                return res.status(500).send(generateResponseBody({}, messages.auth.generalResponse.multipleUsersFound));
+            }
+
+            const user = data.rows[0];
+            const resetCode = Math.floor(10000 + Math.random() * 90000).toString();
+            const ResetCodeToken = jwt.sign({
+                username: user.Username,
+                code: resetCode
+            }, process.env.JWT_SECRET, { expiresIn: constants.defaultConfigurations.tokenExpiry.passwordResetToken });
+            const updateQuery = queries.systemUsers.updateResetCode;
+            const updateValues = [ResetCodeToken, user.Username];
+            const updateResponse = await pool.query(updateQuery, updateValues);
+
+            if (updateResponse.rows.length === 0) {
+                return res.status(500).send(generateResponseBody({}, messages.auth.resetToken.failed));
+            }
+
+            return res.status(200).send(generateResponseBody({ resetCode: resetCode, token: ResetCodeToken }, messages.auth.resetToken.success));
+        } else {
+            return res.status(401).send(generateResponseBody({}, messages.auth.generalResponse.noUserFound));
+        }
+    } catch (error) {
+        return res.status(500).send(generateResponseBody({}, messages.auth.resetToken.failed, error.message));
+    }
+};
+
+const VerifyResetToken = async (req, res, next) => {
+    try {
+        const decodedToken = jwt.verify(req.body.token, process.env.JWT_SECRET, (err, decoded) => {
+            if (err) {
+                return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenInvalidOrExpired));
+            }
+            return decoded;
+        });
+        const query = queries.systemUsers.getUserByUsername;
+        const values = [decodedToken.username];
+        const data = await pool.query(query, values);
+
+        if (data.rows.length > 0) {
+            if (data.rows.length > 1) {
+                return res.status(500).send(generateResponseBody({}, messages.auth.generalResponse.multipleUsersFound));
+            }
+            const user = data.rows[0];
+            jwt.verify(req.body.token, process.env.JWT_SECRET, (err) => {
+                if (req.body.token !== user.ResetCode) {
+                    return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenVerificationFailed));
+                } else if (req.body.resetCode === jwt.verify(user.ResetCode, process.env.JWT_SECRET).code) {
+                    return res.status(200).send(generateResponseBody({}, messages.auth.resetToken.tokenVerified));
+                }
+                return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenVerificationFailed));
+            });
+        } else {
+            return res.status(401).send(generateResponseBody({}, messages.auth.generalResponse.noUserFound));
+        }
+    } catch (error) {
+        return res.status(500).send(generateResponseBody({}, messages.auth.resetToken.tokenVerificationFailed, error.message));
+    }
+};
+
+const ResetPassword = async (req, res, next) => {
+    try {
+        const decodedToken = jwt.verify(req.body.token, process.env.JWT_SECRET, (err, decoded) => {
+            if (err) {
+                return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenInvalidOrExpired));
+            }
+            return decoded;
+        });
+        const query = queries.systemUsers.getUserByUsername;
+        const values = [decodedToken.username];
+        const data = await pool.query(query, values);
+
+        if (data.rows.length > 0) {
+            if (data.rows.length > 1) {
+                return res.status(500).send(generateResponseBody({}, messages.auth.generalResponse.multipleUsersFound));
+            }
+
+            const user = data.rows[0];
+
+            jwt.verify(user.ResetCode, process.env.JWT_SECRET, async (err, decoded) => {
+                if (err) {
+                    return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenInvalidOrExpired));
+                }
+                if (decoded.code !== req.body.resetCode) {
+                    return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenInvalidOrExpired));
+                }
+
+                const hashedPassword = await bcrypt.hash(req.body.password, 10);
+                const updateQuery = queries.systemUsers.updatePassword;
+                const updateValues = [hashedPassword, user.Username];
+
+                // Starting transaction
+                await pool.query(queries.dbTransactions.begin);
+                const updateResponse = await pool.query(updateQuery, updateValues);
+
+                if (updateResponse.rows.length === 0) {
+                    await pool.query(queries.dbTransactions.rollback);
+                    return res.status(500).send(generateResponseBody({}, messages.auth.resetPassword.failed));
+                }
+
+                const resetQuery = queries.systemUsers.updateResetCode;
+                const resetValues = [null, user.Username];
+                const resetResponse = await pool.query(resetQuery, resetValues);
+                if (resetResponse.rows.length === 0) {
+                    await pool.query(queries.dbTransactions.rollback);
+                    return res.status(500).send(generateResponseBody({}, messages.auth.resetPassword.failed));
+                }
+
+                // Committing transaction if all operations are successful
+                await pool.query(queries.dbTransactions.commit);
+                return res.status(200).send(generateResponseBody({}, messages.auth.resetPassword.success));
+            });
+        } else {
+            return res.status(401).send(generateResponseBody({}, messages.auth.generalResponse.noUserFound));
+        }
+    } catch (error) {
+        return res.status(500).send(generateResponseBody({}, messages.auth.resetPassword.failed, error.message));
+    }
+};
+
 const Signup = async (req, res, next) => {
     try {
         // Confirming if userRole is valid
@@ -59,12 +186,12 @@ const Signup = async (req, res, next) => {
         if (userRoleData.rows.length === 0 || userRoleData.rows.length > 1) {
             return res.status(400).send(generateResponseBody({}, messages.auth.signup.invalidUserRole));
         }
-        
+
         // Preventing any high level account creation
         if (req.body.userRoleId !== constants.userRoles.UnregisteredUser) {
             return res.status(401).send(generateResponseBody({}, messages.systemMessages.unauthorizedOperation));
         }
-        
+
         // Starting transaction
         await pool.query(queries.dbTransactions.begin);
 
@@ -121,5 +248,8 @@ const Signup = async (req, res, next) => {
 module.exports = {
     AuthenticateConnection,
     Login,
+    GenerateResetToken,
+    VerifyResetToken,
+    ResetPassword,
     Signup
 };

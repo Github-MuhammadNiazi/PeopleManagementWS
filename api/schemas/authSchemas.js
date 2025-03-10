@@ -63,7 +63,38 @@ const signupSchema = Joi.object({
     }),
 });
 
+const generateResetCodeSchema = Joi.object({
+    username: Joi.string().required().messages({
+        'any.required': 'username is required'
+    }),
+});
+
+const verifyResetCodeSchema = Joi.object({
+    resetCode: Joi.string().required().messages({
+        'any.required': 'Reset code is required'
+    }),
+    token: Joi.string().required().messages({
+        'any.required': 'Token is required'
+    }),
+});
+
+const updatePasswordSchema = Joi.object({
+    password: Joi.string().min(8).required().messages({
+        'string.min': 'Password must be at least 8 characters long',
+        'any.required': 'Password is required'
+    }),
+    resetCode: Joi.string().required().messages({
+        'any.required': 'Reset code is required'
+    }),
+    token: Joi.string().required().messages({
+        'any.required': 'Token is required'
+    }),
+});
+
 module.exports = {
     loginSchema,
-    signupSchema
+    signupSchema,
+    generateResetCodeSchema,
+    verifyResetCodeSchema,
+    updatePasswordSchema
 };

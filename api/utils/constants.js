@@ -3,6 +3,10 @@ const defaultConfigurations = {
     apiVersion: 'v1.0',
     defaultPort: 3000,
     dbSchema: 'public',
+    tokenExpiry: {
+        accessToken: '2h',
+        passwordResetToken: '1h',
+    }
 }
 
 const contactDetails = {
