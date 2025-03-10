@@ -5,6 +5,15 @@ const defaultConfigurations = {
     dbSchema: 'public',
 }
 
+const contactDetails = {
+    emails: {
+        support: 'support@support.com'
+    },
+    phoneNumbers: {
+        support: '+1234567890'
+    },
+}
+
 const userRoles = {
     Admin: 1,
     ManagementUser: 2,
@@ -17,4 +26,5 @@ const userRoles = {
 module.exports = {
     defaultConfigurations,
     userRoles,
+    contactDetails,
 };

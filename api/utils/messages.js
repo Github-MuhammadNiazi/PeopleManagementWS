@@ -1,3 +1,5 @@
+const constants = require('./constants');
+
 module.exports = {
     systemMessages: {
         unauthorizedOperation: 'You are not authorized to perform this operation',
@@ -9,8 +11,10 @@ module.exports = {
             failed: 'Login failed',
             invalidPassword: 'You have entered an invalid password',
             invalidUsernameOrPassword: 'Invalid username or password',
-            accountSuspended: 'Your Account has been temporarily suspended. Please contact the administrator',
-            accountDeleted: 'Your Account has been blocked. Please contact the administrator',
+            multipleUsersFound: `Multiple users found. Please contact at ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
+            accountNotApproved: `Your Account has not been approved yet. Please contact at ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
+            accountSuspended: `Your Account has been temporarily suspended. Please contact at ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
+            accountDeleted: `Your Account has been blocked. Please contact at ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
         },
         signup: {
             success: 'Signup successful',

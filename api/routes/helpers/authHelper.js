@@ -17,15 +17,20 @@ const Login = async (req, res, next) => {
         const data = await pool.query(query, values);
 
         if (data.rows.length > 0) {
+            if(data.rows.length > 1) {
+                return res.status(500).send(generateResponseBody({}, messages.auth.login.multipleUsersFound));
+            }
             const user = data.rows[0];
             const isPasswordValid = await bcrypt.compare(req.body.password, user.Password);
             if (!isPasswordValid) {
                 return res.status(401).send(generateResponseBody({}, messages.auth.login.invalidPassword));
             }
-            if (user.IsDeleted) {
-                return res.status(401).send(generateResponseBody({}, messages.auth.login.accountDeleted));
+            if (!user.IsApproved) {
+                return res.status(401).send(generateResponseBody({}, messages.auth.login.accountNotApproved));
             } else if (user.IsSuspended) {
                 return res.status(401).send(generateResponseBody({}, messages.auth.login.accountSuspended));
+            } else if (user.IsDeleted) {
+                return res.status(401).send(generateResponseBody({}, messages.auth.login.accountDeleted));
             }
             const token = jwt.sign({
                 id: user.SystemUserId,
