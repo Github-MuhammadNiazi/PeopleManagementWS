@@ -18,6 +18,12 @@ const contactDetails = {
     },
 }
 
+const userRoleTypes = {
+    Residents: [1, 4, 5],
+    Staff: [1, 2, 3],
+    Management: [1, 2],
+}
+
 const userRoles = {
     Admin: 1,
     ManagementUser: 2,
@@ -29,6 +35,7 @@ const userRoles = {
 
 module.exports = {
     defaultConfigurations,
+    userRoleTypes,
     userRoles,
     contactDetails,
 };

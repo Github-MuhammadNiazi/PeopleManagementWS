@@ -1,11 +1,15 @@
 var express = require('express');
 var router = express.Router();
-var checkAccess = require('../middlewares/roleBasedAccessMiddleware');
+var allowAccess = require('../middlewares/roleBasedAccessMiddleware');
 var constants = require('../utils/constants');
 
 const userController = require('./controllers/userController');
 
 /* GET users listing. */
-router.get('/', checkAccess(constants.userRoles.OperatingUser), userController.getAllUsers);
+router.get('/',
+    allowAccess([
+        ...constants.userRoleTypes.Staff
+    ]),
+    userController.getAllUsers);
 
 module.exports = router;
