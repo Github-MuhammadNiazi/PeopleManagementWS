@@ -1,17 +1,9 @@
-const generateResponseBody = require('../../utils/responseGenerator');
+const userHelper = require('../helpers/userHelper');
 
-const messages = require('../../utils/messages');
-
-// TODO: Remove after database integration
-const mockData = require('../../mockData');
-
-const getUsers = (req, res, next) => {
-
-  // TODO: Update with database query
-  const response = mockData.response.user.getUsers;
-  res.send(generateResponseBody(response, messages.users.allUsersRetrieved));
+const getAllUsers = (req, res, next) => {
+  return userHelper.getAllUsers(req, res, next);
 };
 
 module.exports = {
-  getUsers,
+  getAllUsers,
 };

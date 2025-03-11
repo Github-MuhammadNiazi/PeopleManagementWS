@@ -1,3 +1,5 @@
+const constants = require('./constants');
+
 module.exports = {
     systemMessages: {
         unauthorizedOperation: 'You are not authorized to perform this operation',
@@ -9,8 +11,20 @@ module.exports = {
             failed: 'Login failed',
             invalidPassword: 'You have entered an invalid password',
             invalidUsernameOrPassword: 'Invalid username or password',
-            accountSuspended: 'Your Account has been temporarily suspended. Please contact the administrator',
-            accountDeleted: 'Your Account has been blocked. Please contact the administrator',
+            accountNotApproved: `Your Account has not been approved yet. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
+            accountSuspended: `Your Account has been temporarily suspended. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
+            accountDeleted: `Your Account has been blocked. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
+        },
+        resetToken: {
+            success: 'Reset token generated successfully',
+            failed: 'Failed to generate reset token',
+            tokenInvalidOrExpired: 'Invalid or expired reset token',
+            tokenVerified: 'Token verified successfully',
+            tokenVerificationFailed: 'Token verification failed',
+        },
+        resetPassword: {
+            success: 'Password reset successful',
+            failed: 'Password reset failed',
         },
         signup: {
             success: 'Signup successful',
@@ -21,9 +35,14 @@ module.exports = {
             noTokenProvided: 'No token provided',
             failedToAuthenticateToken: 'Failed to authenticate jwt token',
         },
+        generalResponse: {
+            multipleUsersFound: `Multiple users found. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
+            noUserFound: 'No user found with the provided username',
+        },
     },
     users: {
-        allUsersRetrieved: 'All users retrieved successfully',
+        usersRetrievedSuccessfully: 'All users retrieved successfully',
+        noUsersFound: 'No users found',
         failedToRetrieveAllUsers: 'Failed to retrieve all users',
     },
     properties: {

@@ -3,6 +3,25 @@ const defaultConfigurations = {
     apiVersion: 'v1.0',
     defaultPort: 3000,
     dbSchema: 'public',
+    tokenExpiry: {
+        accessToken: '2h',
+        passwordResetToken: '1h',
+    }
+}
+
+const contactDetails = {
+    emails: {
+        support: 'support@support.com'
+    },
+    phoneNumbers: {
+        support: '+1234567890'
+    },
+}
+
+const userRoleTypes = {
+    Residents: [1, 4, 5],
+    Staff: [1, 2, 3],
+    Management: [1, 2],
 }
 
 const userRoles = {
@@ -16,5 +35,7 @@ const userRoles = {
 
 module.exports = {
     defaultConfigurations,
+    userRoleTypes,
     userRoles,
+    contactDetails,
 };
