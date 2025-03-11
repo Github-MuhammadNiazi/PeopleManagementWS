@@ -1,75 +1,66 @@
-# People Management WS
+# People Management Web Service
 
-## Introduction
-People Management WS is a web and mobile application designed to streamline communication and service management for residential communities. This project enables residents to receive notifications, apply for services, report complaints, and interact efficiently with the management team.
+This repository contains the People Management Web Service, which includes both the API and the web client.
 
-## Tech Stack
-### Web (Frontend)
-- **Framework**: Vite (React)
-- **Language**: TypeScript
-- **State Management**: Context API / Redux (Future Scope)
-- **Styling**: Tailwind CSS / Styled Components
+## API
 
-## Features (Planned)
-- 🔔 **Real-time Notifications**: Stay updated with management announcements.
-- 📑 **Service Requests**: Apply for society services seamlessly.
-- 🛠 **Complaint Management**: Report issues and track resolution progress.
-- 📊 **Dashboard & Analytics**: View statistics and reports (Future Scope).
+The API is built using Node.js and Express. It includes various routes, middlewares, and database configurations.
 
-## Project Structure
-```
-PeopleManagementWS/
-├── .expo/ # Expo configuration files
-├── app/ # Expo Router App
-│   ├── _layout.tsx # Root layout file
-│   ├── (tabs)/ # Tab navigation screens
-│   │   ├── explore.tsx # Explore screen
-│   │   ├── index.tsx # Home screen
-│   │   └── _layout.tsx # Tab layout file
-│   ├── +not-found.tsx # Not found screen
-├── assets/ # Static assets (fonts, images, etc.)
-├── components/ # Reusable UI components
-│   ├── tests/ # Component tests
-│   ├── ui/ # UI-specific components
-├── constants/ # Constants (e.g., Colors)
-├── hooks/ # Custom hooks
-├── scripts/ # Utility scripts
-├── .gitignore # Git ignore file
-├── app.json # Expo app configuration
-├── package.json # Project dependencies and scripts
-├── tsconfig.json # TypeScript configuration 
-└── README.md # Project documentation
-```
+### Getting Started
 
-## Installation & Setup
-### Clone Repository
-```sh
-git clone https://github.com/Github-MuhammadNiazi/PeopleManagementWS.git
-cd PeopleManagementWS
-```
+1. Install dependencies:
+    ```sh
+    cd api
+    npm install
+    ```
 
-### Web Setup
-```sh
-cd web
-npm install
-npm run dev
-```
-Open `http://localhost:5173` to view the web app.
+2. Create a `.env` file in the `api` directory with the following variables:
+    ```
+    DB_USER=<your_db_user>
+    DB_HOST=<your_db_host>
+    DB_NAME=<your_db_name>
+    DB_PASSWORD=<your_db_password>
+    DB_PORT=<your_db_port>
+    JWT_SECRET=<your_jwt_secret>
+    ```
 
-### Mobile Setup (React Native)
-```sh
-npm install
-npm run android  # For Android
-npm run ios       # For iOS (Mac required)
-```
+3. Start the server:
+    ```sh
+    npm start
+    ```
 
-## Contributing
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature-name`).
-3. Commit your changes (`git commit -m 'Added a feature'`).
-4. Push to the branch (`git push origin feature-name`).
-5. Open a Pull Request.
+### Directory Structure
+
+- `bin/www`: Entry point for the API server.
+- `db/`: Database configuration and controllers.
+- `middlewares/`: Custom middleware functions.
+- `routes/`: API routes and controllers.
+- `schemas/`: Request validation schemas.
+- `utils/`: Utility functions and constants.
+
+## Web Client
+
+The web client is built using React and TypeScript, with Vite as the build tool.
+
+### Getting Started
+
+1. Install dependencies:
+    ```sh
+    cd web
+    npm install
+    ```
+
+2. Start the development server:
+    ```sh
+    npm run dev
+    ```
+
+### Directory Structure
+
+- `src/`: Source code for the React application.
+- `public/`: Public assets and index.html.
+- `scss/`: SCSS stylesheets.
 
 ## License
-This project is licensed under the MIT License.
 
+This project is licensed under the MIT License.
