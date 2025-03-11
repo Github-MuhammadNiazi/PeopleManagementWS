@@ -95,7 +95,7 @@ const GenerateResetToken = async (req, res, next) => {
             }
             return res.status(500).send(generateResponseBody({}, messages.auth.resetToken.failed));
         } else {
-            return res.status(401).send(generateResponseBody({}, messages.auth.generalResponse.noUserFound));
+            return res.status(401).send(generateResponseBody({}, messages.generalResponse.noUserFound));
         }
     } catch (error) {
         return res.status(error.code || 500).send(generateResponseBody({}, messages.auth.resetToken.failed, error.message));
@@ -123,7 +123,7 @@ const VerifyResetToken = async (req, res, next) => {
 
             return res.status(404).send(generateResponseBody({}, messages.auth.resetToken.tokenVerificationFailed));
         } else {
-            return res.status(401).send(generateResponseBody({}, messages.auth.generalResponse.noUserFound));
+            return res.status(401).send(generateResponseBody({}, messages.generalResponse.noUserFound));
         }
     } catch (error) {
         return res.status(error.code || 500).send(generateResponseBody({}, messages.auth.resetToken.tokenVerificationFailed, error.message));
@@ -175,7 +175,7 @@ const ResetPassword = async (req, res, next) => {
 
             });
         } else {
-            return res.status(401).send(generateResponseBody({}, messages.auth.generalResponse.noUserFound));
+            return res.status(401).send(generateResponseBody({}, messages.generalResponse.noUserFound));
         }
     } catch (error) {
         // Rolling back transaction if any operation fails
@@ -207,10 +207,10 @@ const Signup = async (req, res, next) => {
 
             // Creating SystemUser record
             const systemUserResponse = await dbController.CreateSystemUser({
-                UserId: createUserResponse.UserId,
-                UserRoleId: req.body.userRoleId,
-                Username: req.body.username,
-                Password: req.body.password
+                userId: createUserResponse.UserId,
+                userRoleId: req.body.userRoleId,
+                username: req.body.username,
+                password: req.body.password
             });
 
             if (systemUserResponse) {
