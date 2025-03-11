@@ -1,3 +1,4 @@
+const { invalid } = require('joi');
 const constants = require('./constants');
 
 module.exports = {
@@ -9,7 +10,8 @@ module.exports = {
         login: {
             success: 'Login successful',
             failed: 'Login failed',
-            invalidPassword: 'You have entered an invalid password',
+            invalidUsername: 'Invalid username',
+            invalidPassword: 'Invalid password',
             invalidUsernameOrPassword: 'Invalid username or password',
             accountNotApproved: `Your Account has not been approved yet. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
             accountSuspended: `Your Account has been temporarily suspended. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
@@ -18,6 +20,7 @@ module.exports = {
         resetToken: {
             success: 'Reset token generated successfully',
             failed: 'Failed to generate reset token',
+            invalidResetTokenOrUsername: 'Invalid reset token or username',
             tokenInvalidOrExpired: 'Invalid or expired reset token',
             tokenVerified: 'Token verified successfully',
             tokenVerificationFailed: 'Token verification failed',
@@ -49,6 +52,7 @@ module.exports = {
         userRoles: {
             allUserRolesRetrieved: 'All user roles retrieved successfully',
             noUserRoles: 'No user roles found',
+            multipleUserRolesFound: `Multiple user roles found. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
             failedToRetrieveAllUserRoles: 'Failed to retrieve all user roles',
         },
     }
