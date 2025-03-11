@@ -57,7 +57,7 @@ const Login = async (req, res, next) => {
             }, messages.auth.login.success));
 
         } else {
-            return res.status(401).send(generateResponseBody({}, messages.auth.login.invalidUsernameOrPassword, error));
+            return res.status(401).send(generateResponseBody({}, messages.auth.login.invalidUsernameOrPassword));
         }
 
     } catch (error) {
@@ -206,7 +206,7 @@ const Signup = async (req, res, next) => {
         if (createUserResponse) {
 
             // Creating SystemUser record
-            systemUserResponse = await dbController.CreateSystemUser({
+            const systemUserResponse = await dbController.CreateSystemUser({
                 UserId: createUserResponse.UserId,
                 UserRoleId: req.body.userRoleId,
                 Username: req.body.username,
