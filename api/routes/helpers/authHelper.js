@@ -57,7 +57,7 @@ const Login = async (req, res, next) => {
             }, messages.auth.login.success));
 
         } else {
-            return res.status(401).send(generateResponseBody({}, messages.auth.login.invalidUsernameOrPassword, error));
+            return res.status(401).send(generateResponseBody({}, messages.auth.login.invalidUsernameOrPassword));
         }
 
     } catch (error) {
