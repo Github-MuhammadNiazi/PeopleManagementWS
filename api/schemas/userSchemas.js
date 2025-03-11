@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-approveUserSchema = Joi.object({
+const approveUserSchema = Joi.object({
   userId: Joi.string().required().messages({
     'any.required': 'User ID is required',
   }),
