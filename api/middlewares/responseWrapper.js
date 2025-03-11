@@ -1,3 +1,4 @@
+// Middleware to wrap responses in a consistent format
 function responseWrapper(req, res, next) {
     const originalSend = res.send;
 
@@ -21,6 +22,8 @@ function responseWrapper(req, res, next) {
         if (responseBody && responseBody.success !== undefined && responseBody.data !== undefined && responseBody.error !== undefined) {
             return originalSend.call(this, body);
         }
+
+        // Wrap the response body in a consistent format
         const response = {
             success: res.statusCode < 400,
             message: body.message || '',
