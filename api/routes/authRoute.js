@@ -3,6 +3,7 @@ var router = express.Router();
 
 const authController = require('./controllers/authController');
 const validateRequestBody = require('../middlewares/validateRequestBody')
+const authMiddleware = require('../middlewares/authMiddleware');
 const { loginSchema, signupSchema, generateResetCodeSchema, verifyResetCodeSchema, updatePasswordSchema } = require('../schemas/authSchemas');
 
 /* GET Authentication. */
@@ -15,10 +16,10 @@ router.post('/login', validateRequestBody(loginSchema), authController.Login);
 router.post('/password/reset', validateRequestBody(generateResetCodeSchema), authController.GenerateResetToken);
 
 /* POST Verify Reset Code. */
-router.post('/password/verify', validateRequestBody(verifyResetCodeSchema), authController.VerifyResetToken);
+router.post('/password/verify', authMiddleware, validateRequestBody(verifyResetCodeSchema), authController.VerifyResetToken);
 
 /* POST Reset Password. */
-router.post('/password/update', validateRequestBody(updatePasswordSchema), authController.ResetPassword);
+router.post('/password/update', authMiddleware, validateRequestBody(updatePasswordSchema), authController.ResetPassword);
 
 /* POST Signup. */
 router.post('/signup', validateRequestBody(signupSchema), authController.Signup);

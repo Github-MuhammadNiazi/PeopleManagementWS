@@ -86,14 +86,8 @@ const GenerateResetToken = async (req, res, next) => {
 
 const VerifyResetToken = async (req, res, next) => {
     try {
-        const decodedToken = jwt.verify(req.body.token, process.env.JWT_SECRET, (err, decoded) => {
-            if (err) {
-                return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenInvalidOrExpired));
-            }
-            return decoded;
-        });
         const query = queries.systemUsers.getUserByUsername;
-        const values = [decodedToken.username];
+        const values = [req.authorizedUser.username];
         const data = await pool.query(query, values);
 
         if (data.rows.length > 0) {
@@ -101,14 +95,10 @@ const VerifyResetToken = async (req, res, next) => {
                 return res.status(500).send(generateResponseBody({}, messages.auth.generalResponse.multipleUsersFound));
             }
             const user = data.rows[0];
-            jwt.verify(req.body.token, process.env.JWT_SECRET, (err) => {
-                if (req.body.token !== user.ResetCode) {
-                    return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenVerificationFailed));
-                } else if (req.body.resetCode === jwt.verify(user.ResetCode, process.env.JWT_SECRET).code) {
-                    return res.status(200).send(generateResponseBody({}, messages.auth.resetToken.tokenVerified));
-                }
-                return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenVerificationFailed));
-            });
+            if (req.authorizedUser.code === jwt.verify(user.ResetCode, process.env.JWT_SECRET).code) {
+                return res.status(200).send(generateResponseBody({}, messages.auth.resetToken.tokenVerified));
+            }
+            return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenVerificationFailed));
         } else {
             return res.status(401).send(generateResponseBody({}, messages.auth.generalResponse.noUserFound));
         }
@@ -119,14 +109,8 @@ const VerifyResetToken = async (req, res, next) => {
 
 const ResetPassword = async (req, res, next) => {
     try {
-        const decodedToken = jwt.verify(req.body.token, process.env.JWT_SECRET, (err, decoded) => {
-            if (err) {
-                return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenInvalidOrExpired));
-            }
-            return decoded;
-        });
         const query = queries.systemUsers.getUserByUsername;
-        const values = [decodedToken.username];
+        const values = [req.authorizedUser.username];
         const data = await pool.query(query, values);
 
         if (data.rows.length > 0) {
@@ -136,39 +120,40 @@ const ResetPassword = async (req, res, next) => {
 
             const user = data.rows[0];
 
-            jwt.verify(user.ResetCode, process.env.JWT_SECRET, async (err, decoded) => {
-                if (err) {
-                    return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenInvalidOrExpired));
-                }
-                if (decoded.code !== req.body.resetCode) {
-                    return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenInvalidOrExpired));
-                }
+            if (user.ResetCode === null) {
+                return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenInvalidOrExpired));
+            }
 
-                const hashedPassword = await bcrypt.hash(req.body.password, 10);
-                const updateQuery = queries.systemUsers.updatePassword;
-                const updateValues = [hashedPassword, user.Username];
+            const resetToken = jwt.verify(user.ResetCode, process.env.JWT_SECRET);
 
-                // Starting transaction
-                await pool.query(queries.dbTransactions.begin);
-                const updateResponse = await pool.query(updateQuery, updateValues);
+            if (req.authorizedUser.code !== req.body.resetCode || !(req.authorizedUser.code === resetToken.code && req.authorizedUser.username == resetToken.username)) {
+                return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenInvalidOrExpired));
+            }
 
-                if (updateResponse.rows.length === 0) {
-                    await pool.query(queries.dbTransactions.rollback);
-                    return res.status(500).send(generateResponseBody({}, messages.auth.resetPassword.failed));
-                }
+            const hashedPassword = await bcrypt.hash(req.body.password, 10);
+            const updateQuery = queries.systemUsers.updatePassword;
+            const updateValues = [hashedPassword, user.Username];
 
-                const resetQuery = queries.systemUsers.updateResetCode;
-                const resetValues = [null, user.Username];
-                const resetResponse = await pool.query(resetQuery, resetValues);
-                if (resetResponse.rows.length === 0) {
-                    await pool.query(queries.dbTransactions.rollback);
-                    return res.status(500).send(generateResponseBody({}, messages.auth.resetPassword.failed));
-                }
+            // Starting transaction
+            await pool.query(queries.dbTransactions.begin);
+            const updateResponse = await pool.query(updateQuery, updateValues);
 
-                // Committing transaction if all operations are successful
-                await pool.query(queries.dbTransactions.commit);
-                return res.status(200).send(generateResponseBody({}, messages.auth.resetPassword.success));
-            });
+            if (updateResponse.rows.length === 0) {
+                await pool.query(queries.dbTransactions.rollback);
+                return res.status(500).send(generateResponseBody({}, messages.auth.resetPassword.failed));
+            }
+
+            const resetQuery = queries.systemUsers.updateResetCode;
+            const resetValues = [null, user.Username];
+            const resetResponse = await pool.query(resetQuery, resetValues);
+            if (resetResponse.rows.length === 0) {
+                await pool.query(queries.dbTransactions.rollback);
+                return res.status(500).send(generateResponseBody({}, messages.auth.resetPassword.failed));
+            }
+
+            // Committing transaction if all operations are successful
+            await pool.query(queries.dbTransactions.commit);
+            return res.status(200).send(generateResponseBody({}, messages.auth.resetPassword.success));
         } else {
             return res.status(401).send(generateResponseBody({}, messages.auth.generalResponse.noUserFound));
         }

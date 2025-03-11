@@ -18,7 +18,7 @@ module.exports = {
         resetToken: {
             success: 'Reset token generated successfully',
             failed: 'Failed to generate reset token',
-            tokenInvalidOrExpired: 'Invalid or expired token',
+            tokenInvalidOrExpired: 'Invalid or expired reset token',
             tokenVerified: 'Token verified successfully',
             tokenVerificationFailed: 'Token verification failed',
         },

@@ -73,9 +73,6 @@ const verifyResetCodeSchema = Joi.object({
     resetCode: Joi.string().required().messages({
         'any.required': 'Reset code is required'
     }),
-    token: Joi.string().required().messages({
-        'any.required': 'Token is required'
-    }),
 });
 
 const updatePasswordSchema = Joi.object({
@@ -85,9 +82,6 @@ const updatePasswordSchema = Joi.object({
     }),
     resetCode: Joi.string().required().messages({
         'any.required': 'Reset code is required'
-    }),
-    token: Joi.string().required().messages({
-        'any.required': 'Token is required'
     }),
 });
 
