@@ -11,9 +11,9 @@ module.exports = {
             failed: 'Login failed',
             invalidPassword: 'You have entered an invalid password',
             invalidUsernameOrPassword: 'Invalid username or password',
-            accountNotApproved: `Your Account has not been approved yet. Please contact at ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
-            accountSuspended: `Your Account has been temporarily suspended. Please contact at ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
-            accountDeleted: `Your Account has been blocked. Please contact at ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
+            accountNotApproved: `Your Account has not been approved yet. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
+            accountSuspended: `Your Account has been temporarily suspended. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
+            accountDeleted: `Your Account has been blocked. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
         },
         resetToken: {
             success: 'Reset token generated successfully',
@@ -36,7 +36,7 @@ module.exports = {
             failedToAuthenticateToken: 'Failed to authenticate jwt token',
         },
         generalResponse: {
-            multipleUsersFound: `Multiple users found. Please contact at ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
+            multipleUsersFound: `Multiple users found. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
             noUserFound: 'No user found with the provided username',
         },
     },
