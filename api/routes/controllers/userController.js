@@ -1,9 +1,24 @@
 const userHelper = require('../helpers/userHelper');
 
-const getAllUsers = (req, res, next) => {
+const GetAllUsers = (req, res, next) => {
   return userHelper.getAllUsers(req, res, next);
 };
 
+const ApproveUser = (req, res, next) => {
+  return userHelper.ApproveUser(req, res, next);
+}
+
+const SuspendUser = (req, res, next) => {
+  return userHelper.SuspendUser(req, res, next);
+}
+
+const DeleteUser = (req, res, next) => {
+  return userHelper.DeleteUser(req, res, next);
+}
+
 module.exports = {
-  getAllUsers,
+  GetAllUsers,
+  ApproveUser,
+  SuspendUser,
+  DeleteUser,
 };

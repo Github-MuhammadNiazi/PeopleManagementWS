@@ -4,24 +4,43 @@ var router = express.Router();
 const authController = require('./controllers/authController');
 const validateRequestBody = require('../middlewares/validateRequestBody')
 const authMiddleware = require('../middlewares/authMiddleware');
-const { loginSchema, signupSchema, generateResetCodeSchema, verifyResetCodeSchema, updatePasswordSchema } = require('../schemas/authSchemas');
+const validationSchema = require('../schemas/authSchemas');
 
 /* GET Authentication. */
-router.get('/', authController.AuthenticateConnection);
+router.get('/',
+    authController.AuthenticateConnection
+);
 
 /* POST Login. */
-router.post('/login', validateRequestBody(loginSchema), authController.Login);
+router.post('/login',
+    validateRequestBody(validationSchema.loginSchema),
+    authController.Login
+);
 
 /* POST Generate Reset Code. */
-router.post('/password/reset', validateRequestBody(generateResetCodeSchema), authController.GenerateResetToken);
+router.post('/password/reset',
+    validateRequestBody(validationSchema.generateResetCodeSchema),
+    authController.GenerateResetToken
+);
 
 /* POST Verify Reset Code. */
-router.post('/password/verify', authMiddleware, validateRequestBody(verifyResetCodeSchema), authController.VerifyResetToken);
+router.post('/password/verify',
+    authMiddleware,
+    validateRequestBody(validationSchema.verifyResetCodeSchema),
+    authController.VerifyResetToken
+);
 
 /* POST Reset Password. */
-router.post('/password/update', authMiddleware, validateRequestBody(updatePasswordSchema), authController.ResetPassword);
+router.post('/password/update',
+    authMiddleware,
+    validateRequestBody(validationSchema.updatePasswordSchema),
+    authController.ResetPassword
+);
 
 /* POST Signup. */
-router.post('/signup', validateRequestBody(signupSchema), authController.Signup);
+router.post('/signup',
+    validateRequestBody(validationSchema.signupSchema),
+    authController.Signup
+);
 
 module.exports = router;

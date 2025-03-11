@@ -5,6 +5,11 @@ module.exports = {
     systemMessages: {
         unauthorizedOperation: 'You are not authorized to perform this operation',
     },
+    generalResponse: {
+        multipleUsersFound: `Multiple users found. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
+        noUserFound: 'No user found with the provided username',
+        abnormalError: 'An abnormal error occurred. Please contact the system administrator',
+    },
     auth: {
         connectionAuthenticated: 'Connection authenticated successfully',
         login: {
@@ -38,15 +43,20 @@ module.exports = {
             noTokenProvided: 'No token provided',
             failedToAuthenticateToken: 'Failed to authenticate jwt token',
         },
-        generalResponse: {
-            multipleUsersFound: `Multiple users found. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
-            noUserFound: 'No user found with the provided username',
-        },
     },
     users: {
         usersRetrievedSuccessfully: 'All users retrieved successfully',
         noUsersFound: 'No users found',
         failedToRetrieveAllUsers: 'Failed to retrieve all users',
+        userAlreadyApproved: 'User already approved',
+        userApprovedSuccessfully: 'User approved successfully',
+        failedToApproveUser: 'Failed to approve user',
+        userAlreadySuspended: 'User already suspended',
+        userSuspendedSuccessfully: 'User suspended successfully',
+        failedToSuspendUser: 'Failed to suspend user',
+        userAlreadyDeleted: 'User already deleted',
+        userDeletedSuccessfully: 'User deleted successfully',
+        failedToDeleteUser: 'Failed to delete user',
     },
     properties: {
         userRoles: {
