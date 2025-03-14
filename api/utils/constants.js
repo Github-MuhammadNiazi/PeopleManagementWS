@@ -7,7 +7,14 @@ const defaultConfigurations = {
     tokenExpiry: {
         accessToken: '2h',
         passwordResetToken: '1h',
-    }
+    },
+    allowedPlatforms: [
+        'web',
+        'android',
+        'ios',
+        // Uncomment for local testing only
+        // 'debug',
+    ],
 }
 
 const contactDetails = {

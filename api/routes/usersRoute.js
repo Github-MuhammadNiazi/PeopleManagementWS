@@ -4,7 +4,7 @@ var router = express.Router();
 const userController = require('./controllers/userController');
 var allowAccess = require('../middlewares/roleBasedAccessMiddleware');
 var constants = require('../utils/constants');
-var validateRequestBody = require('../middlewares/validateRequestBody');
+var validateRequestBody = require('../middlewares/validateRequestBodyMiddleware');
 var validationSchema = require('../schemas/userSchemas');
 
 /* GET users listing. */

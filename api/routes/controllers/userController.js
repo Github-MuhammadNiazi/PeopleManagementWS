@@ -1,7 +1,7 @@
 const userHelper = require('../helpers/userHelper');
 
 const GetAllUsers = (req, res, next) => {
-  return userHelper.getAllUsers(req, res, next);
+  return userHelper.GetAllUsers(req, res, next);
 };
 
 const ApproveUser = (req, res, next) => {

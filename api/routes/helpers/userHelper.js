@@ -1,12 +1,16 @@
 const dbController = require('../../db/dbController');
 const messages = require('../../utils/messages');
 const generateResponseBody = require('../../utils/responseGenerator');
+const winston = require('../../utils/winston');
 
 const GetAllUsers = async (req, res) => {
     try {
+        winston.info(`Fetching all users.`, { req });
         const response = await dbController.GetAllUsers();
+        winston.info(`${messages.users.usersRetrievedSuccessfully}, Number of Users: ${response.length}`, { req });
         return res.send(generateResponseBody(response, messages.users.usersRetrievedSuccessfully))
     } catch (error) {
+        winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
         return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToRetrieveAllUsers, error.message));
     }
 };
