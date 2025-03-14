@@ -3,6 +3,7 @@ const defaultConfigurations = {
     apiVersion: 'v1.0',
     defaultPort: 3000,
     dbSchema: 'public',
+    logsFilePath: 'logs',
     tokenExpiry: {
         accessToken: '2h',
         passwordResetToken: '1h',
