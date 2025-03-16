@@ -35,10 +35,10 @@ const GetUsersPendingApproval = async (req, res) => {
 const ApproveUser = async (req, res) => {
     try {
         const userStatus = await dbController.CheckUserStatuses(req.body.userId);
-        if (userStatus.isApproved) {
+        if (userStatus.IsApproved) {
             return res.status(400).send(generateResponseBody({}, messages.users.userAlreadyApproved));
         }
-        const response = await dbController.ApproveUser(req.body);
+        const response = await dbController.ApproveUser(req);
         if (response) {
             return res.send(generateResponseBody({}, messages.users.userApprovedSuccessfully))
         } else {
@@ -69,10 +69,10 @@ const GetSuspendedUsers = async (req, res) => {
 const SuspendUser = async (req, res) => {
     try {
         const userStatus = await dbController.CheckUserStatuses(req.body.userId);
-        if (userStatus.isSuspended) {
+        if (userStatus.IsSuspended) {
             return res.status(400).send(generateResponseBody({}, messages.users.userAlreadySuspended));
         }
-        const response = await dbController.SuspendUser(req.body);
+        const response = await dbController.SuspendUser(req);
         if (response) {
             return res.send(generateResponseBody({}, messages.users.userSuspendedSuccessfully))
         } else {
@@ -103,10 +103,10 @@ const GetDeletedUsers = async (req, res) => {
 const DeleteUser = async (req, res) => {
     try {
         const userStatus = await dbController.CheckUserStatuses(req.body.userId);
-        if (userStatus.isDeleted) {
+        if (userStatus.IsDeleted) {
             return res.status(400).send(generateResponseBody({}, messages.users.userAlreadyDeleted));
         }
-        const response = await dbController.DeleteUser(req.body);
+        const response = await dbController.DeleteUser(req);
         if (response) {
             return res.send(generateResponseBody({}, messages.users.userDeletedSuccessfully))
         } else {

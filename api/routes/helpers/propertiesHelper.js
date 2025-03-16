@@ -1,21 +1,17 @@
-const pool = require('../../db/dbconfig');
-const queries = require('../../db/queries');
+const dbController = require('../../db/dbController');
 const messages = require('../../utils/messages');
 const generateResponseBody = require('../../utils/responseGenerator');
+const winston = require('../../utils/winston');
 
 const getUserRoles = async (req, res, next) => {
     try {
-        const data = await pool.query(queries.userRoles.getAllUserRoles);
-        return res.send(generateResponseBody(
-            data.rows,
-            data.rows.length > 0
-                ? messages.properties.userRoles.allUserRolesRetrieved
-                : messages.properties.userRoles.noUserRoles))
+        winston.info(`Fetching all user roles.`, { req });
+        const response = await dbController.GetUserRoles();
+        winston.info(`${messages.properties.userRoles.allUserRolesRetrieved}`, { req });
+        return res.send(generateResponseBody(response, messages.users.userRolesRetrievedSuccessfully))
     } catch (error) {
-        return res.status(500).send(generateResponseBody(
-            {},
-            messages.properties.userRoles.failedToRetrieveAllUserRoles,
-            error.message));
+        winston.error(`${messages.users.failedToRetrieveUserRoles} Error: ${error.message}`, { req });
+        return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToRetrieveUserRoles, error.message));
     }
 };
 

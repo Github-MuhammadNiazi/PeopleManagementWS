@@ -210,8 +210,8 @@ const Signup = async (req, res, next) => {
                 userId: createUserResponse.UserId,
                 userRoleId: req.body.userRoleId,
                 username: req.body.username,
-                password: req.body.password
-            });
+                password: req.body.password,
+            }, req?.authorizedUser?.id || null);
 
             if (systemUserResponse) {
 
