@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Middleware to check if the request is coming from an allowed platform
 app.use((req, res, next) => {
     if (!req.headers['platform'] || constants.defaultConfigurations.allowedPlatforms.indexOf(req.headers['platform']) === -1) {
-        return res.status(400).json({ error: 'You are not authorized to perform this action.' });
+        return res.status(400).json({ error: 'Unregistered access.' });
     }
     next();
 });

@@ -1,6 +1,7 @@
 const pool = require('./dbconfig');
 const queries = require('./queries');
 const messages = require('../utils/messages');
+const { getCurrentDateTime } = require('../utils/calendar');
 
 /**
  * Function to begin a transaction
@@ -226,8 +227,6 @@ const GetAllUsers = async () => {
         pool.query(queries.users.getAllUsers, (error, results) => {
             if (error) {
                 return reject(error);
-            } else if (results.rows.length === 0) {
-                return reject({ message: messages.users.noUsersFound });
             }
             return resolve(results.rows);
         });
@@ -264,6 +263,21 @@ const CheckUserStatuses = async (userId) => {
 }
 
 /**
+ * Function to get users pending approval
+ * @returns {Promise}
+ */
+const GetUsersPendingApproval = async () => {
+    return new Promise((resolve, reject) => {
+        pool.query(queries.users.getUsersPendingApproval, (error, results) => {
+            if (error) {
+                return reject(error);
+            }
+            return resolve(results.rows);
+        });
+    });
+}
+
+/**
  * Function to approve a user
  * @param {object} user
  * @returns {Promise}
@@ -276,14 +290,31 @@ const ApproveUser = async (user) => {
             if (error) {
                 return reject(error);
             } else if (results.rows.length === 0 || results.rows.length > 1) {
-                return reject({ code: 404 ,
+                return reject({
+                    code: 404,
                     message: results.rows.length
-                    ? messages.generalResponse.abnormalError
-                    : messages.users.failedToApproveUser });
+                        ? messages.generalResponse.abnormalError
+                        : messages.users.failedToApproveUser
+                });
             }
             return resolve({ message: messages.users.userApprovedSuccessfully });
         })
     );
+};
+
+/**
+ * Function to get suspended users
+ * @returns {Promise}
+ */
+const GetSuspendedUsers = async () => {
+    return new Promise((resolve, reject) => {
+        pool.query(queries.users.getSuspendedUsers, (error, results) => {
+            if (error) {
+                return reject(error);
+            }
+            return resolve(results.rows);
+        });
+    });
 };
 
 /**
@@ -299,14 +330,31 @@ const SuspendUser = async (user) => {
             if (error) {
                 return reject(error);
             } else if (results.rows.length === 0 || results.rows.length > 1) {
-                return reject({ code: 404 ,
+                return reject({
+                    code: 404,
                     message: results.rows.length
-                    ? messages.generalResponse.abnormalError
-                    : messages.users.failedToSuspendUser });
+                        ? messages.generalResponse.abnormalError
+                        : messages.users.failedToSuspendUser
+                });
             }
             return resolve({ message: messages.users.userSuspendedSuccessfully });
         })
     );
+};
+
+/**
+ * Function to get deleted users
+ * @returns {Promise}
+ */
+const GetDeletedUsers = async () => {
+    return new Promise((resolve, reject) => {
+        pool.query(queries.users.getDeletedUsers, (error, results) => {
+            if (error) {
+                return reject(error);
+            }
+            return resolve(results.rows);
+        });
+    });
 };
 
 /**
@@ -322,10 +370,12 @@ const DeleteUser = async (user) => {
             if (error) {
                 return reject(error);
             } else if (results.rows.length === 0 || results.rows.length > 1) {
-                return reject({ code: 404 ,
+                return reject({
+                    code: 404,
                     message: results.rows.length
-                    ? messages.generalResponse.abnormalError
-                    : messages.users.failedToDeleteUser });
+                        ? messages.generalResponse.abnormalError
+                        : messages.users.failedToDeleteUser
+                });
             }
             return resolve({ message: messages.users.userDeletedSuccessfully });
         })
@@ -346,7 +396,10 @@ module.exports = {
     CreateSystemUser,
     GetAllUsers,
     CheckUserStatuses,
+    GetUsersPendingApproval,
     ApproveUser,
+    GetSuspendedUsers,
     SuspendUser,
+    GetDeletedUsers,
     DeleteUser,
 };
