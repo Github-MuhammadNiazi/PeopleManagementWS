@@ -1,5 +1,5 @@
-var constants = require('../utils/constants');
-const { GenerateCreateQuery, GenerateModifyQuery } = require('./dbController');
+const constants = require('../utils/constants');
+const { GenerateCreateQuery, GenerateModifyQuery } = require('./dbUtil');
 
 module.exports = {
     dbTransactions: {
