@@ -15,6 +15,23 @@ const GetAllUsers = async (req, res) => {
     }
 };
 
+const GetUsersPendingApproval = async (req, res) => {
+    try {
+        winston.info(`Fetching all users pending approval.`, { req });
+        const response = await dbController.GetUsersPendingApproval();
+        winston.info(`${messages.users.usersRetrievedSuccessfully}, Number of Users: ${response.length}`, { req });
+        return res.send(generateResponseBody(
+            response,
+            response.length
+                ? messages.users.usersRetrievedSuccessfully
+                : messages.users.noUserFoundPendingApproval
+        ));
+    } catch (error) {
+        winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
+        return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToRetrieveAllUsers, error.message));
+    }
+}
+
 const ApproveUser = async (req, res) => {
     try {
         const userStatus = await dbController.CheckUserStatuses(req.body.userId);
@@ -68,6 +85,7 @@ const DeleteUser = async (req, res) => {
 
 module.exports = {
     GetAllUsers,
+    GetUsersPendingApproval,
     ApproveUser,
     SuspendUser,
     DeleteUser,

@@ -14,6 +14,13 @@ router.get('/',
     ]),
     userController.GetAllUsers);
 
+/* GET users pending approval */
+router.get('/pending',
+    allowAccess([
+        ...constants.userRoleTypes.Management
+    ]),
+    userController.GetUsersPendingApproval);
+
 /* POST Update User status to Approved */
 router.post('/approve',
     allowAccess([

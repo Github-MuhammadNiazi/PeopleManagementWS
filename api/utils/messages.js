@@ -48,6 +48,7 @@ module.exports = {
         usersRetrievedSuccessfully: 'All users retrieved successfully',
         noUsersFound: 'No users found',
         failedToRetrieveAllUsers: 'Failed to retrieve all users',
+        noUserFoundPendingApproval: 'No user found with pending approval',
         userAlreadyApproved: 'User already approved',
         userApprovedSuccessfully: 'User approved successfully',
         failedToApproveUser: 'Failed to approve user',
