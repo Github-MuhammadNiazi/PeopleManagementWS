@@ -15,6 +15,12 @@ const defaultConfigurations = {
         // Uncomment for local testing only
         // 'debug',
     ],
+    allowedDateFormats: {
+        apiDateTimeFormat: 'YYYY-MM-DDTHH:mm:ss.SSSZ',
+        reqestDatetimeFormat: 'YYYY-MM-DD HH:mm:ss',
+        requestDateFormat: 'YYYY-MM-DD',
+        requestTimeFormat: 'HH:mm:ss',
+    }
 }
 
 const contactDetails = {

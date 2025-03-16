@@ -1,6 +1,7 @@
 const pool = require('./dbconfig');
 const queries = require('./queries');
 const messages = require('../utils/messages');
+const { getCurrentDateTime } = require('../utils/calendar');
 
 /**
  * Function to begin a transaction
@@ -48,6 +49,31 @@ const Rollback = async () => {
         });
     }
     );
+};
+
+/**
+ * Function to generate create query
+ * @param {string} query
+ * @param {object} req
+ * @returns {string}
+ */
+const GenerateCreateQuery = async (query, req) => {
+    const createdBy = req?.authorizedUser?.userId || 0;
+    const updatedQuery = `${query.replace("{{CREATED_BY}}", createdBy)} RETURNING *`;
+    return updatedQuery
+};
+
+/**
+ * Function to generate modify query
+ * @param {string} query
+ * @param {object} req
+ * @returns {string}
+ */
+const GenerateModifyQuery = async (query, req) => {
+    const modifiedOn = getCurrentDateTime();
+    const modifiedBy = req?.authorizedUser?.userId || 0;
+    const updatedQuery = `${query}, "ModifiedOn" = $${modifiedOn}, "ModifiedBy" = $${modifiedBy} RETURNING *`;
+    return updatedQuery;
 };
 
 /**
@@ -386,6 +412,8 @@ module.exports = {
     Begin,
     Commit,
     Rollback,
+    GenerateCreateQuery,
+    GenerateModifyQuery,
     GetUserByUsername,
     UpdateResetCode,
     UpdatePasswordAgainstUsername,
