@@ -38,6 +38,14 @@ module.exports = {
             JOIN ${constants.defaultConfigurations.dbSchema}."SystemUsers" su ON u."UserId" = su."UserId"
             WHERE su."IsDeleted" = false and su."IsSuspended" = true
         `,
+        getDeletedUsers: `
+            SELECT
+                u."UserId", u."FirstName", u."LastName", u."Email", 
+                su."Username", su."IsDeleted"
+            FROM ${constants.defaultConfigurations.dbSchema}."Users" u
+            JOIN ${constants.defaultConfigurations.dbSchema}."SystemUsers" su ON u."UserId" = su."UserId"
+            WHERE su."IsDeleted" = true
+        `,
         getAllUsers: `
             SELECT 
             u."UserId", u."FirstName", u."LastName", u."Email", u."IsApartment", u."Apartment", u."Building", u."Street", u."Region", u."City", u."Country", u."IsForeigner",

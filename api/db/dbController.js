@@ -342,6 +342,21 @@ const SuspendUser = async (user) => {
 };
 
 /**
+ * Function to get deleted users
+ * @returns {Promise}
+ */
+const GetDeletedUsers = async () => {
+    return new Promise((resolve, reject) => {
+        pool.query(queries.users.getDeletedUsers, (error, results) => {
+            if (error) {
+                return reject(error);
+            }
+            return resolve(results.rows);
+        });
+    });
+};
+
+/**
  * Function to delete a user
  * @param {object} user
  * @returns {Promise}
@@ -384,5 +399,6 @@ module.exports = {
     ApproveUser,
     GetSuspendedUsers,
     SuspendUser,
+    GetDeletedUsers,
     DeleteUser,
 };

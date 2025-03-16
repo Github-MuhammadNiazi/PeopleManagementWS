@@ -83,6 +83,23 @@ const SuspendUser = async (req, res) => {
     }
 }
 
+const GetDeletedUsers = async (req, res) => {
+    try {
+        winston.info(`Fetching all deleted users.`, { req });
+        const response = await dbController.GetDeletedUsers();
+        winston.info(`${messages.users.usersRetrievedSuccessfully}, Number of Users: ${response.length}`, { req });
+        return res.send(generateResponseBody(
+            response,
+            response.length
+                ? messages.users.usersRetrievedSuccessfully
+                : messages.users.noUserFoundWithDeletion
+        ));
+    } catch (error) {
+        winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
+        return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToRetrieveAllUsers, error.message));
+    }
+}
+
 const DeleteUser = async (req, res) => {
     try {
         const userStatus = await dbController.CheckUserStatuses(req.body.userId);
@@ -106,5 +123,6 @@ module.exports = {
     ApproveUser,
     GetSuspendedUsers,
     SuspendUser,
+    GetDeletedUsers,
     DeleteUser,
 };

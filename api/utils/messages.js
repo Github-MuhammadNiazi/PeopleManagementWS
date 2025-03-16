@@ -56,6 +56,7 @@ module.exports = {
         userAlreadySuspended: 'User already suspended',
         userSuspendedSuccessfully: 'User suspended successfully',
         failedToSuspendUser: 'Failed to suspend user',
+        noUserFoundWithDeletion: 'No deleted user account found',
         userAlreadyDeleted: 'User already deleted',
         userDeletedSuccessfully: 'User deleted successfully',
         failedToDeleteUser: 'Failed to delete user',

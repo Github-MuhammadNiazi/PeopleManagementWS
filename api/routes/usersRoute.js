@@ -44,6 +44,13 @@ router.post('/suspend',
     validateRequestBody(validationSchema.suspendUserSchema),
     userController.SuspendUser);
 
+/* GET deleted users */
+router.get('/deleted',
+    allowAccess([
+        ...constants.userRoleTypes.Management
+    ]),
+    userController.GetDeletedUsers);
+
 /* DELETE Update User status to Delete */
 router.delete('/delete',
     allowAccess([

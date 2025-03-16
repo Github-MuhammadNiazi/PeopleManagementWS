@@ -20,6 +20,10 @@ const SuspendUser = (req, res, next) => {
   return userHelper.SuspendUser(req, res, next);
 }
 
+const GetDeletedUsers = (req, res, next) => {
+  return userHelper.GetDeletedUsers(req, res, next);
+}
+
 const DeleteUser = (req, res, next) => {
   return userHelper.DeleteUser(req, res, next);
 }
@@ -30,5 +34,6 @@ module.exports = {
   ApproveUser,
   GetSuspendedUsers,
   SuspendUser,
+  GetDeletedUsers,
   DeleteUser,
 };
