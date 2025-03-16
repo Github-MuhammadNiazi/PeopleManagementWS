@@ -52,6 +52,7 @@ module.exports = {
         userAlreadyApproved: 'User already approved',
         userApprovedSuccessfully: 'User approved successfully',
         failedToApproveUser: 'Failed to approve user',
+        noUserFoundWithSuspension: 'No user found with suspension',
         userAlreadySuspended: 'User already suspended',
         userSuspendedSuccessfully: 'User suspended successfully',
         failedToSuspendUser: 'Failed to suspend user',

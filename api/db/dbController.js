@@ -302,6 +302,21 @@ const ApproveUser = async (user) => {
 };
 
 /**
+ * Function to get suspended users
+ * @returns {Promise}
+ */
+const GetSuspendedUsers = async () => {
+    return new Promise((resolve, reject) => {
+        pool.query(queries.users.getSuspendedUsers, (error, results) => {
+            if (error) {
+                return reject(error);
+            }
+            return resolve(results.rows);
+        });
+    });
+};
+
+/**
  * Function to suspend a user
  * @param {object} user
  * @returns {Promise}
@@ -367,6 +382,7 @@ module.exports = {
     CheckUserStatuses,
     GetUsersPendingApproval,
     ApproveUser,
+    GetSuspendedUsers,
     SuspendUser,
     DeleteUser,
 };

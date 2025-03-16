@@ -29,6 +29,13 @@ router.post('/approve',
     validateRequestBody(validationSchema.approveUserSchema),
     userController.ApproveUser);
 
+/* GET suspended users */
+router.get('/suspended',
+    allowAccess([
+        ...constants.userRoleTypes.Management
+    ]),
+    userController.GetSuspendedUsers);
+
 /* POST Update User status to Suspended */
 router.post('/suspend',
     allowAccess([

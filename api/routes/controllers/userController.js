@@ -12,6 +12,10 @@ const ApproveUser = (req, res, next) => {
   return userHelper.ApproveUser(req, res, next);
 }
 
+const GetSuspendedUsers = (req, res, next) => {
+  return userHelper.GetSuspendedUsers(req, res, next);
+}
+
 const SuspendUser = (req, res, next) => {
   return userHelper.SuspendUser(req, res, next);
 }
@@ -24,6 +28,7 @@ module.exports = {
   GetAllUsers,
   GetUsersPendingApproval,
   ApproveUser,
+  GetSuspendedUsers,
   SuspendUser,
   DeleteUser,
 };
