@@ -8,10 +8,10 @@ const getUserRoles = async (req, res, next) => {
         winston.info(`Fetching all user roles.`, { req });
         const response = await dbController.GetUserRoles();
         winston.info(`${messages.properties.userRoles.allUserRolesRetrieved}`, { req });
-        return res.send(generateResponseBody(response, messages.users.userRolesRetrievedSuccessfully))
+        return res.send(generateResponseBody(response, messages.properties.userRoles.allUserRolesRetrieved))
     } catch (error) {
-        winston.error(`${messages.users.failedToRetrieveUserRoles} Error: ${error.message}`, { req });
-        return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToRetrieveUserRoles, error.message));
+        winston.error(`${messages.properties.userRoles.failedToRetrieveAllUserRoles} Error: ${error.message}`, { req });
+        return res.status(error.code || 500).send(generateResponseBody({}, messages.properties.userRoles.failedToRetrieveAllUserRoles, error.message));
     }
 };
 
