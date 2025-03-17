@@ -3,6 +3,12 @@ const messages = require('../../utils/messages');
 const generateResponseBody = require('../../utils/responseGenerator');
 const winston = require('../../utils/winston');
 
+/**
+ * Function to get all users
+ * @param {*} req
+ * @param {*} res
+ * @returns []
+ */
 const GetAllUsers = async (req, res) => {
     try {
         winston.info(`Fetching all users.`, { req });
@@ -11,10 +17,16 @@ const GetAllUsers = async (req, res) => {
         return res.send(generateResponseBody(response, messages.users.usersRetrievedSuccessfully))
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
-        return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToRetrieveAllUsers, error.message));
+        return res.status(error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
     }
 };
 
+/**
+ * Function to get all users pending approval
+ * @param {*} req
+ * @param {*} res
+ * @returns {}
+ */
 const GetUsersPendingApproval = async (req, res) => {
     try {
         winston.info(`Fetching all users pending approval.`, { req });
@@ -28,10 +40,16 @@ const GetUsersPendingApproval = async (req, res) => {
         ));
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
-        return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToRetrieveAllUsers, error.message));
+        return res.status(error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
     }
 }
 
+/**
+ * Function to approve user
+ * @param {*} req
+ * @param {*} res
+ * @returns {}
+ */
 const ApproveUser = async (req, res) => {
     try {
         const userStatus = await dbController.CheckUserStatuses(req.body.userId);
@@ -49,6 +67,12 @@ const ApproveUser = async (req, res) => {
     }
 }
 
+/**
+ * Function to get all suspended users
+ * @param {*} req
+ * @param {*} res
+ * @returns []
+ */
 const GetSuspendedUsers = async (req, res) => {
     try {
         winston.info(`Fetching all suspended users.`, { req });
@@ -62,10 +86,16 @@ const GetSuspendedUsers = async (req, res) => {
         ));
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
-        return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToRetrieveAllUsers, error.message));
+        return res.status(error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
     }
 }
 
+/**
+ * Function to suspend user
+ * @param {*} req
+ * @param {*} res
+ * @returns {}
+ */
 const SuspendUser = async (req, res) => {
     try {
         const userStatus = await dbController.CheckUserStatuses(req.body.userId);
@@ -83,6 +113,12 @@ const SuspendUser = async (req, res) => {
     }
 }
 
+/**
+ * Function to get all deleted users
+ * @param {*} req
+ * @param {*} res
+ * @returns []
+ */
 const GetDeletedUsers = async (req, res) => {
     try {
         winston.info(`Fetching all deleted users.`, { req });
@@ -96,10 +132,16 @@ const GetDeletedUsers = async (req, res) => {
         ));
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
-        return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToRetrieveAllUsers, error.message));
+        return res.status(error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
     }
 }
 
+/**
+ * Function to delete user
+ * @param {*} req
+ * @param {*} res
+ * @returns {}
+ */
 const DeleteUser = async (req, res) => {
     try {
         const userStatus = await dbController.CheckUserStatuses(req.body.userId);

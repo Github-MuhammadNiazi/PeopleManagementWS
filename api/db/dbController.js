@@ -395,6 +395,41 @@ const DeleteUser = async (req) => {
     });
 };
 
+const GetDepartments = async () => {
+    return new Promise((resolve, reject) => {
+        db('Departments')
+            .select('DepartmentId', 'DepartmentName', 'Description')
+            .where('IsDeleted', false)
+            .then((departments) => resolve(departments))
+            .catch((error) => reject(error));
+    });
+};
+
+const GetDepartmentByName = async (name) => {
+    return new Promise((resolve, reject) => {
+        db('Departments')
+            .where('DepartmentName', name)
+            .then((departments) => {
+                return resolve(departments);
+            })
+            .catch((error) => reject(error));
+    });
+};
+
+const CreateDepartment = async (req) => {
+    return new Promise((resolve, reject) => {
+        db('Departments')
+            .insert({
+                DepartmentName: req.body.departmentName,
+                Description: req.body.description,
+                CreatedBy: req?.authorizedUser?.id || defaultAPIUserCode
+            })
+            .returning('*')
+            .then((departments) => resolve(departments[0]))
+            .catch((error) => reject(error));
+    });
+};
+
 
 module.exports = {
     Begin,
@@ -416,4 +451,7 @@ module.exports = {
     SuspendUser,
     GetDeletedUsers,
     DeleteUser,
+    GetDepartments,
+    GetDepartmentByName,
+    CreateDepartment,
 };

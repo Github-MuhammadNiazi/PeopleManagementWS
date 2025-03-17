@@ -17,7 +17,7 @@ const authenticateToken = (req, res, next) => {
             return res.status(403).send(generateResponseBody({}, messages.auth.token.failedToAuthenticateToken));
         }
         req.authorizedUser = user;
-        winston.info(`Request Made by UserId:${user.id}`, { req });
+        winston.info(`Request Made by ${user.id ? 'User with Id' : 'User'}: ${user.id || user.username}`, { req });
         next();
     });
 };

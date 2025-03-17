@@ -68,5 +68,13 @@ module.exports = {
             multipleUserRolesFound: `Multiple user roles found. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
             failedToRetrieveAllUserRoles: 'Failed to retrieve all user roles',
         },
+        departments: {
+            allDepartmentsRetrieved: 'All departments retrieved successfully',
+            noDepartments: 'No departments found',
+            failedToRetrieveAllDepartments: 'Failed to retrieve all departments',
+            departmentAlreadyExists: 'Department already exists',
+            departmentCreatedSuccessfully: 'Department created successfully',
+            failedToCreateDepartment: 'Failed to create department',
+        },
     }
 };
