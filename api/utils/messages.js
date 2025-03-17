@@ -72,6 +72,9 @@ module.exports = {
             allDepartmentsRetrieved: 'All departments retrieved successfully',
             noDepartments: 'No departments found',
             failedToRetrieveAllDepartments: 'Failed to retrieve all departments',
+            departmentAlreadyExists: 'Department already exists',
+            departmentCreatedSuccessfully: 'Department created successfully',
+            failedToCreateDepartment: 'Failed to create department',
         },
     }
 };

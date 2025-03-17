@@ -49,7 +49,33 @@ const getDepartments = async (req, res) => {
     }
 };
 
+/**
+ * Creates a new department.
+ * @param {*} req
+ * @param {*} res
+ * @returns {}
+ */
+const createDepartment = async (req, res) => {
+    try {
+        winston.info(`Validating if department already exists.`, { req });
+        const department = await dbController.GetDepartmentByName(req.body.departmentName);
+        if (department.length) {
+            winston.error(`Department already exists.`, { req });
+            return res.status(409).send(generateResponseBody([], messages.properties.departments.departmentAlreadyExists));
+        }
+        winston.info(`Department with name '${req.body.departmentName}' does not exist.`, { req });
+        winston.info(`Creating a new department.`, { req });
+        const response = await dbController.CreateDepartment(req);
+        winston.info(`Department created successfully.`, { req });
+        return res.send(generateResponseBody(response, messages.properties.departments.departmentCreatedSuccessfully));
+    } catch (error) {
+        winston.error(`Failed to create department. Error: ${error.message}`, { req });
+        return res.status(error.code || 500).send(generateResponseBody([], messages.properties.departments.failedToCreateDepartment, error.message));
+    }
+};
+
 module.exports = {
     getUserRoles,
     getDepartments,
+    createDepartment,
 };

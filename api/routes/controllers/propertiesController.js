@@ -20,7 +20,18 @@ const getDepartments = async (req, res) => {
     return propertiesHelper.getDepartments(req, res);
 }
 
+/**
+ * Creates a new department.
+ * @param {*} req
+ * @param {*} res
+ * @returns {}
+ */
+const createDepartment = async (req, res) => {
+    return propertiesHelper.createDepartment(req, res);
+}
+
 module.exports = {
     getUserRoles,
     getDepartments,
+    createDepartment,
 };
