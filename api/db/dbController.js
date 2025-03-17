@@ -395,6 +395,16 @@ const DeleteUser = async (req) => {
     });
 };
 
+const GetDepartments = async () => {
+    return new Promise((resolve, reject) => {
+        db('Departments')
+            .select('DepartmentId', 'DepartmentName')
+            .where('IsDeleted', false)
+            .then((departments) => resolve(departments))
+            .catch((error) => reject(error));
+    });
+}
+
 
 module.exports = {
     Begin,
@@ -416,4 +426,5 @@ module.exports = {
     SuspendUser,
     GetDeletedUsers,
     DeleteUser,
+    GetDepartments,
 };
