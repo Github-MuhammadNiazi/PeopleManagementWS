@@ -1,7 +1,13 @@
 const propertiesHelper = require('../helpers/propertiesHelper');
 
-const getUserRoles = async (req, res, next) => {
-    return propertiesHelper.getUserRoles(req, res, next);
+/**
+ * Fetches all user roles.
+ * @param {*} req 
+ * @param {*} res 
+ * @returns []
+ */
+const getUserRoles = async (req, res) => {
+    return propertiesHelper.getUserRoles(req, res);
 };
 
 module.exports = {
