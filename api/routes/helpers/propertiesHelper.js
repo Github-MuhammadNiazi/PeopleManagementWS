@@ -74,8 +74,32 @@ const createDepartment = async (req, res) => {
     }
 };
 
+/**
+ * Fetches all employee roles.
+ * @param {*} req
+ * @param {*} res
+ * @returns []
+ */
+const getEmployeeRoles = async (req, res) => {
+    try {
+        winston.info(`Fetching all employee roles.`, { req });
+        const response = await dbController.GetEmployeeRoles();
+        winston.info(`${messages.properties.employeeRoles.allEmployeeRolesRetrieved}`, { req });
+        return res.send(generateResponseBody(
+            response,
+            response.length
+            ? messages.properties.employeeRoles.allEmployeeRolesRetrieved
+            : messages.properties.employeeRoles.noEmployeeRoles
+        ))
+    } catch (error) {
+        winston.error(`${messages.properties.employeeRoles.failedToRetrieveAllEmployeeRoles} Error: ${error.message}`, { req });
+        return res.status(error.code || 500).send(generateResponseBody([], messages.properties.employeeRoles.failedToRetrieveAllEmployeeRoles, error.message));
+    }
+}
+
 module.exports = {
     getUserRoles,
     getDepartments,
     createDepartment,
+    getEmployeeRoles,
 };

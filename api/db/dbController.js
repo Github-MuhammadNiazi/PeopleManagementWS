@@ -430,6 +430,16 @@ const CreateDepartment = async (req) => {
     });
 };
 
+const GetEmployeeRoles = async () => {
+    return new Promise((resolve, reject) => {
+        db('EmployeeRoles')
+            .select('EmployeeRoleId', 'RoleName', 'RoleDescription', 'DepartmentId')
+            .where('IsDeleted', false)
+            .then((roles) => resolve(roles))
+            .catch((error) => reject(error));
+    });
+}
+
 
 module.exports = {
     Begin,
@@ -454,4 +464,5 @@ module.exports = {
     GetDepartments,
     GetDepartmentByName,
     CreateDepartment,
+    GetEmployeeRoles,
 };

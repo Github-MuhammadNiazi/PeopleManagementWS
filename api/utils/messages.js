@@ -76,5 +76,13 @@ module.exports = {
             departmentCreatedSuccessfully: 'Department created successfully',
             failedToCreateDepartment: 'Failed to create department',
         },
+        employeeRoles: {
+            allEmployeeRolesRetrieved: 'All employee roles retrieved successfully',
+            noEmployeeRoles: 'No employee roles found',
+            failedToRetrieveAllEmployeeRoles: 'Failed to retrieve all employee roles',
+            employeeRoleAlreadyExists: 'Employee role already exists',
+            employeeRoleCreatedSuccessfully: 'Employee role created successfully',
+            failedToCreateEmployeeRole: 'Failed to create employee role',
+        },
     }
 };

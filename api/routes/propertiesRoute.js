@@ -26,4 +26,8 @@ router.post('/departments',
     validateRequestBody(validationSchema.createDepartmentSchema),
     propertiesController.createDepartment);
 
+/* GET Employee Roles. */
+router.get('/employeeroles',
+    propertiesController.getEmployeeRoles);
+
 module.exports = router;
