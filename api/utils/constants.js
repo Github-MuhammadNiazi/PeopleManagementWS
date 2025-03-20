@@ -3,9 +3,23 @@ const defaultConfigurations = {
     apiVersion: 'v1.0',
     defaultPort: 3000,
     dbSchema: 'public',
+    logsFilePath: 'logs',
     tokenExpiry: {
         accessToken: '2h',
         passwordResetToken: '1h',
+    },
+    allowedPlatforms: [
+        'web',
+        'android',
+        'ios',
+        // Uncomment for local testing only
+        // 'debug',
+    ],
+    allowedDateFormats: {
+        apiDateTimeFormat: 'YYYY-MM-DDTHH:mm:ss.SSSZ',
+        reqestDatetimeFormat: 'YYYY-MM-DD HH:mm:ss',
+        requestDateFormat: 'YYYY-MM-DD',
+        requestTimeFormat: 'HH:mm:ss',
     }
 }
 

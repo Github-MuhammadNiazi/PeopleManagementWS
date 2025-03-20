@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const messages = require('../utils/messages');
 const generateResponseBody = require('../utils/responseGenerator');
+const winston = require('../utils/winston');
 
 const authenticateToken = (req, res, next) => {
     let token = req.headers['authorization'];
@@ -16,6 +17,7 @@ const authenticateToken = (req, res, next) => {
             return res.status(403).send(generateResponseBody({}, messages.auth.token.failedToAuthenticateToken));
         }
         req.authorizedUser = user;
+        winston.info(`Request Made by ${user.id ? 'User with Id' : 'User'}: ${user.id || user.username}`, { req });
         next();
     });
 };

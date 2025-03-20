@@ -1,6 +1,7 @@
-const pool = require('./dbconfig');
-const queries = require('./queries');
+const db = require('./dbconfig');
 const messages = require('../utils/messages');
+const { getCurrentDateTime } = require('../utils/calendar');
+const defaultAPIUserCode = 0;
 
 /**
  * Function to begin a transaction
@@ -8,14 +9,10 @@ const messages = require('../utils/messages');
  */
 const Begin = async () => {
     return new Promise((resolve, reject) => {
-        pool.query(queries.dbTransactions.begin, (error, results) => {
-            if (error) {
-                return reject(error);
-            }
-            return resolve();
-        });
-    }
-    );
+        db.raw('BEGIN')
+            .then(() => resolve())
+            .catch((error) => reject(error));
+    });
 };
 
 /**
@@ -24,14 +21,10 @@ const Begin = async () => {
  */
 const Commit = async () => {
     return new Promise((resolve, reject) => {
-        pool.query(queries.dbTransactions.commit, (error, results) => {
-            if (error) {
-                return reject(error);
-            }
-            return resolve();
-        });
-    }
-    );
+        db.raw('COMMIT')
+            .then(() => resolve())
+            .catch((error) => reject(error));
+    });
 };
 
 /**
@@ -40,14 +33,10 @@ const Commit = async () => {
  */
 const Rollback = async () => {
     return new Promise((resolve, reject) => {
-        pool.query(queries.dbTransactions.rollback, (error, results) => {
-            if (error) {
-                return reject(error);
-            }
-            return resolve();
-        });
-    }
-    );
+        db.raw('ROLLBACK')
+            .then(() => resolve())
+            .catch((error) => reject(error));
+    });
 };
 
 /**
@@ -56,19 +45,18 @@ const Rollback = async () => {
  * @returns {Promise}
  */
 const GetUserByUsername = async (username) => {
-    const query = queries.systemUsers.getSystemUserByUsername;
-    const values = [username];
     return new Promise((resolve, reject) => {
-        pool.query(query, values, (error, results) => {
-            if (error) {
-                return reject(error);
-            } else if (results.rows.length === 0) {
-                return reject({ code: 404, message: messages.generalResponse.noUserFound });
-            } else if (results.rows.length > 1) {
-                return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
-            }
-            return resolve(results.rows[0]);
-        });
+        db('SystemUsers')
+            .where('Username', username)
+            .then((users) => {
+                if (users.length === 0) {
+                    return reject({ code: 404, message: messages.generalResponse.noUserFound });
+                } else if (users.length > 1) {
+                    return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
+                }
+                return resolve(users[0]);
+            })
+            .catch((error) => reject(error));
     });
 };
 
@@ -78,19 +66,23 @@ const GetUserByUsername = async (username) => {
  * @param {string} username
  * @returns {Promise}
  */
-const UpdateResetCode = async (resetCode, username) => {
-    const query = queries.systemUsers.updateResetCode;
-    const values = [resetCode, username];
-    return new Promise((resolve, reject) =>
-        pool.query(query, values, (error, results) => {
-            if (error) {
-                return reject(error);
-            } else if (results.rows.length === 0 || results.rows.length > 1) {
-                return reject({ message: messages.auth.resetToken.failed });
-            }
-            return resolve({ message: messages.auth.resetToken.success });
-        })
-    );
+const UpdateResetCode = async (resetCode, username, req) => {
+    return new Promise((resolve, reject) => {
+        db('SystemUsers')
+            .where('Username', username)
+            .update({
+                ResetCode: resetCode,
+                ModifiedOn: getCurrentDateTime(),
+                ModifiedBy: req?.authorizedUser?.id || defaultAPIUserCode
+            })
+            .then((updated) => {
+                if (updated === 0) {
+                    return reject({ message: messages.auth.resetToken.failed });
+                }
+                return resolve({ message: messages.auth.resetToken.success });
+            })
+            .catch((error) => reject(error));
+    });
 };
 
 /**
@@ -99,19 +91,23 @@ const UpdateResetCode = async (resetCode, username) => {
  * @param {string} username
  * @returns {Promise}
  */
-const UpdatePasswordAgainstUsername = async (password, username) => {
-    const query = queries.systemUsers.updatePassword;
-    const values = [password, username];
-    return new Promise((resolve, reject) =>
-        pool.query(query, values, (error, results) => {
-            if (error) {
-                return reject(error);
-            } else if (results.rows.length === 0 || results.rows.length > 1) {
-                return reject({ message: messages.auth.resetPassword.failed });
-            }
-            return resolve({ message: messages.auth.resetPassword.success });
-        })
-    );
+const UpdatePasswordAgainstUsername = async (password, username, req) => {
+    return new Promise((resolve, reject) => {
+        db('SystemUsers')
+            .where('Username', username)
+            .update({
+                Password: password,
+                ModifiedOn: getCurrentDateTime(),
+                ModifiedBy: req?.authorizedUser?.id || defaultAPIUserCode
+            })
+            .then((updated) => {
+                if (updated === 0) {
+                    return reject({ message: messages.auth.resetPassword.failed });
+                }
+                return resolve({ message: messages.auth.resetPassword.success });
+            })
+            .catch((error) => reject(error));
+    });
 }
 
 /**
@@ -120,19 +116,37 @@ const UpdatePasswordAgainstUsername = async (password, username) => {
  * @param {string} username
  * @returns {Promise}
  */
-const UpdateResetCodeAgainstUsername = async (resetCode, username) => {
-    const query = queries.systemUsers.updateResetCode;
-    const values = [resetCode, username];
-    return new Promise((resolve, reject) =>
-        pool.query(query, values, (error, results) => {
-            if (error) {
-                return reject(error);
-            } else if (results.rows.length === 0 || results.rows.length > 1) {
-                return reject({ message: messages.auth.resetToken.failed });
-            }
-            return resolve({ message: messages.auth.resetToken.success });
-        })
-    );
+const UpdateResetCodeAgainstUsername = async (resetCode, username, req) => {
+    return new Promise((resolve, reject) => {
+        db('SystemUsers')
+            .where('Username', username)
+            .update({
+                ResetCode: resetCode,
+                ModifiedOn: getCurrentDateTime(),
+                ModifiedBy: req?.authorizedUser?.id || defaultAPIUserCode
+            })
+            .then((updated) => {
+                if (updated === 0) {
+                    return reject({ message: messages.auth.resetToken.failed });
+                }
+                return resolve({ message: messages.auth.resetToken.success });
+            })
+            .catch((error) => reject(error));
+    });
+}
+
+/**
+ * Function to get all user roles
+ * @returns {Promise}
+ */
+const GetUserRoles = async () => {
+    return new Promise((resolve, reject) => {
+        db('UserRoles')
+            .select('UserRoleId', 'UserRoleName')
+            .where('IsDeleted', false)
+            .then((roles) => resolve(roles))
+            .catch((error) => reject(error));
+    });
 }
 
 /**
@@ -141,20 +155,19 @@ const UpdateResetCodeAgainstUsername = async (resetCode, username) => {
  * @returns {Promise}
  */
 const GetUserRoleByRoleId = async (roleId) => {
-    const query = queries.userRoles.getUserRoleById;
-    const values = [roleId];
-    return new Promise((resolve, reject) =>
-        pool.query(query, values, (error, results) => {
-            if (error) {
-                return reject(error);
-            } else if (results.rows.length === 0) {
-                return reject({ message: messages.auth.signup.invalidUserRole });
-            } else if (results.rows.length > 1) {
-                return reject({ message: messages.properties.userRoles.multipleUserRolesFound });
-            }
-            return resolve(results.rows[0]);
-        })
-    );
+    return new Promise((resolve, reject) => {
+        db('UserRoles')
+            .where('UserRoleId', roleId)
+            .then((roles) => {
+                if (roles.length === 0) {
+                    return reject({ code: 404, message: messages.generalResponse.noRoleFound });
+                } else if (roles.length > 1) {
+                    return reject({ code: 406, message: messages.generalResponse.multipleRolesFound });
+                }
+                return resolve(roles[0]);
+            })
+            .catch((error) => reject(error));
+    });
 }
 
 /**
@@ -163,32 +176,27 @@ const GetUserRoleByRoleId = async (roleId) => {
  * @returns {Promise}
  */
 const CreateUser = async (user) => {
-    const query = queries.users.createUser;
-    const values = [
-        user.FirstName,
-        user.LastName,
-        user.IdentificationNumber,
-        user.ContactNumber,
-        user.Email,
-        user.IsApartment || false,
-        user.Apartment || null,
-        user.Building || null,
-        user.Street || null,
-        user.Region || null,
-        user.City || null,
-        user.Country || null,
-        user.IsForeigner || false,
-    ];
-    return new Promise((resolve, reject) =>
-        pool.query(query, values, (error, results) => {
-            if (error) {
-                return reject(error);
-            } else if (results.rows.length === 0 || results.rows.length > 1) {
-                return reject({ message: messages.auth.signup.failed });
-            }
-            return resolve(results.rows[0]);
-        })
-    );
+    return new Promise((resolve, reject) => {
+        db('Users')
+            .insert({
+                FirstName: user.FirstName,
+                LastName: user.LastName,
+                IdentificationNumber: user.IdentificationNumber,
+                ContactNumber: user.ContactNumber,
+                Email: user.Email,
+                IsApartment: user.IsApartment || false,
+                Apartment: user.Apartment || null,
+                Building: user.Building || null,
+                Street: user.Street || null,
+                Region: user.Region || null,
+                City: user.City || null,
+                Country: user.Country || null,
+                IsForeigner: user.IsForeigner || false,
+            })
+            .returning('*')
+            .then((users) => resolve(users[0]))
+            .catch((error) => reject(error));
+    });
 };
 
 /**
@@ -196,25 +204,21 @@ const CreateUser = async (user) => {
  * @param {object} user
  * @returns {Promise}
  */
-const CreateSystemUser = async (user) => {
-    const query = queries.systemUsers.createSystemUser;
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-    const values = [
-        user.userId,
-        user.userRoleId,
-        user.username,
-        hashedPassword,
-    ];
-    return new Promise((resolve, reject) =>
-        pool.query(query, values, (error, results) => {
-            if (error) {
-                return reject(error);
-            } else if (results.rows.length === 0 || results.rows.length > 1) {
-                return reject({ message: messages.auth.signup.failed });
-            }
-            return resolve(results.rows[0]);
-        })
-    );
+const CreateSystemUser = async (user, createdBy) => {
+    const hashedPassword = bcrypt.hashSync(user.Password, 10);
+    return new Promise((resolve, reject) => {
+        db('SystemUsers')
+            .insert({
+                UserId: user.userId,
+                UserRoleId: user.userRoleId,
+                Username: user.username,
+                Password: hashedPassword,
+                CreatedBy: createdBy || defaultAPIUserCode
+            })
+            .returning('*')
+            .then((users) => resolve(users[0]))
+            .catch((error) => reject(error));
+    });
 };
 
 /**
@@ -223,14 +227,16 @@ const CreateSystemUser = async (user) => {
  */
 const GetAllUsers = async () => {
     return new Promise((resolve, reject) => {
-        pool.query(queries.users.getAllUsers, (error, results) => {
-            if (error) {
-                return reject(error);
-            } else if (results.rows.length === 0) {
-                return reject({ message: messages.users.noUsersFound });
-            }
-            return resolve(results.rows);
-        });
+        db('Users as u')
+            .join('SystemUsers as su', 'u.UserId', 'su.UserId')
+            .select(
+                'u.UserId', 'u.FirstName', 'u.LastName', 'u.Email', 'u.IsApartment', 'u.Apartment', 'u.Building', 'u.Street', 'u.Region', 'u.City', 'u.Country', 'u.IsForeigner',
+                'su.Username', 'su.IsApproved', 'su.IsSuspended',
+                'su.CreatedOn', 'su.CreatedBy', 'su.ModifiedOn', 'su.ModifiedBy'
+            )
+            .where('su.IsDeleted', false)
+            .then((users) => resolve(users))
+            .catch((error) => reject(error));
     });
 };
 
@@ -240,27 +246,41 @@ const GetAllUsers = async () => {
  * @returns {Promise}
  */
 const CheckUserStatuses = async (userId) => {
-    const query = queries.systemUsers.getSystemUserByUserId;
-    const values = [userId];
-    return new Promise((resolve, reject) =>
-        pool.query(query, values, (error, results) => {
-            if (error) {
-                return reject(error);
-            } else if (results.rows.length === 0 || results.rows.length > 1) {
-                return reject({
-                    code: 404,
-                    message: results.rows.length
-                        ? messages.generalResponse.multipleUsersFound
-                        : messages.generalResponse.noUserFound
-                });
-            }
-            return resolve({
-                isApproved: results.rows[0].IsApproved,
-                isSuspended: results.rows[0].IsSuspended,
-                isDeleted: results.rows[0].IsDeleted,
-            });
-        })
-    );
+    return new Promise((resolve, reject) => {
+        db('SystemUsers')
+            .select('IsApproved', 'IsSuspended', 'IsDeleted')
+            .where('UserId', userId)
+            .then((users) => {
+                if (users.length === 0) {
+                    return reject({ code: 404, message: messages.generalResponse.noUserFound });
+                } else if (users.length > 1) {
+                    return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
+                }
+                return resolve(users[0]);
+            })
+            .catch((error) => reject(error));
+    });
+}
+
+/**
+ * Function to get users pending approval
+ * @returns {Promise}
+ */
+const GetUsersPendingApproval = async () => {
+    return new Promise((resolve, reject) => {
+        db('Users as u')
+            .join('SystemUsers as su', 'u.UserId', 'su.UserId')
+            .select(
+                'u.UserId', 'u.FirstName', 'u.LastName', 'u.Email',
+                'su.Username', 'su.IsApproved',
+                'su.CreatedOn', 'su.CreatedBy', 'su.ModifiedOn', 'su.ModifiedBy'
+            )
+            .where('su.IsDeleted', false)
+            .andWhere('su.IsApproved', false)
+            .andWhere('su.IsSuspended', false)
+            .then((users) => resolve(users))
+            .catch((error) => reject(error));
+    });
 }
 
 /**
@@ -268,22 +288,43 @@ const CheckUserStatuses = async (userId) => {
  * @param {object} user
  * @returns {Promise}
  */
-const ApproveUser = async (user) => {
-    const query = queries.systemUsers.approveUser;
-    const values = [user.userId];
-    return new Promise((resolve, reject) =>
-        pool.query(query, values, (error, results) => {
-            if (error) {
-                return reject(error);
-            } else if (results.rows.length === 0 || results.rows.length > 1) {
-                return reject({ code: 404 ,
-                    message: results.rows.length
-                    ? messages.generalResponse.abnormalError
-                    : messages.users.failedToApproveUser });
-            }
-            return resolve({ message: messages.users.userApprovedSuccessfully });
-        })
-    );
+const ApproveUser = async (req) => {
+    return new Promise((resolve, reject) => {
+        db('SystemUsers')
+            .where('UserId', req.body.userId)
+            .update({
+                IsApproved: true,
+                ModifiedOn: getCurrentDateTime(),
+                ModifiedBy: req?.authorizedUser?.id || defaultAPIUserCode
+            })
+            .returning('*')
+            .then((users) => {
+                if (users.length === 0 || users.length > 1) {
+                    return reject({ code: 404, message: messages.users.failedToApproveUser });
+                }
+                return resolve({ message: messages.users.userApprovedSuccessfully });
+            })
+            .catch((error) => reject(error));
+    });
+};
+
+/**
+ * Function to get suspended users
+ * @returns {Promise}
+ */
+const GetSuspendedUsers = async () => {
+    return new Promise((resolve, reject) => {
+        db('Users as u')
+            .join('SystemUsers as su', 'u.UserId', 'su.UserId')
+            .select(
+                'u.UserId', 'u.FirstName', 'u.LastName', 'u.Email',
+                'su.Username', 'su.IsSuspended'
+            )
+            .where('su.IsDeleted', false)
+            .andWhere('su.IsSuspended', true)
+            .then((users) => resolve(users))
+            .catch((error) => reject(error));
+    });
 };
 
 /**
@@ -291,22 +332,42 @@ const ApproveUser = async (user) => {
  * @param {object} user
  * @returns {Promise}
  */
-const SuspendUser = async (user) => {
-    const query = queries.systemUsers.suspendUser;
-    const values = [user.userId];
-    return new Promise((resolve, reject) =>
-        pool.query(query, values, (error, results) => {
-            if (error) {
-                return reject(error);
-            } else if (results.rows.length === 0 || results.rows.length > 1) {
-                return reject({ code: 404 ,
-                    message: results.rows.length
-                    ? messages.generalResponse.abnormalError
-                    : messages.users.failedToSuspendUser });
-            }
-            return resolve({ message: messages.users.userSuspendedSuccessfully });
-        })
-    );
+const SuspendUser = async (req) => {
+    return new Promise((resolve, reject) => {
+        db('SystemUsers')
+            .where('UserId', req.body.userId)
+            .update({
+                IsSuspended: true,
+                ModifiedOn: getCurrentDateTime(),
+                ModifiedBy: req?.authorizedUser?.id || defaultAPIUserCode
+            })
+            .returning('*')
+            .then((users) => {
+                if (users.length === 0 || users.length > 1) {
+                    return reject({ code: 404, message: messages.users.failedToSuspendUser });
+                }
+                return resolve({ message: messages.users.userSuspendedSuccessfully });
+            })
+            .catch((error) => reject(error));
+    });
+};
+
+/**
+ * Function to get deleted users
+ * @returns {Promise}
+ */
+const GetDeletedUsers = async () => {
+    return new Promise((resolve, reject) => {
+        db('Users as u')
+            .join('SystemUsers as su', 'u.UserId', 'su.UserId')
+            .select(
+                'u.UserId', 'u.FirstName', 'u.LastName', 'u.Email',
+                'su.Username', 'su.IsDeleted'
+            )
+            .where('su.IsDeleted', true)
+            .then((users) => resolve(users))
+            .catch((error) => reject(error));
+    });
 };
 
 /**
@@ -314,23 +375,124 @@ const SuspendUser = async (user) => {
  * @param {object} user
  * @returns {Promise}
  */
-const DeleteUser = async (user) => {
-    const query = queries.systemUsers.deleteUser;
-    const values = [user.userId];
-    return new Promise((resolve, reject) =>
-        pool.query(query, values, (error, results) => {
-            if (error) {
-                return reject(error);
-            } else if (results.rows.length === 0 || results.rows.length > 1) {
-                return reject({ code: 404 ,
-                    message: results.rows.length
-                    ? messages.generalResponse.abnormalError
-                    : messages.users.failedToDeleteUser });
-            }
-            return resolve({ message: messages.users.userDeletedSuccessfully });
-        })
-    );
+const DeleteUser = async (req) => {
+    return new Promise((resolve, reject) => {
+        db('SystemUsers')
+            .where('UserId', req.body.userId)
+            .update({
+                IsDeleted: true,
+                ModifiedOn: getCurrentDateTime(),
+                ModifiedBy: req?.authorizedUser?.id || defaultAPIUserCode
+            })
+            .returning('*')
+            .then((users) => {
+                if (users.length === 0 || users.length > 1) {
+                    return reject({ code: 404, message: messages.users.failedToDeleteUser });
+                }
+                return resolve({ message: messages.users.userDeletedSuccessfully });
+            })
+            .catch((error) => reject(error));
+    });
 };
+
+/**
+ * Function to get all departments
+ * @returns {Promise}
+ */
+const GetDepartments = async () => {
+    return new Promise((resolve, reject) => {
+        db('Departments')
+            .select('DepartmentId', 'DepartmentName', 'Description')
+            .where('IsDeleted', false)
+            .then((departments) => resolve(departments))
+            .catch((error) => reject(error));
+    });
+};
+
+/**
+ * Function to get department by name
+ * @param {string} name
+ * @returns {Promise}
+ */
+const GetDepartmentByName = async (name) => {
+    return new Promise((resolve, reject) => {
+        db('Departments')
+            .where('DepartmentName', name)
+            .then((departments) => {
+                return resolve(departments);
+            })
+            .catch((error) => reject(error));
+    });
+};
+
+/**
+ * Function to create a department
+ * @param {object} req
+ * @returns {Promise}
+ */
+const CreateDepartment = async (req) => {
+    return new Promise((resolve, reject) => {
+        db('Departments')
+            .insert({
+                DepartmentName: req.body.departmentName,
+                Description: req.body.description,
+                CreatedBy: req?.authorizedUser?.id || defaultAPIUserCode
+            })
+            .returning('*')
+            .then((departments) => resolve(departments[0]))
+            .catch((error) => reject(error));
+    });
+};
+
+/**
+ * Function to get all employee roles
+ * @returns {Promise}
+ */
+const GetEmployeeRoles = async () => {
+    return new Promise((resolve, reject) => {
+        db('EmployeeRoles')
+            .select('EmployeeRoleId', 'RoleName', 'RoleDescription', 'DepartmentId')
+            .where('IsDeleted', false)
+            .then((roles) => resolve(roles))
+            .catch((error) => reject(error));
+    });
+}
+
+/**
+ * Function to get employee role by role id
+ * @param {string} name
+ * @returns {Promise}
+ */
+const GetEmployeeRoleByName = async (name) => {
+    return new Promise((resolve, reject) => {
+        db('EmployeeRoles')
+            .where('RoleName', name)
+            .then((roles) => {
+                return resolve(roles);
+            })
+            .catch((error) => reject(error));
+    });
+}
+
+/**
+ * Function to create an employee role
+ * @param {object} req
+ * @returns {Promise}
+ */
+const CreateEmployeeRole = async (req) => {
+    return new Promise((resolve, reject) => {
+        db('EmployeeRoles')
+            .insert({
+                RoleName: req.body.roleName,
+                RoleDescription: req.body.roleDescription,
+                DepartmentId: req.body.departmentId,
+                CreatedBy: req?.authorizedUser?.id || defaultAPIUserCode
+            })
+            .returning('*')
+            .then((roles) => resolve(roles[0]))
+            .catch((error) => reject(error));
+    });
+}
 
 
 module.exports = {
@@ -341,12 +503,22 @@ module.exports = {
     UpdateResetCode,
     UpdatePasswordAgainstUsername,
     UpdateResetCodeAgainstUsername,
+    GetUserRoles,
     GetUserRoleByRoleId,
     CreateUser,
     CreateSystemUser,
     GetAllUsers,
     CheckUserStatuses,
+    GetUsersPendingApproval,
     ApproveUser,
+    GetSuspendedUsers,
     SuspendUser,
+    GetDeletedUsers,
     DeleteUser,
+    GetDepartments,
+    GetDepartmentByName,
+    CreateDepartment,
+    GetEmployeeRoles,
+    GetEmployeeRoleByName,
+    CreateEmployeeRole,
 };

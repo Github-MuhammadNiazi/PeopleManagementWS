@@ -7,11 +7,10 @@ const bcrypt = require('bcryptjs');
 
 /**
  * Function to authenticate the connection
- * @param {*} req 
- * @param {*} res 
- * @param {*} next 
+ * @param {*} req
+ * @param {*} res
  */
-const AuthenticateConnection = (req, res, next) => {
+const AuthenticateConnection = (req, res) => {
     res.send(generateResponseBody({}, messages.auth.connectionAuthenticated));
 }
 
@@ -19,10 +18,9 @@ const AuthenticateConnection = (req, res, next) => {
  * Function to handle login
  * @param {*} req
  * @param {*} res
- * @param {*} next
  * @returns {}
  */
-const Login = async (req, res, next) => {
+const Login = async (req, res) => {
     try {
         const user = await dbController.GetUserByUsername(req.body.username);
 
@@ -69,10 +67,9 @@ const Login = async (req, res, next) => {
  * Function to generate reset token
  * @param {*} req
  * @param {*} res
- * @param {*} next
  * @returns {}
  */
-const GenerateResetToken = async (req, res, next) => {
+const GenerateResetToken = async (req, res) => {
     try {
         const user = await dbController.GetUserByUsername(req.body.username);
 
@@ -106,10 +103,9 @@ const GenerateResetToken = async (req, res, next) => {
  * Function to verify reset token
  * @param {*} req
  * @param {*} res
- * @param {*} next
  * @returns {}
  */
-const VerifyResetToken = async (req, res, next) => {
+const VerifyResetToken = async (req, res) => {
     try {
 
         const user = await dbController.GetUserByUsername(req.authorizedUser.username);
@@ -130,7 +126,13 @@ const VerifyResetToken = async (req, res, next) => {
     }
 };
 
-const ResetPassword = async (req, res, next) => {
+/**
+ * Function to reset password
+ * @param {*} req
+ * @param {*} res
+ * @returns {}
+ */
+const ResetPassword = async (req, res) => {
     let transactionStatus = false;
     try {
 
@@ -184,7 +186,13 @@ const ResetPassword = async (req, res, next) => {
     }
 };
 
-const Signup = async (req, res, next) => {
+/**
+ * Function to handle signup
+ * @param {*} req
+ * @param {*} res
+ * @returns {}
+ */
+const Signup = async (req, res) => {
     let transactionStatus = false;
     try {
 
@@ -210,8 +218,8 @@ const Signup = async (req, res, next) => {
                 userId: createUserResponse.UserId,
                 userRoleId: req.body.userRoleId,
                 username: req.body.username,
-                password: req.body.password
-            });
+                password: req.body.password,
+            }, req?.authorizedUser?.id || null);
 
             if (systemUserResponse) {
 
