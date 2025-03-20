@@ -30,4 +30,12 @@ router.post('/departments',
 router.get('/employeeroles',
     propertiesController.getEmployeeRoles);
 
+/* POST Employee Roles. */
+router.post('/employeerole',
+    allowAccess([
+        ...constants.userRoleTypes.Management
+    ]),
+    validateRequestBody(validationSchema.createEmployeeRoleSchema),
+    propertiesController.createEmployeeRole);
+
 module.exports = router;

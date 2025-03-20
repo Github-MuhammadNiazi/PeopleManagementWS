@@ -97,9 +97,29 @@ const getEmployeeRoles = async (req, res) => {
     }
 }
 
+const createEmployeeRole = async (req, res) => {
+    try {
+        winston.info(`Validating if employee role already exists.`, { req });
+        const employeeRole = await dbController.GetEmployeeRoleByName(req.body.roleName);
+        if (employeeRole.length) {
+            winston.error(`Employee role already exists.`, { req });
+            return res.status(409).send(generateResponseBody([], messages.properties.employeeRoles.employeeRoleAlreadyExists));
+        }
+        winston.info(`Employee role with name '${req.body.roleName}' does not exist.`, { req });
+        winston.info(`Creating a new employee role.`, { req });
+        const response = await dbController.CreateEmployeeRole(req);
+        winston.info(`Employee role created successfully.`, { req });
+        return res.send(generateResponseBody(response, messages.properties.employeeRoles.employeeRoleCreatedSuccessfully));
+    } catch (error) {
+        winston.error(`Failed to create employee role. Error: ${error.message}`, { req });
+        return res.status(error.code || 500).send(generateResponseBody([], messages.properties.employeeRoles.failedToCreateEmployeeRole, error.message));
+    }
+}
+
 module.exports = {
     getUserRoles,
     getDepartments,
     createDepartment,
     getEmployeeRoles,
+    createEmployeeRole,
 };
