@@ -30,8 +30,30 @@ const createDepartment = async (req, res) => {
     return propertiesHelper.createDepartment(req, res);
 }
 
+/**
+ * Fetches all employee roles.
+ * @param {*} req
+ * @param {*} res
+ * @returns []
+ */
+const getEmployeeRoles = async (req, res) => {
+    return propertiesHelper.getEmployeeRoles(req, res);
+}
+
+/**
+ * Creates a new employee role.
+ * @param {*} req
+ * @param {*} res
+ * @returns {}
+ */
+const createEmployeeRole = async (req, res) => {
+    return propertiesHelper.createEmployeeRole(req, res);
+}
+
 module.exports = {
     getUserRoles,
     getDepartments,
     createDepartment,
+    getEmployeeRoles,
+    createEmployeeRole,
 };

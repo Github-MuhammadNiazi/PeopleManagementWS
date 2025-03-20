@@ -395,6 +395,10 @@ const DeleteUser = async (req) => {
     });
 };
 
+/**
+ * Function to get all departments
+ * @returns {Promise}
+ */
 const GetDepartments = async () => {
     return new Promise((resolve, reject) => {
         db('Departments')
@@ -405,6 +409,11 @@ const GetDepartments = async () => {
     });
 };
 
+/**
+ * Function to get department by name
+ * @param {string} name
+ * @returns {Promise}
+ */
 const GetDepartmentByName = async (name) => {
     return new Promise((resolve, reject) => {
         db('Departments')
@@ -416,6 +425,11 @@ const GetDepartmentByName = async (name) => {
     });
 };
 
+/**
+ * Function to create a department
+ * @param {object} req
+ * @returns {Promise}
+ */
 const CreateDepartment = async (req) => {
     return new Promise((resolve, reject) => {
         db('Departments')
@@ -429,6 +443,56 @@ const CreateDepartment = async (req) => {
             .catch((error) => reject(error));
     });
 };
+
+/**
+ * Function to get all employee roles
+ * @returns {Promise}
+ */
+const GetEmployeeRoles = async () => {
+    return new Promise((resolve, reject) => {
+        db('EmployeeRoles')
+            .select('EmployeeRoleId', 'RoleName', 'RoleDescription', 'DepartmentId')
+            .where('IsDeleted', false)
+            .then((roles) => resolve(roles))
+            .catch((error) => reject(error));
+    });
+}
+
+/**
+ * Function to get employee role by role id
+ * @param {string} name
+ * @returns {Promise}
+ */
+const GetEmployeeRoleByName = async (name) => {
+    return new Promise((resolve, reject) => {
+        db('EmployeeRoles')
+            .where('RoleName', name)
+            .then((roles) => {
+                return resolve(roles);
+            })
+            .catch((error) => reject(error));
+    });
+}
+
+/**
+ * Function to create an employee role
+ * @param {object} req
+ * @returns {Promise}
+ */
+const CreateEmployeeRole = async (req) => {
+    return new Promise((resolve, reject) => {
+        db('EmployeeRoles')
+            .insert({
+                RoleName: req.body.roleName,
+                RoleDescription: req.body.roleDescription,
+                DepartmentId: req.body.departmentId,
+                CreatedBy: req?.authorizedUser?.id || defaultAPIUserCode
+            })
+            .returning('*')
+            .then((roles) => resolve(roles[0]))
+            .catch((error) => reject(error));
+    });
+}
 
 
 module.exports = {
@@ -454,4 +518,7 @@ module.exports = {
     GetDepartments,
     GetDepartmentByName,
     CreateDepartment,
+    GetEmployeeRoles,
+    GetEmployeeRoleByName,
+    CreateEmployeeRole,
 };
