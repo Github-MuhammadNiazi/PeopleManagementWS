@@ -46,11 +46,13 @@ const Login = async (req, res) => {
                 id: user.SystemUserId,
                 username: user.Username,
                 role: user.UserRoleId,
+                employeeRoleId: user.EmployeeRoleId,
             }, process.env.JWT_SECRET, { expiresIn: constants.defaultConfigurations.tokenExpiry.accessToken });
 
             return res.status(200).send(generateResponseBody({
                 username: user.Username,
                 role: user.UserRoleId,
+                isEmployee: user.EmployeeRoleId ? true : false,
                 token
             }, messages.auth.login.success));
 
@@ -217,7 +219,7 @@ const Signup = async (req, res) => {
             const systemUserResponse = await dbController.CreateSystemUser({
                 userId: createUserResponse.UserId,
                 userRoleId: req.body.userRoleId,
-                username: req.body.username,
+                username: req.body.identificationNumber,
                 password: req.body.password,
             }, req?.authorizedUser?.id || null);
 
