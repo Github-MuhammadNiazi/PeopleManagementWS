@@ -45,6 +45,7 @@ module.exports = {
         },
     },
     users: {
+        failedToCreateUser: 'Failed to create user',
         usersRetrievedSuccessfully: 'All users retrieved successfully',
         noUsersFound: 'No users found',
         failedToRetrieveAllUsers: 'Failed to retrieve all users',
@@ -60,6 +61,15 @@ module.exports = {
         userAlreadyDeleted: 'User already deleted',
         userDeletedSuccessfully: 'User deleted successfully',
         failedToDeleteUser: 'Failed to delete user',
+    },
+    employee: {
+        employeeCreatedSuccessfully: 'Employee created successfully',
+        failedToCreateEmployee: 'Failed to create employee',
+        employeeAlreadyExists: 'Employee already exists',
+        allEmployeesRetrieved: 'All employees retrieved successfully',
+        noEmployeesFound: 'No employees found',
+        failedToRetrieveAllEmployees: 'Failed to retrieve all employees',
+        invalidEmployeeRole: 'Invalid user or employee role ID',
     },
     properties: {
         userRoles: {

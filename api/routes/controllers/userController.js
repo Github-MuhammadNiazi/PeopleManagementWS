@@ -70,6 +70,16 @@ const DeleteUser = (req, res) => {
   return userHelper.DeleteUser(req, res);
 }
 
+/**
+ * Function to create employee
+ * @param {*} req
+ * @param {*} res
+ * @returns {}
+ */
+const CreateEmployee = (req, res) => {
+  return userHelper.CreateEmployee(req, res);
+}
+
 module.exports = {
   GetAllUsers,
   GetUsersPendingApproval,
@@ -78,4 +88,5 @@ module.exports = {
   SuspendUser,
   GetDeletedUsers,
   DeleteUser,
+  CreateEmployee,
 };
