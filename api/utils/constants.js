@@ -1,4 +1,5 @@
 const defaultConfigurations = {
+    appName: 'People Management WS',
     apiPrefix: '/api',
     apiVersion: 'v1.0',
     defaultPort: 3000,
@@ -20,6 +21,12 @@ const defaultConfigurations = {
         reqestDatetimeFormat: 'YYYY-MM-DD HH:mm:ss',
         requestDateFormat: 'YYYY-MM-DD',
         requestTimeFormat: 'HH:mm:ss',
+    },
+    // Make sure that these emails are verified with Brevo
+    systemVerifiedEmails: {
+        dev: {
+            support: 'support@app.com',
+        },
     }
 }
 
