@@ -22,6 +22,7 @@ const getUserRoles = async (req, res) => {
         ))
     } catch (error) {
         winston.error(`${messages.properties.userRoles.failedToRetrieveAllUserRoles} Error: ${error.message}`, { req });
+        winston.debug(`Error Stack: ${error.stack}`, { req });
         return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.properties.userRoles.failedToRetrieveAllUserRoles, error.message));
     }
 };
@@ -45,6 +46,7 @@ const getDepartments = async (req, res) => {
         ))
     } catch (error) {
         winston.error(`${messages.properties.departments.failedToRetrieveAllDepartments} Error: ${error.message}`, { req });
+        winston.debug(`Error Stack: ${error.stack}`, { req });
         return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.properties.departments.failedToRetrieveAllDepartments, error.message));
     }
 };
@@ -70,6 +72,7 @@ const createDepartment = async (req, res) => {
         return res.send(generateResponseBody(response, messages.properties.departments.departmentCreatedSuccessfully));
     } catch (error) {
         winston.error(`Failed to create department. Error: ${error.message}`, { req });
+        winston.debug(`Error Stack: ${error.stack}`, { req });
         return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.properties.departments.failedToCreateDepartment, error.message));
     }
 };
@@ -93,6 +96,7 @@ const getEmployeeRoles = async (req, res) => {
         ))
     } catch (error) {
         winston.error(`${messages.properties.employeeRoles.failedToRetrieveAllEmployeeRoles} Error: ${error.message}`, { req });
+        winston.debug(`Error Stack: ${error.stack}`, { req });
         return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.properties.employeeRoles.failedToRetrieveAllEmployeeRoles, error.message));
     }
 }
@@ -112,6 +116,7 @@ const createEmployeeRole = async (req, res) => {
         return res.send(generateResponseBody(response, messages.properties.employeeRoles.employeeRoleCreatedSuccessfully));
     } catch (error) {
         winston.error(`Failed to create employee role. Error: ${error.message}`, { req });
+        winston.debug(`Error Stack: ${error.stack}`, { req });
         return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.properties.employeeRoles.failedToCreateEmployeeRole, error.message));
     }
 }
