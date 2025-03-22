@@ -2,7 +2,7 @@ var passwordResetEmailHtml = require('../templates/email/passwordResetCodeTempla
 
 module.exports = {
     resetCodeForPasswordTemplate: {
-        subject: 'Pasword Reset Code.',
+        subject: 'Password Reset Code.',
         htmlContent: passwordResetEmailHtml,
         smsContent: 'Your password reset code for {{APP_NAME}} is: {{RESET_CODE}}. This code will expire in {{TOKEN_EXPIRY}} minutes.',
     },
