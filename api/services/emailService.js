@@ -1,5 +1,5 @@
 const axios = require("axios");
-const constants = require("./constants");
+const constants = require("../utils/constants");
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 
 async function sendEmail(to, subject, text) {

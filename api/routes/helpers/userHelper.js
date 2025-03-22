@@ -18,7 +18,7 @@ const GetAllUsers = async (req, res) => {
         return res.send(generateResponseBody(response, messages.users.usersRetrievedSuccessfully))
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
-        return res.status(error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
+        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
     }
 };
 
@@ -41,7 +41,7 @@ const GetUsersPendingApproval = async (req, res) => {
         ));
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
-        return res.status(error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
+        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
     }
 }
 
@@ -64,7 +64,7 @@ const ApproveUser = async (req, res) => {
             return res.status(400).send(generateResponseBody({}, messages.users.failedToApproveUser));
         }
     } catch (error) {
-        return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToApproveUser, error.message));
+        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.users.failedToApproveUser, error.message));
     }
 }
 
@@ -87,7 +87,7 @@ const GetSuspendedUsers = async (req, res) => {
         ));
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
-        return res.status(error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
+        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
     }
 }
 
@@ -110,7 +110,7 @@ const SuspendUser = async (req, res) => {
             return res.status(400).send(generateResponseBody({}, messages.users.failedToSuspendUser));
         }
     } catch (error) {
-        return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToSuspendUser, error.message));
+        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.users.failedToSuspendUser, error.message));
     }
 }
 
@@ -133,7 +133,7 @@ const GetDeletedUsers = async (req, res) => {
         ));
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
-        return res.status(error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
+        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
     }
 }
 
@@ -156,7 +156,7 @@ const DeleteUser = async (req, res) => {
             return res.status(400).send(generateResponseBody({}, messages.users.failedToDeleteUser));
         }
     } catch (error) {
-        return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToDeleteUser, error.message));
+        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.users.failedToDeleteUser, error.message));
     }
 }
 
