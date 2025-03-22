@@ -47,8 +47,9 @@ const Rollback = async () => {
  */
 const GetUserByUsername = async (username) => {
     return new Promise((resolve, reject) => {
-        db('SystemUsers')
-            .where('Username', username)
+        db('SystemUsers as su')
+        .join('Users as u', 'su.UserId', 'u.UserId')
+            .where('su.Username', username)
             .then((users) => {
                 if (users.length === 0) {
                     return reject({ code: 404, message: messages.generalResponse.noUserFound });

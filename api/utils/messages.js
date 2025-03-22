@@ -23,7 +23,7 @@ module.exports = {
             accountDeleted: `Your Account has been blocked. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
         },
         resetToken: {
-            success: 'Reset token generated successfully',
+            success: 'Reset token sent via mail. Please check your email.',
             failed: 'Failed to generate reset token',
             invalidResetTokenOrUsername: 'Invalid reset token or username',
             tokenInvalidOrExpired: 'Invalid or expired reset token',

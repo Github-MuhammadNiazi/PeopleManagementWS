@@ -4,6 +4,8 @@ const constants = require('../../utils/constants');
 const generateResponseBody = require('../../utils/responseGenerator');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { sendEmail } = require('../../utils/emailService');
+const winston = require('../../utils/winston');
 
 /**
  * Function to authenticate the connection
@@ -89,8 +91,16 @@ const GenerateResetToken = async (req, res) => {
             const response = await dbController.UpdateResetCode(ResetCodeToken, user.Username);
 
             if (response) {
-                // TODO: Send email with reset code instead of sending in response
-                return res.status(200).send(generateResponseBody({ resetCode: resetCode, token: ResetCodeToken }, response.message));
+                winston.info(`Reset code generated for user: ${user.Username}`, { req });
+                winston.info(`Emailing reset code to user: ${user.Username}`, { req });
+                // TODO: Generate a component to handle emails.
+                const result = await sendEmail(
+                    user.Email,
+                    'Reset People Management WS Password for ' + user.Username,
+                    `<h1>Your reset code for ${constants.defaultConfigurations.appName} Login</h1>
+                    <h2>Please reach out to support if you did not request this reset code.</h2>
+                    <p>Please use this code to reset your password.</p><h2>Reset Code: ${resetCode} </h2>`);
+                return res.status(200).send(generateResponseBody({ token: ResetCodeToken, result }, response.message));
             }
             return res.status(500).send(generateResponseBody({}, messages.auth.resetToken.failed));
         } else {
