@@ -4,8 +4,11 @@ const constants = require('../../utils/constants');
 const generateResponseBody = require('../../utils/responseGenerator');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { sendEmail } = require('../../utils/emailService');
+const { sendEmail } = require('../../services/emailService');
+const { sendSMS } = require('../../services/smsService');
 const winston = require('../../utils/winston');
+const templates = require('../../services/templateService');
+const Handlebars = require('handlebars');
 
 /**
  * Function to authenticate the connection
@@ -63,7 +66,8 @@ const Login = async (req, res) => {
         }
 
     } catch (error) {
-        return res.status(error.code || 500).send(generateResponseBody({}, messages.auth.login.failed, error.message));
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.auth.login.failed, error.message));
     }
 };
 
@@ -91,23 +95,48 @@ const GenerateResetToken = async (req, res) => {
             const response = await dbController.UpdateResetCode(ResetCodeToken, user.Username);
 
             if (response) {
+                let result;
                 winston.info(`Reset code generated for user: ${user.Username}`, { req });
-                winston.info(`Emailing reset code to user: ${user.Username}`, { req });
-                // TODO: Generate a component to handle emails.
-                const result = await sendEmail(
-                    user.Email,
-                    'Reset People Management WS Password for ' + user.Username,
-                    `<h1>Your reset code for ${constants.defaultConfigurations.appName} Login</h1>
-                    <h2>Please reach out to support if you did not request this reset code.</h2>
-                    <p>Please use this code to reset your password.</p><h2>Reset Code: ${resetCode} </h2>`);
-                return res.status(200).send(generateResponseBody({ token: ResetCodeToken, result }, response.message));
+                if (req.body.sendViaSMS) {
+                    winston.info(`Sending reset code to user: ${user.Username} on ${user.ContactNumber}`, { req });
+                    const smsContent = Handlebars.compile(templates.resetCodeForPasswordTemplate.smsContent)({
+                        RESET_CODE: resetCode,
+                        TOKEN_EXPIRY: constants.defaultConfigurations.tokenExpiry.passwordResetToken,
+                        APP_NAME: constants.defaultConfigurations.appName
+                    });
+                    winston.info(`Sending SMS to user: ${user.Username}`, { req });
+                    result = await sendSMS(user.ContactNumber, smsContent);
+                } else {
+                    winston.info(`Sending reset code to user: ${user.Username} on Email: ${user.Email}`, { req });
+                    const htmlContent = Handlebars.compile(templates.resetCodeForPasswordTemplate.htmlContent)({
+                        RESET_CODE: resetCode,
+                        TOKEN_EXPIRY: constants.defaultConfigurations.tokenExpiry.passwordResetToken,
+                        CURRENT_YEAR: new Date().getFullYear(),
+                        TRADEMARK: constants.defaultConfigurations.appName
+                    });
+                    winston.info(`Emailing reset code to user: ${user.Username}`, { req });
+                    result = await sendEmail(
+                        user.Email,
+                        templates.resetCodeForPasswordTemplate.subject,
+                        htmlContent);
+                }
+                if (result) {
+                    winston.info(`Reset code successfully sent to user: ${user.Username}`, { req });
+                    return res.status(200).send(generateResponseBody({ token: ResetCodeToken, result }, response.message))
+                }
+                winston.error(`Error sending reset code to user: ${user.Username}`, { req });
+                return res.status(500).send(generateResponseBody({}, messages.auth.resetToken.failed));
             }
+            winston.error(`Error registering reset code for user: ${req.body.username}`, { req });
             return res.status(500).send(generateResponseBody({}, messages.auth.resetToken.failed));
         } else {
+            winston.error(`No user found with username: ${req.body.username}`, { req });
             return res.status(401).send(generateResponseBody({}, messages.generalResponse.noUserFound));
         }
     } catch (error) {
-        return res.status(error.code || 500).send(generateResponseBody({}, messages.auth.resetToken.failed, error.message));
+        winston.error(`Error generating reset code for user: ${req.body.username}`, { req });
+        winston.error(`Error Stack: ${error.stack}`, { req });
+        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.auth.resetToken.failed, error.message));
     }
 };
 
@@ -134,7 +163,8 @@ const VerifyResetToken = async (req, res) => {
             return res.status(401).send(generateResponseBody({}, messages.generalResponse.noUserFound));
         }
     } catch (error) {
-        return res.status(error.code || 500).send(generateResponseBody({}, messages.auth.resetToken.tokenVerificationFailed, error.message));
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.auth.resetToken.tokenVerificationFailed, error.message));
     }
 };
 
