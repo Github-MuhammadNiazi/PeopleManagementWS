@@ -67,6 +67,9 @@ const generateResetCodeSchema = Joi.object({
     username: Joi.string().required().messages({
         'any.required': 'username is required'
     }),
+    sendViaSMS: Joi.boolean().optional().messages({
+        'boolean.base': 'sendViaSMS must be a boolean'
+    }),
 });
 
 const verifyResetCodeSchema = Joi.object({

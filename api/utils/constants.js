@@ -1,4 +1,8 @@
 const defaultConfigurations = {
+    // Make sure to use 'dev', 'test' or 'prod' for environments
+    environment: 'dev',
+    appName: 'People Management WS',
+    appNameShort: 'PMWS', // Short name for Services
     apiPrefix: '/api',
     apiVersion: 'v1.0',
     defaultPort: 3000,
@@ -20,7 +24,20 @@ const defaultConfigurations = {
         reqestDatetimeFormat: 'YYYY-MM-DD HH:mm:ss',
         requestDateFormat: 'YYYY-MM-DD',
         requestTimeFormat: 'HH:mm:ss',
-    }
+    },
+    // Make sure that these emails are verified with Brevo
+    systemVerifiedEmails: {
+        dev: {
+            support: 'support@app.com',
+        },
+    },
+    systemVerifiedUrls: {
+        dev: {
+            images: {
+                appLogo: 'https://cdn-icons-png.flaticon.com/512/2161/2161475.png',
+            }
+        },
+    },
 }
 
 const contactDetails = {
