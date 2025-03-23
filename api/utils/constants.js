@@ -1,4 +1,6 @@
 const defaultConfigurations = {
+    // Make sure to use 'dev', 'test' or 'prod' for environments
+    environment: 'dev',
     appName: 'People Management WS',
     appNameShort: 'PMWS', // Short name for Services
     apiPrefix: '/api',
@@ -28,7 +30,14 @@ const defaultConfigurations = {
         dev: {
             support: 'support@app.com',
         },
-    }
+    },
+    systemVerifiedUrls: {
+        dev: {
+            images: {
+                appLogo: 'https://cdn-icons-png.flaticon.com/512/2161/2161475.png',
+            }
+        },
+    },
 }
 
 const contactDetails = {
