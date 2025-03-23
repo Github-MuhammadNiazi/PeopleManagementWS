@@ -42,8 +42,24 @@ app.use((req, res, next) => {
     logMessage = req?.headers['platform'] ? `[platform: ${req?.headers['platform']}] ` + logMessage : logMessage;
     winston.info(logMessage, { req });
 
+    // Redact passwords from request data
+    const redactPasswords = (obj) => {
+        if (obj && typeof obj === 'object') {
+            for (const key in obj) {
+                if (key.toLowerCase().includes('password')) {
+                    obj[key] = '********';
+                } else if (typeof obj[key] === 'object') {
+                    redactPasswords(obj[key]);
+                }
+            }
+        }
+    };
+
+    const redactedReqBody = req.body ? { ...req.body } : req.body;
+    redactPasswords(redactedReqBody);
+
     requsetDataMessage = [
-        req.body && Object.keys(req.body).length > 0 ? `req: ${JSON.stringify(req.body)}` : null,
+        req.body && Object.keys(req.body).length > 0 ? `req: ${JSON.stringify(redactedReqBody)}` : null,
         req.query && Object.keys(req.query).length > 0 ? `query: ${JSON.stringify(req.query)}` : null,
         req.params && Object.keys(req.params).length > 0 ? `params: ${JSON.stringify(req.params)}` : null,
     ].filter((item) => item).join(', ');

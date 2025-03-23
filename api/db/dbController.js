@@ -1,6 +1,7 @@
 const db = require('./dbconfig');
 const messages = require('../utils/messages');
 const { getCurrentDateTime } = require('../utils/calendar');
+const bcrypt = require('bcryptjs');
 const defaultAPIUserCode = 0;
 
 /**
@@ -46,8 +47,9 @@ const Rollback = async () => {
  */
 const GetUserByUsername = async (username) => {
     return new Promise((resolve, reject) => {
-        db('SystemUsers')
-            .where('Username', username)
+        db('SystemUsers as su')
+        .join('Users as u', 'su.UserId', 'u.UserId')
+            .where('su.Username', username)
             .then((users) => {
                 if (users.length === 0) {
                     return reject({ code: 404, message: messages.generalResponse.noUserFound });
@@ -179,19 +181,19 @@ const CreateUser = async (user) => {
     return new Promise((resolve, reject) => {
         db('Users')
             .insert({
-                FirstName: user.FirstName,
-                LastName: user.LastName,
-                IdentificationNumber: user.IdentificationNumber,
-                ContactNumber: user.ContactNumber,
-                Email: user.Email,
-                IsApartment: user.IsApartment || false,
-                Apartment: user.Apartment || null,
-                Building: user.Building || null,
-                Street: user.Street || null,
-                Region: user.Region || null,
-                City: user.City || null,
-                Country: user.Country || null,
-                IsForeigner: user.IsForeigner || false,
+                FirstName: user.firstName,
+                LastName: user.lastName,
+                IdentificationNumber: user.identificationNumber,
+                ContactNumber: user.contactNumber,
+                Email: user.email || null,
+                IsApartment: user.isApartment || false,
+                Apartment: user.apartment || null,
+                Building: user.building || null,
+                Street: user.street || null,
+                Region: user.region || null,
+                City: user.city || null,
+                Country: user.country || null,
+                IsForeigner: user.isForeigner || false,
             })
             .returning('*')
             .then((users) => resolve(users[0]))
@@ -205,7 +207,7 @@ const CreateUser = async (user) => {
  * @returns {Promise}
  */
 const CreateSystemUser = async (user, createdBy) => {
-    const hashedPassword = bcrypt.hashSync(user.Password, 10);
+    const hashedPassword = bcrypt.hashSync(user.password, 10);
     return new Promise((resolve, reject) => {
         db('SystemUsers')
             .insert({
@@ -213,9 +215,10 @@ const CreateSystemUser = async (user, createdBy) => {
                 UserRoleId: user.userRoleId,
                 Username: user.username,
                 Password: hashedPassword,
-                CreatedBy: createdBy || defaultAPIUserCode
+                CreatedBy: createdBy || defaultAPIUserCode,
+                EmployeeRoleId: user.employeeRoleId || null,
             })
-            .returning('*')
+            .returning('UserId', 'Username', 'EmployeeRoleId')
             .then((users) => resolve(users[0]))
             .catch((error) => reject(error));
     });
@@ -475,6 +478,22 @@ const GetEmployeeRoleByName = async (name) => {
 }
 
 /**
+ * Function to get employee role by role id
+ * @param {string} name
+ * @returns {Promise}
+ */
+const GetEmployeeRoleByRoleId = async (id) => {
+    return new Promise((resolve, reject) => {
+        db('EmployeeRoles')
+            .where('EmployeeRoleId', id)
+            .then((roles) => {
+                return resolve(roles[0] || null);
+            })
+            .catch((error) => reject(error));
+    });
+}
+
+/**
  * Function to create an employee role
  * @param {object} req
  * @returns {Promise}
@@ -520,5 +539,6 @@ module.exports = {
     CreateDepartment,
     GetEmployeeRoles,
     GetEmployeeRoleByName,
+    GetEmployeeRoleByRoleId,
     CreateEmployeeRole,
 };

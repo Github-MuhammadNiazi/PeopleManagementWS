@@ -2,6 +2,7 @@ const dbController = require('../../db/dbController');
 const messages = require('../../utils/messages');
 const generateResponseBody = require('../../utils/responseGenerator');
 const winston = require('../../utils/winston');
+const constants = require('../../utils/constants');
 
 /**
  * Function to get all users
@@ -17,7 +18,8 @@ const GetAllUsers = async (req, res) => {
         return res.send(generateResponseBody(response, messages.users.usersRetrievedSuccessfully))
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
-        return res.status(error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
     }
 };
 
@@ -40,7 +42,8 @@ const GetUsersPendingApproval = async (req, res) => {
         ));
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
-        return res.status(error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
     }
 }
 
@@ -63,7 +66,8 @@ const ApproveUser = async (req, res) => {
             return res.status(400).send(generateResponseBody({}, messages.users.failedToApproveUser));
         }
     } catch (error) {
-        return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToApproveUser, error.message));
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.users.failedToApproveUser, error.message));
     }
 }
 
@@ -86,7 +90,8 @@ const GetSuspendedUsers = async (req, res) => {
         ));
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
-        return res.status(error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
     }
 }
 
@@ -109,7 +114,8 @@ const SuspendUser = async (req, res) => {
             return res.status(400).send(generateResponseBody({}, messages.users.failedToSuspendUser));
         }
     } catch (error) {
-        return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToSuspendUser, error.message));
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.users.failedToSuspendUser, error.message));
     }
 }
 
@@ -132,7 +138,8 @@ const GetDeletedUsers = async (req, res) => {
         ));
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
-        return res.status(error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
     }
 }
 
@@ -155,7 +162,57 @@ const DeleteUser = async (req, res) => {
             return res.status(400).send(generateResponseBody({}, messages.users.failedToDeleteUser));
         }
     } catch (error) {
-        return res.status(error.code || 500).send(generateResponseBody({}, messages.users.failedToDeleteUser, error.message));
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.users.failedToDeleteUser, error.message));
+    }
+}
+
+const CreateEmployee = async (req, res) => {
+    let transactionStatus = false;
+    try {
+
+        // Confirming if userRole is valid
+        const userRole = await dbController.GetUserRoleByRoleId(req.body.userRoleId);
+
+        const EmployeeRole = await dbController.GetEmployeeRoleByRoleId(req.body.employeeRoleId);
+
+        // Preventing any high level account creation
+        if (!userRole || !EmployeeRole || req.body.userRoleId > constants.userRoles.OperatingUser) {
+            return res.status(400).send(generateResponseBody({}, messages.employee.invalidEmployeeRole));
+        }
+
+        // Starting transaction
+        await dbController.Begin();
+        transactionStatus = true;
+
+        // Creating User record
+        const createUserResponse = await dbController.CreateUser(req.body);
+
+        if (createUserResponse) {
+
+            const randomPassword = Math.random().toString(36).slice(-8);
+
+            // Creating SystemUser record
+            const systemUserResponse = await dbController.CreateSystemUser({
+                userId: createUserResponse.UserId,
+                userRoleId: req.body.userRoleId,
+                username: req.body.identificationNumber,
+                password: randomPassword,
+                employeeRoleId: req.body.employeeRoleId,
+            }, req?.authorizedUser?.id || null);
+
+            if (systemUserResponse) {
+
+                // Committing transaction if all operations are successful
+                await dbController.Commit();
+                return res.status(201).send(generateResponseBody({...systemUserResponse, password: randomPassword}, messages.employee.employeeCreatedSuccessfully));
+            }
+        }
+        return res.status(500).send(generateResponseBody({}, messages.users.failedToCreateUser));
+
+    } catch (error) {
+        transactionStatus && await dbController.Rollback();
+        return res.status(500).send(generateResponseBody({}, messages.employee.failedToCreateEmployee, error.detail || error.message));
     }
 }
 
@@ -167,4 +224,5 @@ module.exports = {
     SuspendUser,
     GetDeletedUsers,
     DeleteUser,
+    CreateEmployee,
 };

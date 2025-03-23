@@ -1,4 +1,3 @@
-const { invalid } = require('joi');
 const constants = require('./constants');
 
 module.exports = {
@@ -23,7 +22,7 @@ module.exports = {
             accountDeleted: `Your Account has been blocked. Please contact ${constants.contactDetails.emails.support} or ${constants.contactDetails.phoneNumbers.support}`,
         },
         resetToken: {
-            success: 'Reset token generated successfully',
+            success: 'Reset token sent via mail. Please check your email.',
             failed: 'Failed to generate reset token',
             invalidResetTokenOrUsername: 'Invalid reset token or username',
             tokenInvalidOrExpired: 'Invalid or expired reset token',
@@ -45,6 +44,7 @@ module.exports = {
         },
     },
     users: {
+        failedToCreateUser: 'Failed to create user',
         usersRetrievedSuccessfully: 'All users retrieved successfully',
         noUsersFound: 'No users found',
         failedToRetrieveAllUsers: 'Failed to retrieve all users',
@@ -60,6 +60,15 @@ module.exports = {
         userAlreadyDeleted: 'User already deleted',
         userDeletedSuccessfully: 'User deleted successfully',
         failedToDeleteUser: 'Failed to delete user',
+    },
+    employee: {
+        employeeCreatedSuccessfully: 'Employee created successfully',
+        failedToCreateEmployee: 'Failed to create employee',
+        employeeAlreadyExists: 'Employee already exists',
+        allEmployeesRetrieved: 'All employees retrieved successfully',
+        noEmployeesFound: 'No employees found',
+        failedToRetrieveAllEmployees: 'Failed to retrieve all employees',
+        invalidEmployeeRole: 'Invalid user or employee role ID',
     },
     properties: {
         userRoles: {
