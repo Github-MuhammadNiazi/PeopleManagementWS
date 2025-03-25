@@ -87,6 +87,7 @@ const GenerateResetToken = async (req, res) => {
 
             // Generate reset token
             const ResetCodeToken = jwt.sign({
+                id: user.SystemUserId,
                 username: user.Username,
                 code: resetCode
             }, process.env.JWT_SECRET, { expiresIn: constants.defaultConfigurations.tokenExpiry.passwordResetToken });

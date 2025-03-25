@@ -3,6 +3,7 @@ const messages = require('../utils/messages');
 const { getCurrentDateTime } = require('../utils/calendar');
 const bcrypt = require('bcryptjs');
 const defaultAPIUserCode = 0;
+const constants = require('../utils/constants');
 
 /**
  * Function to begin a transaction
@@ -506,7 +507,7 @@ const CreateEmployeeRole = async (req) => {
                 RoleName: req.body.roleName,
                 RoleDescription: req.body.roleDescription,
                 DepartmentId: req.body.departmentId,
-                CreatedBy: req?.authorizedUser?.id || defaultAPIUserCode
+                CreatedBy: req.authorizedUser.id
             })
             .returning('*')
             .then((roles) => resolve(roles[0]))
@@ -516,11 +517,29 @@ const CreateEmployeeRole = async (req) => {
 
 const GetAllComplaints = async (req, res) => {
     return new Promise((resolve, reject) => {
-        db('Complaints')
-            .select('*')
+        db('Complaints as c')
+            .join('SystemUsers as su', 'c.CreatedBy', 'su.SystemUserId')
+            .join('Users as u', 'su.UserId', 'u.UserId')
+            .select('c.*', 'u.FirstName', 'u.LastName', 'u.ContactNumber')
             .then((complaints) => resolve(complaints))
             .catch((error) => reject(error));
     })
+};
+
+const CreateComplaint = async (req, res) => {
+    return new Promise((resolve, reject) => {
+        db('Complaints')
+            .insert({
+                ComplaintDescription: req.body.complaintDescription,
+                CurrentStatus: constants.complaints.status.pending,
+                ComplaintType: req.body.complaintType,
+                ComplaintDepartmentId: req.body.complaintDepartmentId,
+                CreatedBy: req.authorizedUser.id,
+            })
+            .returning('*')
+            .then((complaints) => resolve(complaints[0]))
+            .catch((error) => reject(error));
+    });
 };
 
 module.exports = {
@@ -551,4 +570,5 @@ module.exports = {
     GetEmployeeRoleByRoleId,
     CreateEmployeeRole,
     GetAllComplaints,
+    CreateComplaint,
 };
