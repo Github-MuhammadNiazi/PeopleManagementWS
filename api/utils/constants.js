@@ -64,9 +64,31 @@ const userRoles = {
     UnregisteredUser: 6,
 }
 
+const complaints = {
+    status: {
+        pending: 'Pending',
+        inProgress: 'In Progress',
+        needsApproval: 'Needs Approval',
+        approved: 'Approved',
+        needsReview: 'Needs Review',
+        resolved: 'Resolved',
+        closed: 'Closed',
+    },
+    Type: {
+        complaint: 'Complaint',
+        suggestion: 'Suggestion',
+        inquiry: 'Inquiry',
+        feedback: 'Feedback',
+        urgent: 'Urgent',
+        horticultural: 'Horticultural',
+        other: 'Other',
+    }
+}
+
 module.exports = {
     defaultConfigurations,
     userRoleTypes,
     userRoles,
     contactDetails,
+    complaints,
 };

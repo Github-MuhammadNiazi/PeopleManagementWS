@@ -99,6 +99,11 @@ module.exports = {
         noComplaints: 'No complaints found',
         failedToRetrieveAllComplaints: 'Failed to retrieve all complaints',
         complaintsRetrievedSuccessfully: 'Complaints retrieved successfully',
+        complaintRetrievedSuccessfully: 'Complaint retrieved successfully',
         failedToRetrieveComplaint: 'Failed to retrieve complaint',
+        complaintCreatedSuccessfully: 'Complaint created successfully',
+        failedToCreateComplaint: 'Failed to create complaint',
+        complaintUpdatedSuccessfully: 'Complaint updated successfully',
+        failedToUpdateComplaint: 'Failed to update complaint',
     }
 };

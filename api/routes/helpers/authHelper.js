@@ -30,7 +30,7 @@ const Login = async (req, res) => {
         const user = await dbController.GetUserByUsername(req.body.username);
 
         if (user) {
-            const isPasswordValid = await bcrypt.compare(req.body.password, user.Password);
+            const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
 
             // Check if password is valid
             if (!isPasswordValid) {
@@ -38,26 +38,26 @@ const Login = async (req, res) => {
             }
 
             // Check if user is approved, suspended or deleted
-            if (!user.IsApproved) {
+            if (!user.isApproved) {
                 return res.status(401).send(generateResponseBody({}, messages.auth.login.accountNotApproved));
-            } else if (user.IsSuspended) {
+            } else if (user.isSuspended) {
                 return res.status(401).send(generateResponseBody({}, messages.auth.login.accountSuspended));
-            } else if (user.IsDeleted) {
+            } else if (user.isDeleted) {
                 return res.status(401).send(generateResponseBody({}, messages.auth.login.accountDeleted));
             }
 
             // Generate token
             const token = jwt.sign({
-                id: user.SystemUserId,
-                username: user.Username,
-                role: user.UserRoleId,
-                employeeRoleId: user.EmployeeRoleId,
+                id: user.systemUserId,
+                username: user.username,
+                role: user.userRoleId,
+                employeeRoleId: user.employeeRoleId,
             }, process.env.JWT_SECRET, { expiresIn: constants.defaultConfigurations.tokenExpiry.accessToken });
 
             return res.status(200).send(generateResponseBody({
-                username: user.Username,
-                role: user.UserRoleId,
-                isEmployee: user.EmployeeRoleId ? true : false,
+                username: user.username,
+                role: user.userRoleId,
+                isEmployee: user.employeeRoleId ? true : false,
                 token
             }, messages.auth.login.success));
 
@@ -87,44 +87,45 @@ const GenerateResetToken = async (req, res) => {
 
             // Generate reset token
             const ResetCodeToken = jwt.sign({
-                username: user.Username,
+                id: user.systemUserId,
+                username: user.username,
                 code: resetCode
             }, process.env.JWT_SECRET, { expiresIn: constants.defaultConfigurations.tokenExpiry.passwordResetToken });
 
             // Update reset code in database
-            const response = await dbController.UpdateResetCode(ResetCodeToken, user.Username);
+            const response = await dbController.UpdateResetCode(ResetCodeToken, user.username);
 
             if (response) {
                 let result;
-                winston.info(`Reset code generated for user: ${user.Username}`, { req });
+                winston.info(`Reset code generated for user: ${user.username}`, { req });
                 if (req.body.sendViaSMS) {
-                    winston.info(`Sending reset code to user: ${user.Username} on ${user.ContactNumber}`, { req });
+                    winston.info(`Sending reset code to user: ${user.username} on ${user.contactNumber}`, { req });
                     const smsContent = Handlebars.compile(templates.resetCodeForPasswordTemplate.smsContent)({
                         RESET_CODE: resetCode,
                         TOKEN_EXPIRY: constants.defaultConfigurations.tokenExpiry.passwordResetToken,
                         APP_NAME: constants.defaultConfigurations.appName
                     });
-                    winston.info(`Sending SMS to user: ${user.Username}`, { req });
-                    result = await sendSMS(user.ContactNumber, smsContent);
+                    winston.info(`Sending SMS to user: ${user.username}`, { req });
+                    result = await sendSMS(user.contactNumber, smsContent);
                 } else {
-                    winston.info(`Sending reset code to user: ${user.Username} on Email: ${user.Email}`, { req });
+                    winston.info(`Sending reset code to user: ${user.username} on Email: ${user.Email}`, { req });
                     const htmlContent = Handlebars.compile(templates.resetCodeForPasswordTemplate.htmlContent)({
                         RESET_CODE: resetCode,
                         TOKEN_EXPIRY: constants.defaultConfigurations.tokenExpiry.passwordResetToken,
                         CURRENT_YEAR: new Date().getFullYear(),
                         TRADEMARK: constants.defaultConfigurations.appName
                     });
-                    winston.info(`Emailing reset code to user: ${user.Username}`, { req });
+                    winston.info(`Emailing reset code to user: ${user.username}`, { req });
                     result = await sendEmail(
-                        user.Email,
+                        user.email,
                         templates.resetCodeForPasswordTemplate.subject,
                         htmlContent);
                 }
                 if (result) {
-                    winston.info(`Reset code successfully sent to user: ${user.Username}`, { req });
+                    winston.info(`Reset code successfully sent to user: ${user.username}`, { req });
                     return res.status(200).send(generateResponseBody({ token: ResetCodeToken, result }, response.message))
                 }
-                winston.error(`Error sending reset code to user: ${user.Username}`, { req });
+                winston.error(`Error sending reset code to user: ${user.username}`, { req });
                 return res.status(500).send(generateResponseBody({}, messages.auth.resetToken.failed));
             }
             winston.error(`Error registering reset code for user: ${req.body.username}`, { req });
@@ -154,7 +155,7 @@ const VerifyResetToken = async (req, res) => {
         if (user) {
 
             // Check if reset code is consistent with the one in the database
-            if (req.authorizedUser.code === jwt.verify(user.ResetCode, process.env.JWT_SECRET).code && req.body.resetCode === req.authorizedUser.code) {
+            if (req.authorizedUser.code === jwt.verify(user.resetCode, process.env.JWT_SECRET).code && req.body.resetCode === req.authorizedUser.code) {
                 return res.status(200).send(generateResponseBody({}, messages.auth.resetToken.tokenVerified));
             }
 
@@ -182,12 +183,12 @@ const ResetPassword = async (req, res) => {
 
         if (user) {
 
-            if (user.ResetCode === null) {
+            if (user.resetCode === null) {
                 return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenInvalidOrExpired));
             }
 
             // get reset token from database and verify it
-            jwt.verify(user.ResetCode, process.env.JWT_SECRET, async (err, resetToken) => {
+            jwt.verify(user.resetCode, process.env.JWT_SECRET, async (err, resetToken) => {
 
                 if (err) {
                     return res.status(403).send(generateResponseBody({}, messages.auth.resetToken.tokenInvalidOrExpired));
@@ -205,10 +206,10 @@ const ResetPassword = async (req, res) => {
                 await dbController.Begin();
                 transactionStatus = true;
 
-                const response = await dbController.UpdatePasswordAgainstUsername(hashedPassword, user.Username);
+                const response = await dbController.UpdatePasswordAgainstUsername(hashedPassword, user.username);
 
                 if (response) {
-                    const resetResponse = await dbController.UpdateResetCode(null, user.Username);
+                    const resetResponse = await dbController.UpdateResetCode(null, user.username);
                     if (resetResponse) {
                         // Committing transaction if all operations are successful
                         await dbController.Commit();
