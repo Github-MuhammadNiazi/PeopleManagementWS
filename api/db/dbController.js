@@ -514,6 +514,14 @@ const CreateEmployeeRole = async (req) => {
     });
 }
 
+const GetAllComplaints = async (req, res) => {
+    return new Promise((resolve, reject) => {
+        db('Complaints')
+            .select('*')
+            .then((complaints) => resolve(complaints))
+            .catch((error) => reject(error));
+    })
+};
 
 module.exports = {
     Begin,
@@ -542,4 +550,5 @@ module.exports = {
     GetEmployeeRoleByName,
     GetEmployeeRoleByRoleId,
     CreateEmployeeRole,
+    GetAllComplaints,
 };
