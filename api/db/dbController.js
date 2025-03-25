@@ -522,7 +522,7 @@ const GetAllComplaints = async (req, res) => {
             .join('SystemUsers as su', 'c.CreatedBy', 'su.SystemUserId')
             .join('Users as u', 'su.UserId', 'u.UserId')
             .select('c.*', 'u.FirstName', 'u.LastName', 'u.ContactNumber')
-            .then((complaints) => resolve(toCamelCase(toCamelCase(complaints))))
+            .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
     })
 };
