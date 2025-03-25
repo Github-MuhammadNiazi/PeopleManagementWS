@@ -4,6 +4,7 @@ const { getCurrentDateTime } = require('../utils/calendar');
 const bcrypt = require('bcryptjs');
 const defaultAPIUserCode = 0;
 const constants = require('../utils/constants');
+const { toCamelCase } = require('../utils/caseConverter');
 
 /**
  * Function to begin a transaction
@@ -57,7 +58,7 @@ const GetUserByUsername = async (username) => {
                 } else if (users.length > 1) {
                     return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
                 }
-                return resolve(users[0]);
+                return resolve(toCamelCase(users[0]));
             })
             .catch((error) => reject(error));
     });
@@ -147,7 +148,7 @@ const GetUserRoles = async () => {
         db('UserRoles')
             .select('UserRoleId', 'UserRoleName')
             .where('IsDeleted', false)
-            .then((roles) => resolve(roles))
+            .then((roles) => resolve(toCamelCase(roles)))
             .catch((error) => reject(error));
     });
 }
@@ -197,7 +198,7 @@ const CreateUser = async (user) => {
                 IsForeigner: user.isForeigner || false,
             })
             .returning('*')
-            .then((users) => resolve(users[0]))
+            .then((users) => resolve(toCamelCase(users[0])))
             .catch((error) => reject(error));
     });
 };
@@ -220,7 +221,7 @@ const CreateSystemUser = async (user, createdBy) => {
                 EmployeeRoleId: user.employeeRoleId || null,
             })
             .returning('UserId', 'Username', 'EmployeeRoleId')
-            .then((users) => resolve(users[0]))
+            .then((users) => resolve(toCamelCase(users[0])))
             .catch((error) => reject(error));
     });
 };
@@ -240,7 +241,7 @@ const GetAllUsers = async () => {
                 'su.CreatedOn', 'su.CreatedBy', 'su.ModifiedOn', 'su.ModifiedBy'
             )
             .where('su.IsDeleted', false)
-            .then((users) => resolve(users))
+            .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
 };
@@ -261,7 +262,7 @@ const CheckUserStatuses = async (userId) => {
                 } else if (users.length > 1) {
                     return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
                 }
-                return resolve(users[0]);
+                return resolve(toCamelCase(users[0]));
             })
             .catch((error) => reject(error));
     });
@@ -283,7 +284,7 @@ const GetUsersPendingApproval = async () => {
             .where('su.IsDeleted', false)
             .andWhere('su.IsApproved', false)
             .andWhere('su.IsSuspended', false)
-            .then((users) => resolve(users))
+            .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
 }
@@ -327,7 +328,7 @@ const GetSuspendedUsers = async () => {
             )
             .where('su.IsDeleted', false)
             .andWhere('su.IsSuspended', true)
-            .then((users) => resolve(users))
+            .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
 };
@@ -370,7 +371,7 @@ const GetDeletedUsers = async () => {
                 'su.Username', 'su.IsDeleted'
             )
             .where('su.IsDeleted', true)
-            .then((users) => resolve(users))
+            .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
 };
@@ -409,7 +410,7 @@ const GetDepartments = async () => {
         db('Departments')
             .select('DepartmentId', 'DepartmentName', 'Description')
             .where('IsDeleted', false)
-            .then((departments) => resolve(departments))
+            .then((departments) => resolve(toCamelCase(departments)))
             .catch((error) => reject(error));
     });
 };
@@ -444,7 +445,7 @@ const CreateDepartment = async (req) => {
                 CreatedBy: req?.authorizedUser?.id || defaultAPIUserCode
             })
             .returning('*')
-            .then((departments) => resolve(departments[0]))
+            .then((departments) => resolve(toCamelCase(departments[0])))
             .catch((error) => reject(error));
     });
 };
@@ -458,7 +459,7 @@ const GetEmployeeRoles = async () => {
         db('EmployeeRoles')
             .select('EmployeeRoleId', 'RoleName', 'RoleDescription', 'DepartmentId')
             .where('IsDeleted', false)
-            .then((roles) => resolve(roles))
+            .then((roles) => resolve(toCamelCase(roles)))
             .catch((error) => reject(error));
     });
 }
@@ -510,7 +511,7 @@ const CreateEmployeeRole = async (req) => {
                 CreatedBy: req.authorizedUser.id
             })
             .returning('*')
-            .then((roles) => resolve(roles[0]))
+            .then((roles) => resolve(toCamelCase(roles[0])))
             .catch((error) => reject(error));
     });
 }
@@ -521,7 +522,7 @@ const GetAllComplaints = async (req, res) => {
             .join('SystemUsers as su', 'c.CreatedBy', 'su.SystemUserId')
             .join('Users as u', 'su.UserId', 'u.UserId')
             .select('c.*', 'u.FirstName', 'u.LastName', 'u.ContactNumber')
-            .then((complaints) => resolve(complaints))
+            .then((complaints) => resolve(toCamelCase(toCamelCase(complaints))))
             .catch((error) => reject(error));
     })
 };
@@ -537,7 +538,7 @@ const CreateComplaint = async (req, res) => {
                 CreatedBy: req.authorizedUser.id,
             })
             .returning('*')
-            .then((complaints) => resolve(complaints[0]))
+            .then((complaints) => resolve(toCamelCase(complaints[0])))
             .catch((error) => reject(error));
     });
 };
