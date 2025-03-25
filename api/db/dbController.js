@@ -234,6 +234,7 @@ const GetAllUsers = async () => {
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
             .select(
                 'u.UserId', 'u.FirstName', 'u.LastName', 'u.Email', 'u.IsApartment', 'u.Apartment', 'u.Building', 'u.Street', 'u.Region', 'u.City', 'u.Country', 'u.IsForeigner',
+                'su.EmployeeRoleId',
                 'su.Username', 'su.IsApproved', 'su.IsSuspended',
                 'su.CreatedOn', 'su.CreatedBy', 'su.ModifiedOn', 'su.ModifiedBy'
             )
