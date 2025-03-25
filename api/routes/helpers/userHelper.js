@@ -177,7 +177,7 @@ const CreateEmployee = async (req, res) => {
         const EmployeeRole = await dbController.GetEmployeeRoleByRoleId(req.body.employeeRoleId);
 
         // Preventing any high level account creation
-        if (!userRole || !EmployeeRole || req.body.userRoleId > constants.userRoles.OperatingUser) {
+        if (!userRole || !EmployeeRole) {
             return res.status(400).send(generateResponseBody({}, messages.employee.invalidEmployeeRole));
         }
 

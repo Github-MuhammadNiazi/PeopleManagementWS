@@ -65,4 +65,5 @@ router.post('/employee',
     ]),
     validateRequestBody(validationSchema.createEmployeeSchema),
     userController.CreateEmployee);
+
 module.exports = router;
