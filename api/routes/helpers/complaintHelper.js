@@ -51,7 +51,7 @@ const CreateComplaint = async (req, res) => {
  * @param {*} res - The response object
  * @returns {} - The complaints related to the specified department
  */
-GetComplaintsByDepartmentId = async (req, res) => {
+const GetComplaintsByDepartmentId = async (req, res) => {
     try {
         winston.info(`Fetching complaints by department ID: ${req.params.id}.`, { req });
         const response = await dbController.GetComplaintsByDepartmentId(req.params.id);
