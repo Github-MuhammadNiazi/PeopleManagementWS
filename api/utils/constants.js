@@ -50,7 +50,8 @@ const contactDetails = {
 }
 
 const userRoleTypes = {
-    Residents: [1, 4, 5],
+    All: [1, 2, 3, 4, 5, 6],
+    Residents: [1, 4],
     Staff: [1, 2, 3],
     Management: [1, 2],
 }
