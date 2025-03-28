@@ -27,7 +27,7 @@ app.use(requestUuid);
 
 // Middleware to check if the request is coming from an allowed platform
 app.use((req, res, next) => {
-    winston.info(`incomming request from Platform: [${req.headers['platform']}], IP: [${req.headers['x-forwarded-for'] || req.ip}]`, { req });
+    winston.info(`incoming request from Platform: [${req.headers['platform']}], IP: [${req.headers['x-forwarded-for'] || req.ip}]`, { req });
     if (!req.headers['platform'] || constants.defaultConfigurations.allowedPlatforms.indexOf(req.headers['platform']) === -1) {
         return res.status(400).json({ error: 'Unregistered access.' });
     }
