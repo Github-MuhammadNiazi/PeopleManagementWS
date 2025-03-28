@@ -45,7 +45,29 @@ const CreateComplaint = async (req, res) => {
     }
 };
 
+/**
+ * Function to get complaints by department ID
+ * @param {*} req - The request object containing the department ID as a parameter
+ * @param {*} res - The response object
+ * @returns {} - The complaints related to the specified department
+ */
+const GetComplaintsByDepartmentId = async (req, res) => {
+    try {
+        winston.info(`Fetching complaints by department ID: ${req.params.id}.`, { req });
+        const response = await dbController.GetComplaintsByDepartmentId(req.params.id);
+        winston.info(`${messages.complaints.complaintsRetrievedSuccessfully}, Number of Complaints: ${response.length}`, { req });
+        return res.send(generateResponseBody(response, !!response.length
+            ? messages.complaints.complaintsRetrievedSuccessfully
+            : messages.complaints.noComplaints));
+    } catch (error) {
+        winston.error(`${messages.complaints.failedToRetrieveComplaintsByDepartmentId} Error: ${error.message}`, { req });
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.complaints.failedToRetrieveComplaintsByDepartmentId, error.message));
+    }
+};
+
 module.exports = {
     GetAllComplaints,
     CreateComplaint,
+    GetComplaintsByDepartmentId,
 };

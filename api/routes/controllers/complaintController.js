@@ -22,7 +22,18 @@ const CreateComplaint = (req, res) => {
     return complaintHelper.CreateComplaint(req, res);
 };
 
+/**
+ * Function to get complaints by department ID
+ * @param {*} req - The request object containing the department ID as a parameter
+ * @param {*} res - The response object
+ * @returns {} - The complaints related to the specified department
+ */
+const GetComplaintsByDepartmentId = (req, res) => {
+    return complaintHelper.GetComplaintsByDepartmentId(req, res);
+};
+
 module.exports = {
     GetAllComplaints,
     CreateComplaint,
+    GetComplaintsByDepartmentId,
 };

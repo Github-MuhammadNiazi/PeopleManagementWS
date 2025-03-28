@@ -543,6 +543,15 @@ const CreateComplaint = async (req, res) => {
     });
 };
 
+const GetComplaintsByDepartmentId = async (departmentId) => {
+    return new Promise((resolve, reject) => {
+        db('Complaints')
+            .where('ComplaintDepartmentId', departmentId)
+            .then((complaints) => resolve(toCamelCase(complaints)))
+            .catch((error) => reject(error));
+    });
+};
+
 module.exports = {
     Begin,
     Commit,
@@ -572,4 +581,5 @@ module.exports = {
     CreateEmployeeRole,
     GetAllComplaints,
     CreateComplaint,
+    GetComplaintsByDepartmentId,
 };
