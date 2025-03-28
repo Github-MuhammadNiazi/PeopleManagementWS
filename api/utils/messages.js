@@ -105,5 +105,6 @@ module.exports = {
         failedToCreateComplaint: 'Failed to create complaint',
         complaintUpdatedSuccessfully: 'Complaint updated successfully',
         failedToUpdateComplaint: 'Failed to update complaint',
+        failedToRetrieveComplaintsByUserId: 'Failed to retrieve complaints for user',
     }
 };

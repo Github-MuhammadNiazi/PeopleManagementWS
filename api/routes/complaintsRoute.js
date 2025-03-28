@@ -25,10 +25,16 @@ router.get('/department/:id(\\d+)',
 /* POST create a new complaint */
 router.post('/new',
     allowAccess([
-        constants.userRoles.RegisteredUser,
-        constants.userRoles.Admin,
+        ...constants.userRoleTypes.Residents,
     ]),
     validateRequestBody(validationSchema.createComplaintSchema),
     complaintController.CreateComplaint);
+
+/* GET complaint by user ID. */
+router.get('/user',
+    allowAccess([
+        ...constants.userRoleTypes.Residents,
+    ]),
+    complaintController.GetComplaintByUserId);
 
 module.exports = router;

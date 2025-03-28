@@ -48,13 +48,14 @@ const Login = async (req, res) => {
 
             // Generate token
             const token = jwt.sign({
-                id: user.systemUserId,
+                userId: user.userId,
                 username: user.username,
                 role: user.userRoleId,
                 employeeRoleId: user.employeeRoleId,
             }, process.env.JWT_SECRET, { expiresIn: constants.defaultConfigurations.tokenExpiry.accessToken });
 
             return res.status(200).send(generateResponseBody({
+                userId: user.userId,
                 username: user.username,
                 role: user.userRoleId,
                 isEmployee: user.employeeRoleId ? true : false,
@@ -87,7 +88,7 @@ const GenerateResetToken = async (req, res) => {
 
             // Generate reset token
             const ResetCodeToken = jwt.sign({
-                id: user.systemUserId,
+                userId: user.userId,
                 username: user.username,
                 code: resetCode
             }, process.env.JWT_SECRET, { expiresIn: constants.defaultConfigurations.tokenExpiry.passwordResetToken });
@@ -258,11 +259,11 @@ const Signup = async (req, res) => {
 
             // Creating SystemUser record
             const systemUserResponse = await dbController.CreateSystemUser({
-                userId: createUserResponse.UserId,
+                userId: createUserResponse.userId,
                 userRoleId: req.body.userRoleId,
                 username: req.body.identificationNumber,
                 password: req.body.password,
-            }, req?.authorizedUser?.id || null);
+            }, req?.authorizedUser?.userId || null);
 
             if (systemUserResponse) {
 
