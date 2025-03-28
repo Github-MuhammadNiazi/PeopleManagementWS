@@ -290,7 +290,6 @@ const GetUsersPendingApproval = async () => {
 
 
 
-/*************  ✨ Codeium Command ⭐  *************/
 /**
  * Function to approve a user
  * @param {number} userId - The ID of the user to approve
@@ -298,8 +297,6 @@ const GetUsersPendingApproval = async () => {
  * @param {number} modifiedBy - The ID of the user who performs the approval
  * @returns {Promise} - Resolves with a success message if approved, rejects with an error message otherwise
  */
-
-/******  a0982930-eff7-44bf-8685-14a9a85f778a  *******/
 const ApproveUser = async (userId, userRoleId, modifiedBy) => {
     return new Promise((resolve, reject) => {
         db('SystemUsers')
