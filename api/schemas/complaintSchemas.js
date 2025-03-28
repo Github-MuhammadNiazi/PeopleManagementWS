@@ -17,6 +17,14 @@ const createComplaintSchema = Joi.object({
     }),
 });
 
+const getComplaintsByDepartmentIdSchema = Joi.object({
+    id: Joi.number().required().messages({
+        'any.required': 'Department ID is required',
+        'number.base': 'Department ID must be a number',
+    }),
+});
+
 module.exports = {
     createComplaintSchema,
+    getComplaintsByDepartmentIdSchema,
 };
