@@ -16,11 +16,11 @@ const authenticateToken = (req, res, next) => {
         if (err) {
             return res.status(403).send(generateResponseBody({}, messages.auth.token.failedToAuthenticateToken));
         }
-        if (!user?.id) {
+        if (!user?.userId) {
             return res.status(403).send(generateResponseBody({}, messages.auth.token.failedToAuthenticateToken));
         }
         req.authorizedUser = user;
-        winston.info(`Request Made by User with Id ${user.id}`, { req });
+        winston.info(`Request Made by User with Id ${user.userId}`, { req });
         next();
     });
 };

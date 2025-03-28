@@ -55,14 +55,23 @@ const GetUsersPendingApproval = async (req, res) => {
  */
 const ApproveUser = async (req, res) => {
     try {
-        const userStatus = await dbController.CheckUserStatuses(req.body.userId);
-        if (userStatus.IsApproved) {
+        const systemUser = await dbController.GetSystemUserByUserId(req.body.userId);
+        if (systemUser.isApproved) {
+            winston.info(`User with ID ${req.body.userId} is already approved.`, { req });
             return res.status(400).send(generateResponseBody({}, messages.users.userAlreadyApproved));
         }
-        const response = await dbController.ApproveUser(req);
+        winston.info(`Approving user with ID ${req.body.userId}.`, { req });
+        const response = await dbController.ApproveUser(
+            req.body.userId,
+            systemUser.employeeRoleId
+                ? constants.userRoles.OperatingUser
+                : constants.userRoles.ResidentUser,
+            req.authorizedUser.userId);
         if (response) {
+            winston.info(`User with ID ${req.body.userId} approved successfully.`, { req });
             return res.send(generateResponseBody({}, messages.users.userApprovedSuccessfully))
         } else {
+            winston.info(`Failed to approve user with ID ${req.body.userId}.`, { req });
             return res.status(400).send(generateResponseBody({}, messages.users.failedToApproveUser));
         }
     } catch (error) {
@@ -103,8 +112,8 @@ const GetSuspendedUsers = async (req, res) => {
  */
 const SuspendUser = async (req, res) => {
     try {
-        const userStatus = await dbController.CheckUserStatuses(req.body.userId);
-        if (userStatus.IsSuspended) {
+        const systemUser = await dbController.GetSystemUserByUserId(req.body.userId);
+        if (systemUser.isSuspended) {
             return res.status(400).send(generateResponseBody({}, messages.users.userAlreadySuspended));
         }
         const response = await dbController.SuspendUser(req);
@@ -151,8 +160,8 @@ const GetDeletedUsers = async (req, res) => {
  */
 const DeleteUser = async (req, res) => {
     try {
-        const userStatus = await dbController.CheckUserStatuses(req.body.userId);
-        if (userStatus.IsDeleted) {
+        const systemUser = await dbController.GetSystemUserByUserId(req.body.userId);
+        if (systemUser.isDeleted) {
             return res.status(400).send(generateResponseBody({}, messages.users.userAlreadyDeleted));
         }
         const response = await dbController.DeleteUser(req);
@@ -199,13 +208,13 @@ const CreateEmployee = async (req, res) => {
                 username: req.body.identificationNumber,
                 password: randomPassword,
                 employeeRoleId: req.body.employeeRoleId,
-            }, req?.authorizedUser?.id || null);
+            }, req?.authorizedUser?.userId || null);
 
             if (systemUserResponse) {
 
                 // Committing transaction if all operations are successful
                 await dbController.Commit();
-                return res.status(201).send(generateResponseBody({...systemUserResponse, password: randomPassword}, messages.employee.employeeCreatedSuccessfully));
+                return res.status(201).send(generateResponseBody({ ...systemUserResponse, password: randomPassword }, messages.employee.employeeCreatedSuccessfully));
             }
         }
         return res.status(500).send(generateResponseBody({}, messages.users.failedToCreateUser));

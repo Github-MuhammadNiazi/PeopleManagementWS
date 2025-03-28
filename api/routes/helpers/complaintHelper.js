@@ -53,8 +53,8 @@ const CreateComplaint = async (req, res) => {
  */
 const GetComplaintsByDepartmentId = async (req, res) => {
     try {
-        winston.info(`Fetching complaints by department ID: ${req.params.id}.`, { req });
-        const response = await dbController.GetComplaintsByDepartmentId(req.params.id);
+        winston.info(`Fetching complaints by department ID: ${req.params.departmentId}.`, { req });
+        const response = await dbController.GetComplaintsByDepartmentId(req.params.departmentId);
         winston.info(`${messages.complaints.complaintsRetrievedSuccessfully}, Number of Complaints: ${response.length}`, { req });
         return res.send(generateResponseBody(response, !!response.length
             ? messages.complaints.complaintsRetrievedSuccessfully
@@ -66,8 +66,30 @@ const GetComplaintsByDepartmentId = async (req, res) => {
     }
 };
 
+/**
+ * Function to get complaints by user ID
+ * @param {*} req - The request object containing the user ID as a parameter
+ * @param {*} res - The response object
+ * @returns {} - The complaints related to the specified user
+ */
+const GetComplaintByUserId = async (req, res) => {
+    try {
+        winston.info(`Fetching complaints by user ID: ${req.authorizedUser.userId}.`, { req });
+        const response = await dbController.GetComplaintByUserId(req.authorizedUser.userId);
+        winston.info(`${messages.complaints.complaintsRetrievedSuccessfully}, Number of Complaints: ${response.length}`, { req });
+        return res.send(generateResponseBody(response, !!response.length
+            ? messages.complaints.complaintsRetrievedSuccessfully
+            : messages.complaints.noComplaints));
+    } catch (error) {
+        winston.error(`${messages.complaints.failedToRetrieveComplaintsByUserId} Error: ${error.message}`, { req });
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.complaints.failedToRetrieveComplaintsByUserId, error.message));
+    }
+};
+
 module.exports = {
     GetAllComplaints,
     CreateComplaint,
     GetComplaintsByDepartmentId,
+    GetComplaintByUserId,
 };
