@@ -4,7 +4,7 @@ var router = express.Router();
 const propertiesController = require('./controllers/propertiesController');
 var allowAccess = require('../middlewares/roleBasedAccessMiddleware');
 var constants = require('../utils/constants');
-var validateRequestBody = require('../middlewares/validateRequestBodyMiddleware');
+var { validateRequestBody } = require('../middlewares/validationMiddleware');
 var validationSchema = require('../schemas/propertiesSchemas');
 
 /* GET User Roles. */

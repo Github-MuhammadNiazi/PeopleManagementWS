@@ -66,7 +66,8 @@ function onError(error) {
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
-      winston.error(bind + ' requires elevated privileges');
+      winston.error(bind + ' requires elevated privileges.');
+      winston.info('Please verify if system variables are configured correctly and you have the required permissions.');
       process.exit(1);
       break;
     case 'EADDRINUSE':

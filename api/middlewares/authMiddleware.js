@@ -13,11 +13,12 @@ const authenticateToken = (req, res, next) => {
     }
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) {
+        if (err || !user?.userId) {
+            winston.error('Token verification failed', { req });
             return res.status(403).send(generateResponseBody({}, messages.auth.token.failedToAuthenticateToken));
         }
         req.authorizedUser = user;
-        winston.info(`Request Made by ${user.id ? 'User with Id' : 'User'}: ${user.id || user.username}`, { req });
+        winston.info(`Request Made by User with Id ${user.userId}`, { req });
         next();
     });
 };

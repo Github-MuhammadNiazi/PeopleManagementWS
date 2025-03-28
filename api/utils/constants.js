@@ -50,7 +50,8 @@ const contactDetails = {
 }
 
 const userRoleTypes = {
-    Residents: [1, 4, 5],
+    All: [1, 2, 3, 4, 5, 6],
+    Residents: [1, 4],
     Staff: [1, 2, 3],
     Management: [1, 2],
 }
@@ -64,9 +65,31 @@ const userRoles = {
     UnregisteredUser: 6,
 }
 
+const complaints = {
+    status: {
+        pending: 'Pending',
+        inProgress: 'In Progress',
+        needsApproval: 'Needs Approval',
+        approved: 'Approved',
+        needsReview: 'Needs Review',
+        resolved: 'Resolved',
+        closed: 'Closed',
+    },
+    Type: {
+        complaint: 'Complaint',
+        suggestion: 'Suggestion',
+        inquiry: 'Inquiry',
+        feedback: 'Feedback',
+        urgent: 'Urgent',
+        horticultural: 'Horticultural',
+        other: 'Other',
+    }
+}
+
 module.exports = {
     defaultConfigurations,
     userRoleTypes,
     userRoles,
     contactDetails,
+    complaints,
 };

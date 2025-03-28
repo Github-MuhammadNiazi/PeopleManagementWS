@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const constants = require('../utils/constants');
 
 const approveUserSchema = Joi.object({
   userId: Joi.number().required().messages({
@@ -28,9 +29,15 @@ const createEmployeeSchema = Joi.object({
   identificationNumber: Joi.string().required().messages({
     'any.required': 'Identification number is required'
   }),
-  userRoleId: Joi.number().required().messages({
-    'any.required': 'User role ID is required'
-  }),
+  userRoleId: Joi.number().required().integer()
+    .min(constants.userRoles.Admin).
+    max(constants.userRoles.OperatingUser)
+    .messages({
+      'any.required': 'User role ID is required',
+      'number.base': 'User role ID must be a number',
+      'number.min': 'Invalid User Role ID',
+      'number.max': 'Invalid User Role ID',
+    }),
   employeeRoleId: Joi.number().required().messages({
     'any.required': 'Employee role ID is required'
   }),

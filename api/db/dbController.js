@@ -3,6 +3,8 @@ const messages = require('../utils/messages');
 const { getCurrentDateTime } = require('../utils/calendar');
 const bcrypt = require('bcryptjs');
 const defaultAPIUserCode = 0;
+const constants = require('../utils/constants');
+const { toCamelCase } = require('../utils/caseConverter');
 
 /**
  * Function to begin a transaction
@@ -56,7 +58,7 @@ const GetUserByUsername = async (username) => {
                 } else if (users.length > 1) {
                     return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
                 }
-                return resolve(users[0]);
+                return resolve(toCamelCase(users[0]));
             })
             .catch((error) => reject(error));
     });
@@ -75,7 +77,7 @@ const UpdateResetCode = async (resetCode, username, req) => {
             .update({
                 ResetCode: resetCode,
                 ModifiedOn: getCurrentDateTime(),
-                ModifiedBy: req?.authorizedUser?.id || defaultAPIUserCode
+                ModifiedBy: req?.authorizedUser?.userId || defaultAPIUserCode
             })
             .then((updated) => {
                 if (updated === 0) {
@@ -100,7 +102,7 @@ const UpdatePasswordAgainstUsername = async (password, username, req) => {
             .update({
                 Password: password,
                 ModifiedOn: getCurrentDateTime(),
-                ModifiedBy: req?.authorizedUser?.id || defaultAPIUserCode
+                ModifiedBy: req?.authorizedUser?.userId || defaultAPIUserCode
             })
             .then((updated) => {
                 if (updated === 0) {
@@ -125,7 +127,7 @@ const UpdateResetCodeAgainstUsername = async (resetCode, username, req) => {
             .update({
                 ResetCode: resetCode,
                 ModifiedOn: getCurrentDateTime(),
-                ModifiedBy: req?.authorizedUser?.id || defaultAPIUserCode
+                ModifiedBy: req?.authorizedUser?.userId || defaultAPIUserCode
             })
             .then((updated) => {
                 if (updated === 0) {
@@ -146,7 +148,7 @@ const GetUserRoles = async () => {
         db('UserRoles')
             .select('UserRoleId', 'UserRoleName')
             .where('IsDeleted', false)
-            .then((roles) => resolve(roles))
+            .then((roles) => resolve(toCamelCase(roles)))
             .catch((error) => reject(error));
     });
 }
@@ -196,7 +198,7 @@ const CreateUser = async (user) => {
                 IsForeigner: user.isForeigner || false,
             })
             .returning('*')
-            .then((users) => resolve(users[0]))
+            .then((users) => resolve(toCamelCase(users[0])))
             .catch((error) => reject(error));
     });
 };
@@ -219,7 +221,7 @@ const CreateSystemUser = async (user, createdBy) => {
                 EmployeeRoleId: user.employeeRoleId || null,
             })
             .returning('UserId', 'Username', 'EmployeeRoleId')
-            .then((users) => resolve(users[0]))
+            .then((users) => resolve(toCamelCase(users[0])))
             .catch((error) => reject(error));
     });
 };
@@ -234,24 +236,24 @@ const GetAllUsers = async () => {
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
             .select(
                 'u.UserId', 'u.FirstName', 'u.LastName', 'u.Email', 'u.IsApartment', 'u.Apartment', 'u.Building', 'u.Street', 'u.Region', 'u.City', 'u.Country', 'u.IsForeigner',
+                'su.UserRoleId', 'su.EmployeeRoleId',
                 'su.Username', 'su.IsApproved', 'su.IsSuspended',
                 'su.CreatedOn', 'su.CreatedBy', 'su.ModifiedOn', 'su.ModifiedBy'
             )
             .where('su.IsDeleted', false)
-            .then((users) => resolve(users))
+            .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
 };
 
 /**
- * Function to check user statuses
- * @param {number} userId
+ * Function get system user by userId
+ * @param {number} systemUserId
  * @returns {Promise}
  */
-const CheckUserStatuses = async (userId) => {
+const GetSystemUserByUserId = async (userId) => {
     return new Promise((resolve, reject) => {
         db('SystemUsers')
-            .select('IsApproved', 'IsSuspended', 'IsDeleted')
             .where('UserId', userId)
             .then((users) => {
                 if (users.length === 0) {
@@ -259,7 +261,7 @@ const CheckUserStatuses = async (userId) => {
                 } else if (users.length > 1) {
                     return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
                 }
-                return resolve(users[0]);
+                return resolve(toCamelCase(users[0]));
             })
             .catch((error) => reject(error));
     });
@@ -275,30 +277,35 @@ const GetUsersPendingApproval = async () => {
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
             .select(
                 'u.UserId', 'u.FirstName', 'u.LastName', 'u.Email',
-                'su.Username', 'su.IsApproved',
+                'su.Username', 'su.IsApproved', 'su.UserRoleId', 'su.EmployeeRoleId',
                 'su.CreatedOn', 'su.CreatedBy', 'su.ModifiedOn', 'su.ModifiedBy'
             )
             .where('su.IsDeleted', false)
             .andWhere('su.IsApproved', false)
             .andWhere('su.IsSuspended', false)
-            .then((users) => resolve(users))
+            .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
 }
 
+
+
 /**
  * Function to approve a user
- * @param {object} user
- * @returns {Promise}
+ * @param {number} userId - The ID of the user to approve
+ * @param {number} userRoleId - The role ID to assign to the user
+ * @param {number} modifiedBy - The ID of the user who performs the approval
+ * @returns {Promise} - Resolves with a success message if approved, rejects with an error message otherwise
  */
-const ApproveUser = async (req) => {
+const ApproveUser = async (userId, userRoleId, modifiedBy) => {
     return new Promise((resolve, reject) => {
         db('SystemUsers')
-            .where('UserId', req.body.userId)
+            .where('UserId', userId)
             .update({
                 IsApproved: true,
+                UserRoleId: userRoleId,
                 ModifiedOn: getCurrentDateTime(),
-                ModifiedBy: req?.authorizedUser?.id || defaultAPIUserCode
+                ModifiedBy: modifiedBy
             })
             .returning('*')
             .then((users) => {
@@ -325,7 +332,7 @@ const GetSuspendedUsers = async () => {
             )
             .where('su.IsDeleted', false)
             .andWhere('su.IsSuspended', true)
-            .then((users) => resolve(users))
+            .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
 };
@@ -342,7 +349,7 @@ const SuspendUser = async (req) => {
             .update({
                 IsSuspended: true,
                 ModifiedOn: getCurrentDateTime(),
-                ModifiedBy: req?.authorizedUser?.id || defaultAPIUserCode
+                ModifiedBy: req?.authorizedUser?.userId || defaultAPIUserCode
             })
             .returning('*')
             .then((users) => {
@@ -368,7 +375,7 @@ const GetDeletedUsers = async () => {
                 'su.Username', 'su.IsDeleted'
             )
             .where('su.IsDeleted', true)
-            .then((users) => resolve(users))
+            .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
 };
@@ -385,7 +392,7 @@ const DeleteUser = async (req) => {
             .update({
                 IsDeleted: true,
                 ModifiedOn: getCurrentDateTime(),
-                ModifiedBy: req?.authorizedUser?.id || defaultAPIUserCode
+                ModifiedBy: req?.authorizedUser?.userId || defaultAPIUserCode
             })
             .returning('*')
             .then((users) => {
@@ -407,7 +414,7 @@ const GetDepartments = async () => {
         db('Departments')
             .select('DepartmentId', 'DepartmentName', 'Description')
             .where('IsDeleted', false)
-            .then((departments) => resolve(departments))
+            .then((departments) => resolve(toCamelCase(departments)))
             .catch((error) => reject(error));
     });
 };
@@ -439,10 +446,10 @@ const CreateDepartment = async (req) => {
             .insert({
                 DepartmentName: req.body.departmentName,
                 Description: req.body.description,
-                CreatedBy: req?.authorizedUser?.id || defaultAPIUserCode
+                CreatedBy: req?.authorizedUser?.userId || defaultAPIUserCode
             })
             .returning('*')
-            .then((departments) => resolve(departments[0]))
+            .then((departments) => resolve(toCamelCase(departments[0])))
             .catch((error) => reject(error));
     });
 };
@@ -456,7 +463,7 @@ const GetEmployeeRoles = async () => {
         db('EmployeeRoles')
             .select('EmployeeRoleId', 'RoleName', 'RoleDescription', 'DepartmentId')
             .where('IsDeleted', false)
-            .then((roles) => resolve(roles))
+            .then((roles) => resolve(toCamelCase(roles)))
             .catch((error) => reject(error));
     });
 }
@@ -505,14 +512,58 @@ const CreateEmployeeRole = async (req) => {
                 RoleName: req.body.roleName,
                 RoleDescription: req.body.roleDescription,
                 DepartmentId: req.body.departmentId,
-                CreatedBy: req?.authorizedUser?.id || defaultAPIUserCode
+                CreatedBy: req.authorizedUser.userId
             })
             .returning('*')
-            .then((roles) => resolve(roles[0]))
+            .then((roles) => resolve(toCamelCase(roles[0])))
             .catch((error) => reject(error));
     });
 }
 
+const GetAllComplaints = async (req, res) => {
+    return new Promise((resolve, reject) => {
+        db('Complaints as c')
+            .join('SystemUsers as su', 'c.CreatedBy', 'su.SystemUserId')
+            .join('Users as u', 'su.UserId', 'u.UserId')
+            .select('c.*', 'u.FirstName', 'u.LastName', 'u.ContactNumber')
+            .then((complaints) => resolve(toCamelCase(complaints)))
+            .catch((error) => reject(error));
+    })
+};
+
+const CreateComplaint = async (req, res) => {
+    return new Promise((resolve, reject) => {
+        db('Complaints')
+            .insert({
+                ComplaintDescription: req.body.complaintDescription,
+                CurrentStatus: constants.complaints.status.pending,
+                ComplaintType: req.body.complaintType,
+                ComplaintDepartmentId: req.body.complaintDepartmentId,
+                CreatedBy: req.authorizedUser.userId,
+            })
+            .returning('*')
+            .then((complaints) => resolve(toCamelCase(complaints[0])))
+            .catch((error) => reject(error));
+    });
+};
+
+const GetComplaintsByDepartmentId = async (departmentId) => {
+    return new Promise((resolve, reject) => {
+        db('Complaints')
+            .where('ComplaintDepartmentId', departmentId)
+            .then((complaints) => resolve(toCamelCase(complaints)))
+            .catch((error) => reject(error));
+    });
+};
+
+const GetComplaintByUserId = async (userId) => {
+    return new Promise((resolve, reject) => {
+        db('Complaints')
+            .where('CreatedBy', userId)
+            .then((complaints) => resolve(toCamelCase(complaints)))
+            .catch((error) => reject(error));
+    });
+};
 
 module.exports = {
     Begin,
@@ -527,7 +578,7 @@ module.exports = {
     CreateUser,
     CreateSystemUser,
     GetAllUsers,
-    CheckUserStatuses,
+    GetSystemUserByUserId,
     GetUsersPendingApproval,
     ApproveUser,
     GetSuspendedUsers,
@@ -541,4 +592,8 @@ module.exports = {
     GetEmployeeRoleByName,
     GetEmployeeRoleByRoleId,
     CreateEmployeeRole,
+    GetAllComplaints,
+    CreateComplaint,
+    GetComplaintsByDepartmentId,
+    GetComplaintByUserId,
 };

@@ -22,8 +22,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Add request ID to each request
+app.use(requestUuid);
+
 // Middleware to check if the request is coming from an allowed platform
 app.use((req, res, next) => {
+    winston.info(`incoming request from Platform: [${req.headers['platform']}], IP: [${req.headers['x-forwarded-for'] || req.ip}]`, { req });
     if (!req.headers['platform'] || constants.defaultConfigurations.allowedPlatforms.indexOf(req.headers['platform']) === -1) {
         return res.status(400).json({ error: 'Unregistered access.' });
     }
@@ -32,9 +36,6 @@ app.use((req, res, next) => {
 
 // Custom response wrapper middleware
 app.use(responseWrapper);
-
-// Add request ID to each request
-app.use(requestUuid);
 
 // Log all requests
 app.use((req, res, next) => {
@@ -58,18 +59,28 @@ app.use((req, res, next) => {
     const redactedReqBody = req.body ? { ...req.body } : req.body;
     redactPasswords(redactedReqBody);
 
-    requsetDataMessage = [
+    requestDataMessage = [
         req.body && Object.keys(req.body).length > 0 ? `req: ${JSON.stringify(redactedReqBody)}` : null,
         req.query && Object.keys(req.query).length > 0 ? `query: ${JSON.stringify(req.query)}` : null,
         req.params && Object.keys(req.params).length > 0 ? `params: ${JSON.stringify(req.params)}` : null,
     ].filter((item) => item).join(', ');
-    if (requsetDataMessage) {
-        winston.info(requsetDataMessage, { req });
+    if (requestDataMessage) {
+        winston.info(requestDataMessage, { req });
     }
     next();
 });
 
 // Use routes with API prefix and version
 app.use(`${constants.defaultConfigurations.apiPrefix}/${constants.defaultConfigurations.apiVersion}`, routes);
+
+// Catch non-existent endpoints and return a custom response
+app.use((req, res, next) => {
+    res.status(404).json({
+        success: false,
+        message: 'You have performed an invalid operation.',
+        data: null,
+        error: 'Response not found',
+    });
+});
 
 module.exports = app;

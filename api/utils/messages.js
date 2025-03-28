@@ -93,5 +93,18 @@ module.exports = {
             employeeRoleCreatedSuccessfully: 'Employee role created successfully',
             failedToCreateEmployeeRole: 'Failed to create employee role',
         },
+    },
+    complaints: {
+        allComplaintsRetrieved: 'All complaints retrieved successfully',
+        noComplaints: 'No complaints found',
+        failedToRetrieveAllComplaints: 'Failed to retrieve all complaints',
+        complaintsRetrievedSuccessfully: 'Complaints retrieved successfully',
+        complaintRetrievedSuccessfully: 'Complaint retrieved successfully',
+        failedToRetrieveComplaint: 'Failed to retrieve complaint',
+        complaintCreatedSuccessfully: 'Complaint created successfully',
+        failedToCreateComplaint: 'Failed to create complaint',
+        complaintUpdatedSuccessfully: 'Complaint updated successfully',
+        failedToUpdateComplaint: 'Failed to update complaint',
+        failedToRetrieveComplaintsByUserId: 'Failed to retrieve complaints for user',
     }
 };
