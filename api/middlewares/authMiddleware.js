@@ -13,10 +13,8 @@ const authenticateToken = (req, res, next) => {
     }
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) {
-            return res.status(403).send(generateResponseBody({}, messages.auth.token.failedToAuthenticateToken));
-        }
-        if (!user?.userId) {
+        if (err || !user?.userId) {
+            winston.error('Token verification failed', { req });
             return res.status(403).send(generateResponseBody({}, messages.auth.token.failedToAuthenticateToken));
         }
         req.authorizedUser = user;
