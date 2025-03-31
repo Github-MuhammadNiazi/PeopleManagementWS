@@ -12,8 +12,25 @@ jobs:
       - name: Pull latest code
         uses: actions/checkout@v2
 
+      - name: Replace placeholders in .env file with GitHub Secrets
+        run: |
+          sed -i "s/your_api_port/3000/" api/.env
+          sed -i "s/your_db_user/${{ secrets.DB_USER }}/" api/.env
+          sed -i "s/your_db_password/${{ secrets.DB_PASSWORD }}/" api/.env
+          sed -i "s/your_db_host/${{ secrets.DB_HOST }}/" api/.env
+          sed -i "s/your_db_port/${{ secrets.DB_PORT }}/" api/.env
+          sed -i "s/your_db_name/${{ secrets.DB_NAME }}/" api/.env
+          sed -i "s/your_jwt_secret/${{ secrets.JWT_SECRET }}/" api/.env
+          sed -i "s/your_brevo_api_key/${{ secrets.BREVO_API_KEY }}/" api/.env
+
       - name: Log in to Docker
         run: docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
+
+      - name: Build and run services
+        env:
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
       - name: Rebuild and run containers
         run: docker-compose up -d --build
