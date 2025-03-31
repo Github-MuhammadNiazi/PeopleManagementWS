@@ -13,3 +13,17 @@ services:
       dockerfile: api/Dockerfile
     ports:
       - "3000:3000"
+
+  postgres:
+    image: postgres:17.2
+    container_name: postgres_container
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./postgres/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    command: bash -c "envsubst < /docker-entrypoint-initdb.d/db_seed_template.sql > /docker-entrypoint-initdb.d/db_seed.sql && docker-entrypoint.sh postgres"
