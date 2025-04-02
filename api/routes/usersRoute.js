@@ -53,6 +53,7 @@ router.get('/deleted',
     allowAccess([
         ...constants.userRoleTypes.Management
     ]),
+    validateQueryParams(paginationSchema),
     userController.GetDeletedUsers);
 
 /* DELETE Update User status to Delete */

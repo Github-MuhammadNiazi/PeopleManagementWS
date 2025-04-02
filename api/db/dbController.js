@@ -447,9 +447,10 @@ const SuspendUser = async (req) => {
 
 /**
  * Function to get deleted users
+ * @param {Object} pagination - The pagination object containing limit and offset
  * @returns {Promise}
  */
-const GetDeletedUsers = async () => {
+const GetDeletedUsers = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Users as u')
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
@@ -458,6 +459,8 @@ const GetDeletedUsers = async () => {
                 'su.Username', 'su.IsDeleted'
             )
             .where('su.IsDeleted', true)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });

@@ -138,7 +138,7 @@ const SuspendUser = async (req, res) => {
 const GetDeletedUsers = async (req, res) => {
     try {
         winston.info(`Fetching all deleted users.`, { req });
-        const response = await dbController.GetDeletedUsers();
+        const response = await dbController.GetDeletedUsers(req.pagination);
         winston.info(`${messages.users.usersRetrievedSuccessfully}, Number of Users: ${response.length}`, { req });
         return res.send(generateResponseBody(
             response,
