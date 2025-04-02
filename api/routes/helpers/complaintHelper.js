@@ -56,8 +56,9 @@ const CreateComplaint = async (req, res) => {
  */
 const GetComplaintsByDepartmentId = async (req, res) => {
     try {
+        const pagination = paginate(req.query);
         winston.info(`Fetching complaints by department ID: ${req.params.id}.`, { req });
-        const response = await dbController.GetComplaintsByDepartmentId(req.params.id);
+        const response = await dbController.GetComplaintsByDepartmentId(req.params.id, pagination);
         winston.info(`${messages.complaints.complaintsRetrievedSuccessfully}, Number of Complaints: ${response.length}`, { req });
         return res.send(generateResponseBody(response, !!response.length
             ? messages.complaints.complaintsRetrievedSuccessfully

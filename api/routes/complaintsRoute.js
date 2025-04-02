@@ -23,6 +23,7 @@ router.get('/department/:id(\\d+)',
         ...constants.userRoleTypes.Staff
     ]),
     validatePathVariables(validationSchema.getComplaintsByDepartmentIdSchema),
+    validateQueryParams(paginationSchema),
     complaintController.GetComplaintsByDepartmentId);
 
 /* POST create a new complaint */

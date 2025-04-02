@@ -640,16 +640,18 @@ const CreateComplaint = async (req, res) => {
     });
 };
 
-
 /**
- * Function to get all complaints by department ID
- * @param {number} departmentId - The department ID
- * @returns {Promise} - Resolves with a list of complaints
+ * Function to get complaints by department ID
+ * @param {number} departmentId - The department ID to filter by
+ * @param {object} pagination - The pagination object containing the limit and offset
+ * @returns {Promise} - Resolves with a list of complaints related to the specified department
  */
-const GetComplaintsByDepartmentId = async (departmentId) => {
+const GetComplaintsByDepartmentId = async (departmentId, pagination) => {
     return new Promise((resolve, reject) => {
         db('Complaints')
             .where('ComplaintDepartmentId', departmentId)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
     });
