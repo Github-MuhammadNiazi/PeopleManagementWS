@@ -1,5 +1,5 @@
 const dbController = require('../../db/dbController');
-const { getErrorCode } = require('../../utils/converters');
+const { getErrorCode, getPostgresErrorCodeMessage } = require('../../utils/converters');
 const messages = require('../../utils/messages');
 const generateResponseBody = require('../../utils/responseGenerator');
 const winston = require('../../utils/winston');

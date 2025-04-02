@@ -3,7 +3,7 @@ const messages = require('../../utils/messages');
 const generateResponseBody = require('../../utils/responseGenerator');
 const winston = require('../../utils/winston');
 const constants = require('../../utils/constants');
-const { getErrorCode } = require('../../utils/converters');
+const { getErrorCode, getPostgresErrorCodeMessage } = require('../../utils/converters');
 
 /**
  * Function to get all users
