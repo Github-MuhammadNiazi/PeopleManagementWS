@@ -15,9 +15,8 @@ const paginate = require('../../utils/pagination');
  */
 const GetAllComplaints = async (req, res) => {
     try {
-        const pagination = paginate(req.query);
         winston.info(`Fetching all complaints.`, { req });
-        const response = await dbController.GetAllComplaints(pagination);
+        const response = await dbController.GetAllComplaints(req.pagination);
         winston.info(`${messages.complaints.complaintsRetrievedSuccessfully}, Number of Complaints: ${response.length}`, { req });
         return res.send(generateResponseBody(response, !!response.length
             ? messages.complaints.complaintsRetrievedSuccessfully
@@ -57,7 +56,7 @@ const CreateComplaint = async (req, res) => {
 const GetComplaintsByDepartmentId = async (req, res) => {
     try {
         winston.info(`Fetching complaints by department ID: ${req.params.id}.`, { req });
-        const response = await dbController.GetComplaintsByDepartmentId(req.params.id);
+        const response = await dbController.GetComplaintsByDepartmentId(req.params.id, req.pagination);
         winston.info(`${messages.complaints.complaintsRetrievedSuccessfully}, Number of Complaints: ${response.length}`, { req });
         return res.send(generateResponseBody(response, !!response.length
             ? messages.complaints.complaintsRetrievedSuccessfully
@@ -78,7 +77,7 @@ const GetComplaintsByDepartmentId = async (req, res) => {
 const GetComplaintByUserId = async (req, res) => {
     try {
         winston.info(`Fetching complaints by user ID: ${req.authorizedUser.userId}.`, { req });
-        const response = await dbController.GetComplaintByUserId(req.authorizedUser.userId);
+        const response = await dbController.GetComplaintByUserId(req.authorizedUser.userId, req.pagination);
         winston.info(`${messages.complaints.complaintsRetrievedSuccessfully}, Number of Complaints: ${response.length}`, { req });
         return res.send(generateResponseBody(response, !!response.length
             ? messages.complaints.complaintsRetrievedSuccessfully

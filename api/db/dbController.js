@@ -301,10 +301,11 @@ const CreateSystemUser = async (user, createdBy) => {
 };
 
 /**
- * Function to get all users
- * @returns {Promise}
+ * Function to get all users with pagination
+ * @param {Object} pagination - The pagination object containing limit and offset
+ * @returns {Promise} - Resolves with a list of users
  */
-const GetAllUsers = async () => {
+const GetAllUsers = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Users as u')
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
@@ -315,6 +316,8 @@ const GetAllUsers = async () => {
                 'su.CreatedOn', 'su.CreatedBy', 'su.ModifiedOn', 'su.ModifiedBy'
             )
             .where('su.IsDeleted', false)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
@@ -343,9 +346,10 @@ const GetSystemUserByUserId = async (userId) => {
 
 /**
  * Function to get users pending approval
+ * @param {Object} pagination - The pagination object containing limit and offset
  * @returns {Promise}
  */
-const GetUsersPendingApproval = async () => {
+const GetUsersPendingApproval = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Users as u')
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
@@ -357,6 +361,8 @@ const GetUsersPendingApproval = async () => {
             .where('su.IsDeleted', false)
             .andWhere('su.IsApproved', false)
             .andWhere('su.IsSuspended', false)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
@@ -394,9 +400,10 @@ const ApproveUser = async (userId, userRoleId, modifiedBy) => {
 
 /**
  * Function to get suspended users
+ * @param {Object} pagination - The pagination object containing limit and offset
  * @returns {Promise}
  */
-const GetSuspendedUsers = async () => {
+const GetSuspendedUsers = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Users as u')
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
@@ -406,6 +413,8 @@ const GetSuspendedUsers = async () => {
             )
             .where('su.IsDeleted', false)
             .andWhere('su.IsSuspended', true)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
@@ -438,9 +447,10 @@ const SuspendUser = async (req) => {
 
 /**
  * Function to get deleted users
+ * @param {Object} pagination - The pagination object containing limit and offset
  * @returns {Promise}
  */
-const GetDeletedUsers = async () => {
+const GetDeletedUsers = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Users as u')
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
@@ -449,6 +459,8 @@ const GetDeletedUsers = async () => {
                 'su.Username', 'su.IsDeleted'
             )
             .where('su.IsDeleted', true)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
@@ -640,16 +652,18 @@ const CreateComplaint = async (req, res) => {
     });
 };
 
-
 /**
- * Function to get all complaints by department ID
- * @param {number} departmentId - The department ID
- * @returns {Promise} - Resolves with a list of complaints
+ * Function to get complaints by department ID
+ * @param {number} departmentId - The department ID to filter by
+ * @param {object} pagination - The pagination object containing the limit and offset
+ * @returns {Promise} - Resolves with a list of complaints related to the specified department
  */
-const GetComplaintsByDepartmentId = async (departmentId) => {
+const GetComplaintsByDepartmentId = async (departmentId, pagination) => {
     return new Promise((resolve, reject) => {
         db('Complaints')
             .where('ComplaintDepartmentId', departmentId)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
     });
@@ -657,13 +671,16 @@ const GetComplaintsByDepartmentId = async (departmentId) => {
 
 /**
  * Function to get complaints by user ID
- * @param {number} userId
+ * @param {number} userId - The ID of the user whose complaints are to be retrieved
+ * @param {object} pagination - The pagination object containing limit and offset
  * @returns {Promise} - Resolves with a list of complaints created by the specified user
  */
-const GetComplaintByUserId = async (userId) => {
+const GetComplaintByUserId = async (userId, pagination) => {
     return new Promise((resolve, reject) => {
         db('Complaints')
             .where('CreatedBy', userId)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
     });

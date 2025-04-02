@@ -12,6 +12,7 @@ var routes = require('./routes/index');
 var responseWrapper = require('./middlewares/responseWrapperMiddleware');
 var requestUuid = require('./middlewares/requestIdMiddleware');
 var constants = require('./utils/constants');
+const { paginationMiddleware } = require('./middlewares/utilMiddleware');
 
 // Initialize Express app
 var app = express();
@@ -36,6 +37,9 @@ app.use((req, res, next) => {
 
 // Custom response wrapper middleware
 app.use(responseWrapper);
+
+// Middleware to add pagination to requests
+app.use(paginationMiddleware);
 
 // Log all requests
 app.use((req, res, next) => {

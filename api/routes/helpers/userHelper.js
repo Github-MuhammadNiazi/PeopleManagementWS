@@ -14,7 +14,7 @@ const { getErrorCode, getPostgresErrorCodeMessage } = require('../../utils/conve
 const GetAllUsers = async (req, res) => {
     try {
         winston.info(`Fetching all users.`, { req });
-        const response = await dbController.GetAllUsers();
+        const response = await dbController.GetAllUsers(req.pagination);
         winston.info(`${messages.users.usersRetrievedSuccessfully}, Number of Users: ${response.length}`, { req });
         return res.send(generateResponseBody(response, messages.users.usersRetrievedSuccessfully))
     } catch (error) {
@@ -33,7 +33,7 @@ const GetAllUsers = async (req, res) => {
 const GetUsersPendingApproval = async (req, res) => {
     try {
         winston.info(`Fetching all users pending approval.`, { req });
-        const response = await dbController.GetUsersPendingApproval();
+        const response = await dbController.GetUsersPendingApproval(req.pagination);
         winston.info(`${messages.users.usersRetrievedSuccessfully}, Number of Users: ${response.length}`, { req });
         return res.send(generateResponseBody(
             response,
@@ -90,7 +90,7 @@ const ApproveUser = async (req, res) => {
 const GetSuspendedUsers = async (req, res) => {
     try {
         winston.info(`Fetching all suspended users.`, { req });
-        const response = await dbController.GetSuspendedUsers();
+        const response = await dbController.GetSuspendedUsers(req.pagination);
         winston.info(`${messages.users.usersRetrievedSuccessfully}, Number of Users: ${response.length}`, { req });
         return res.send(generateResponseBody(
             response,
@@ -138,7 +138,7 @@ const SuspendUser = async (req, res) => {
 const GetDeletedUsers = async (req, res) => {
     try {
         winston.info(`Fetching all deleted users.`, { req });
-        const response = await dbController.GetDeletedUsers();
+        const response = await dbController.GetDeletedUsers(req.pagination);
         winston.info(`${messages.users.usersRetrievedSuccessfully}, Number of Users: ${response.length}`, { req });
         return res.send(generateResponseBody(
             response,

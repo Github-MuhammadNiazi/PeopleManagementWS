@@ -2,17 +2,19 @@ var express = require('express');
 var router = express.Router();
 
 const complaintController = require('./controllers/complaintController');
-var allowAccess = require('../middlewares/roleBasedAccessMiddleware');
-var constants = require('../utils/constants');
-var { validateRequestBody, validatePathVariables } = require('../middlewares/validationMiddleware');
-var validationSchema = require('../schemas/complaintSchemas');
+const allowAccess = require('../middlewares/roleBasedAccessMiddleware');
+const constants = require('../utils/constants');
+const { validateRequestBody, validatePathVariables, validateQueryParams } = require('../middlewares/validationMiddleware');
+const validationSchema = require('../schemas/complaintSchemas');
+const { paginationSchema } = require('../schemas/paginationSchemas');
+
 
 /* GET complaints listing. */
 router.get('/',
     allowAccess([
         ...constants.userRoleTypes.Management
     ]),
-    validatePathVariables(validationSchema.getAllComplaintsSchema),
+    validateQueryParams(paginationSchema),
     complaintController.GetAllComplaints);
 
 /* GET complaints by departmentId. */
@@ -21,6 +23,7 @@ router.get('/department/:id(\\d+)',
         ...constants.userRoleTypes.Staff
     ]),
     validatePathVariables(validationSchema.getComplaintsByDepartmentIdSchema),
+    validateQueryParams(paginationSchema),
     complaintController.GetComplaintsByDepartmentId);
 
 /* POST create a new complaint */
@@ -36,6 +39,7 @@ router.get('/user',
     allowAccess([
         ...constants.userRoleTypes.Residents,
     ]),
+    validateQueryParams(paginationSchema),
     complaintController.GetComplaintByUserId);
 
 module.exports = router;
