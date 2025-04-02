@@ -21,6 +21,7 @@ router.get('/pending',
     allowAccess([
         ...constants.userRoleTypes.Management
     ]),
+    validateQueryParams(paginationSchema),
     userController.GetUsersPendingApproval);
 
 /* POST Update User status to Approved */

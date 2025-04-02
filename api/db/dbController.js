@@ -346,9 +346,10 @@ const GetSystemUserByUserId = async (userId) => {
 
 /**
  * Function to get users pending approval
+ * @param {Object} pagination - The pagination object containing limit and offset
  * @returns {Promise}
  */
-const GetUsersPendingApproval = async () => {
+const GetUsersPendingApproval = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Users as u')
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
@@ -360,6 +361,8 @@ const GetUsersPendingApproval = async () => {
             .where('su.IsDeleted', false)
             .andWhere('su.IsApproved', false)
             .andWhere('su.IsSuspended', false)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });

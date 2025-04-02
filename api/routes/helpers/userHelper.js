@@ -33,7 +33,7 @@ const GetAllUsers = async (req, res) => {
 const GetUsersPendingApproval = async (req, res) => {
     try {
         winston.info(`Fetching all users pending approval.`, { req });
-        const response = await dbController.GetUsersPendingApproval();
+        const response = await dbController.GetUsersPendingApproval(req.pagination);
         winston.info(`${messages.users.usersRetrievedSuccessfully}, Number of Users: ${response.length}`, { req });
         return res.send(generateResponseBody(
             response,
