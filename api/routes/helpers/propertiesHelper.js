@@ -1,4 +1,5 @@
 const dbController = require('../../db/dbController');
+const { getErrorCode, getPostgresErrorCodeMessage } = require('../../utils/converters');
 const messages = require('../../utils/messages');
 const generateResponseBody = require('../../utils/responseGenerator');
 const winston = require('../../utils/winston');
@@ -23,7 +24,7 @@ const getUserRoles = async (req, res) => {
     } catch (error) {
         winston.error(`${messages.properties.userRoles.failedToRetrieveAllUserRoles} Error: ${error.message}`, { req });
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.properties.userRoles.failedToRetrieveAllUserRoles, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.properties.userRoles.failedToRetrieveAllUserRoles, getPostgresErrorCodeMessage(error, req)));
     }
 };
 
@@ -47,7 +48,7 @@ const getDepartments = async (req, res) => {
     } catch (error) {
         winston.error(`${messages.properties.departments.failedToRetrieveAllDepartments} Error: ${error.message}`, { req });
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.properties.departments.failedToRetrieveAllDepartments, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.properties.departments.failedToRetrieveAllDepartments, getPostgresErrorCodeMessage(error, req)));
     }
 };
 
@@ -73,7 +74,7 @@ const createDepartment = async (req, res) => {
     } catch (error) {
         winston.error(`Failed to create department. Error: ${error.message}`, { req });
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.properties.departments.failedToCreateDepartment, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.properties.departments.failedToCreateDepartment, getPostgresErrorCodeMessage(error, req)));
     }
 };
 
@@ -97,7 +98,7 @@ const getEmployeeRoles = async (req, res) => {
     } catch (error) {
         winston.error(`${messages.properties.employeeRoles.failedToRetrieveAllEmployeeRoles} Error: ${error.message}`, { req });
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.properties.employeeRoles.failedToRetrieveAllEmployeeRoles, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.properties.employeeRoles.failedToRetrieveAllEmployeeRoles, getPostgresErrorCodeMessage(error, req)));
     }
 }
 
@@ -117,7 +118,7 @@ const createEmployeeRole = async (req, res) => {
     } catch (error) {
         winston.error(`Failed to create employee role. Error: ${error.message}`, { req });
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.properties.employeeRoles.failedToCreateEmployeeRole, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.properties.employeeRoles.failedToCreateEmployeeRole, getPostgresErrorCodeMessage(error, req)));
     }
 }
 
