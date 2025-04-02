@@ -39,6 +39,7 @@ router.get('/user',
     allowAccess([
         ...constants.userRoleTypes.Residents,
     ]),
+    validateQueryParams(paginationSchema),
     complaintController.GetComplaintByUserId);
 
 module.exports = router;

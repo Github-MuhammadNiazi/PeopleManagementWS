@@ -659,13 +659,16 @@ const GetComplaintsByDepartmentId = async (departmentId, pagination) => {
 
 /**
  * Function to get complaints by user ID
- * @param {number} userId
+ * @param {number} userId - The ID of the user whose complaints are to be retrieved
+ * @param {object} pagination - The pagination object containing limit and offset
  * @returns {Promise} - Resolves with a list of complaints created by the specified user
  */
-const GetComplaintByUserId = async (userId) => {
+const GetComplaintByUserId = async (userId, pagination) => {
     return new Promise((resolve, reject) => {
         db('Complaints')
             .where('CreatedBy', userId)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
     });
