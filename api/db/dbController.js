@@ -601,13 +601,21 @@ const CreateEmployeeRole = async (req) => {
  */
 const GetAllComplaints = async (pagination) => {
     return new Promise((resolve, reject) => {
-        db('Complaints')
-            .select('*')
+        db('Complaints as c')
+            .leftJoin('Users as createdBy', 'c.CreatedBy', 'createdBy.UserId') // Join for CreatedBy
+            .leftJoin('Users as assignedTo', 'c.AssignedTo', 'assignedTo.UserId') // Join for AssignedTo
+            .leftJoin('Users as modifiedBy', 'c.ModifiedBy', 'modifiedBy.UserId') // Join for ModifiedBy
+            .select(
+                'c.*', // Select all columns from Complaints
+                db.raw(`CONCAT("createdBy"."FirstName", ' ', "createdBy"."LastName") AS "CreatedByUser"`), // Concatenate CreatedBy's name
+                db.raw(`CASE WHEN "c"."AssignedTo" IS NULL THEN NULL ELSE CONCAT("assignedTo"."FirstName", ' ', "assignedTo"."LastName") END AS "AssignedToUser"`), // Handle null AssignedTo
+                db.raw(`CASE WHEN "c"."ModifiedBy" IS NULL THEN NULL ELSE CONCAT("modifiedBy"."FirstName", ' ', "modifiedBy"."LastName") END AS "ModifiedByUser"`) // Handle null ModifiedBy
+            )
             .limit(pagination.limit)
             .offset(pagination.offset)
             .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
-    })
+    });
 };
 
 /**
