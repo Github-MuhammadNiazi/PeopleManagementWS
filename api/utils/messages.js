@@ -108,5 +108,6 @@ module.exports = {
         complaintUpdatedSuccessfully: 'Complaint updated successfully',
         failedToUpdateComplaint: 'Failed to update complaint',
         failedToRetrieveComplaintsByUserId: 'Failed to retrieve complaints for user',
+        failedToRetrieveComplaintsByDepartmentId: 'Failed to retrieve complaints for department',
     }
 };

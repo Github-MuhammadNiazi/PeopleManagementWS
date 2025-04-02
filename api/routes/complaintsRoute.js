@@ -10,8 +10,9 @@ var validationSchema = require('../schemas/complaintSchemas');
 /* GET complaints listing. */
 router.get('/',
     allowAccess([
-        ...constants.userRoleTypes.Staff
+        ...constants.userRoleTypes.Management
     ]),
+    validatePathVariables(validationSchema.getAllComplaintsSchema),
     complaintController.GetAllComplaints);
 
 /* GET complaints by departmentId. */

@@ -3,7 +3,8 @@ const messages = require('../../utils/messages');
 const generateResponseBody = require('../../utils/responseGenerator');
 const winston = require('../../utils/winston');
 const constants = require('../../utils/constants');
-const { getErrorCode } = require('../../utils/converters');
+const { getErrorCode, getPostgresErrorCodeMessage } = require('../../utils/converters');
+const paginate = require('../../utils/pagination');
 
 
 /**
@@ -14,8 +15,9 @@ const { getErrorCode } = require('../../utils/converters');
  */
 const GetAllComplaints = async (req, res) => {
     try {
+        const pagination = paginate(req.query);
         winston.info(`Fetching all complaints.`, { req });
-        const response = await dbController.GetAllComplaints();
+        const response = await dbController.GetAllComplaints(pagination);
         winston.info(`${messages.complaints.complaintsRetrievedSuccessfully}, Number of Complaints: ${response.length}`, { req });
         return res.send(generateResponseBody(response, !!response.length
             ? messages.complaints.complaintsRetrievedSuccessfully
@@ -54,8 +56,8 @@ const CreateComplaint = async (req, res) => {
  */
 const GetComplaintsByDepartmentId = async (req, res) => {
     try {
-        winston.info(`Fetching complaints by department ID: ${req.params.departmentId}.`, { req });
-        const response = await dbController.GetComplaintsByDepartmentId(req.params.departmentId);
+        winston.info(`Fetching complaints by department ID: ${req.params.id}.`, { req });
+        const response = await dbController.GetComplaintsByDepartmentId(req.params.id);
         winston.info(`${messages.complaints.complaintsRetrievedSuccessfully}, Number of Complaints: ${response.length}`, { req });
         return res.send(generateResponseBody(response, !!response.length
             ? messages.complaints.complaintsRetrievedSuccessfully

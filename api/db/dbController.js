@@ -595,21 +595,27 @@ const CreateEmployeeRole = async (req) => {
 }
 
 /**
- * Function to get all complaints with user details
- * @param {object} req - The request object
- * @param {object} res - The response object
- * @returns {Promise} - Resolves with a list of complaints along with the user's first name, last name, and contact number
+ * Function to get all complaints with pagination
+ * @param {Object} pagination - The pagination object containing limit and offset
+ * @returns {Promise} - Resolves with a list of complaints
  */
-
-const GetAllComplaints = async (req, res) => {
+const GetAllComplaints = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Complaints as c')
-            .join('SystemUsers as su', 'c.CreatedBy', 'su.SystemUserId')
-            .join('Users as u', 'su.UserId', 'u.UserId')
-            .select('c.*', 'u.FirstName', 'u.LastName', 'u.ContactNumber')
+            .leftJoin('Users as createdBy', 'c.CreatedBy', 'createdBy.UserId') // Join for CreatedBy
+            .leftJoin('Users as assignedTo', 'c.AssignedTo', 'assignedTo.UserId') // Join for AssignedTo
+            .leftJoin('Users as modifiedBy', 'c.ModifiedBy', 'modifiedBy.UserId') // Join for ModifiedBy
+            .select(
+                'c.*', // Select all columns from Complaints
+                db.raw(`CONCAT("createdBy"."FirstName", ' ', "createdBy"."LastName") AS "CreatedByUser"`), // Concatenate CreatedBy's name
+                db.raw(`CASE WHEN "c"."AssignedTo" IS NULL THEN NULL ELSE CONCAT("assignedTo"."FirstName", ' ', "assignedTo"."LastName") END AS "AssignedToUser"`), // Handle null AssignedTo
+                db.raw(`CASE WHEN "c"."ModifiedBy" IS NULL THEN NULL ELSE CONCAT("modifiedBy"."FirstName", ' ', "modifiedBy"."LastName") END AS "ModifiedByUser"`) // Handle null ModifiedBy
+            )
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
-    })
+    });
 };
 
 /**
