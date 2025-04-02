@@ -603,10 +603,8 @@ const CreateEmployeeRole = async (req) => {
 
 const GetAllComplaints = async (req, res) => {
     return new Promise((resolve, reject) => {
-        db('Complaints as c')
-            .join('SystemUsers as su', 'c.CreatedBy', 'su.SystemUserId')
-            .join('Users as u', 'su.UserId', 'u.UserId')
-            .select('c.*', 'u.FirstName', 'u.LastName', 'u.ContactNumber')
+        db('Complaints')
+            .select('*')
             .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
     })

@@ -10,7 +10,7 @@ var validationSchema = require('../schemas/complaintSchemas');
 /* GET complaints listing. */
 router.get('/',
     allowAccess([
-        ...constants.userRoleTypes.Staff
+        ...constants.userRoleTypes.Management
     ]),
     complaintController.GetAllComplaints);
 
