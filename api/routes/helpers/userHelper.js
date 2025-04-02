@@ -90,7 +90,7 @@ const ApproveUser = async (req, res) => {
 const GetSuspendedUsers = async (req, res) => {
     try {
         winston.info(`Fetching all suspended users.`, { req });
-        const response = await dbController.GetSuspendedUsers();
+        const response = await dbController.GetSuspendedUsers(req.pagination);
         winston.info(`${messages.users.usersRetrievedSuccessfully}, Number of Users: ${response.length}`, { req });
         return res.send(generateResponseBody(
             response,

@@ -400,9 +400,10 @@ const ApproveUser = async (userId, userRoleId, modifiedBy) => {
 
 /**
  * Function to get suspended users
+ * @param {Object} pagination - The pagination object containing limit and offset
  * @returns {Promise}
  */
-const GetSuspendedUsers = async () => {
+const GetSuspendedUsers = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Users as u')
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
@@ -412,6 +413,8 @@ const GetSuspendedUsers = async () => {
             )
             .where('su.IsDeleted', false)
             .andWhere('su.IsSuspended', true)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });

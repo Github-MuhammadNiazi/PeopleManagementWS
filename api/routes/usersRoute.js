@@ -37,6 +37,7 @@ router.get('/suspended',
     allowAccess([
         ...constants.userRoleTypes.Management
     ]),
+    validateQueryParams(paginationSchema),
     userController.GetSuspendedUsers);
 
 /* POST Update User status to Suspended */
