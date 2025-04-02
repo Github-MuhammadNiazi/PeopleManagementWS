@@ -15,24 +15,17 @@ jobs:
       - name: Replace placeholders in .env file with GitHub Secrets
         shell: powershell
         run: |
-          (Get-Content api/.env) -replace 'your_api_port', '3000' | Set-Content api/.env
-          (Get-Content api/.env) -replace 'your_db_user', '${{ secrets.DB_USER }}' | Set-Content api/.env
-          (Get-Content api/.env) -replace 'your_db_password', '${{ secrets.DB_PASSWORD }}' | Set-Content api/.env
-          (Get-Content api/.env) -replace 'your_db_host', '${{ secrets.DB_HOST }}' | Set-Content api/.env
-          (Get-Content api/.env) -replace 'your_db_port', '${{ secrets.DB_PORT }}' | Set-Content api/.env
-          (Get-Content api/.env) -replace 'your_db_name', '${{ secrets.DB_NAME }}' | Set-Content api/.env
-          (Get-Content api/.env) -replace 'your_jwt_secret', '${{ secrets.JWT_SECRET }}' | Set-Content api/.env
-          (Get-Content api/.env) -replace 'your_brevo_api_key', '${{ secrets.BREVO_API_KEY }}' | Set-Content api/.env
+          (Get-Content api/.env) -replace 'your_api_port', '${{ secrets.YOUR_API_PORT }}' | Set-Content api/.env
+          (Get-Content api/.env) -replace 'your_db_user', '${{ secrets.YOUR_DB_USER }}' | Set-Content api/.env
+          (Get-Content api/.env) -replace 'your_db_password', '${{ secrets.YOUR_DB_PASSWORD }}' | Set-Content api/.env
+          (Get-Content api/.env) -replace 'your_db_host', '${{ secrets.YOUR_DB_HOST }}' | Set-Content api/.env
+          (Get-Content api/.env) -replace 'your_db_port', '${{ secrets.YOUR_DB_PORT }}' | Set-Content api/.env
+          (Get-Content api/.env) -replace 'your_db_name', '${{ secrets.YOUR_DB_NAME }}' | Set-Content api/.env
+          (Get-Content api/.env) -replace 'your_jwt_secret', '${{ secrets.YOUR_JWT_SECRET }}' | Set-Content api/.env
+          (Get-Content api/.env) -replace 'your_brevo_api_key', '${{ secrets.YOUR_BREVO_API_KEY }}' | Set-Content api/.env
 
       - name: Log in to Docker
         run: docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
-
-      - name: Build and run services
-        env:
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        run: echo "Setting up environment variables for Docker Compose"
 
       - name: Rebuild and run containers
         run: docker-compose up -d --build

@@ -217,11 +217,11 @@ const CreateEmployee = async (req, res) => {
                 return res.status(201).send(generateResponseBody({ ...systemUserResponse, password: randomPassword }, messages.employee.employeeCreatedSuccessfully));
             }
         }
-        return res.status(500).send(generateResponseBody({}, messages.users.failedToCreateUser));
+        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.users.failedToCreateUser));
 
     } catch (error) {
         transactionStatus && await dbController.Rollback();
-        return res.status(500).send(generateResponseBody({}, messages.employee.failedToCreateEmployee, error.detail || error.message));
+        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.employee.failedToCreateEmployee, error.detail || error.message));
     }
 }
 
