@@ -12,6 +12,11 @@ const defaultConfigurations = {
         accessToken: '2h',
         passwordResetToken: '1h',
     },
+    pagination: {
+        page: 1,
+        limit: 10,
+        maxLimit: 100,
+    },
     allowedPlatforms: [
         'web',
         'android',
