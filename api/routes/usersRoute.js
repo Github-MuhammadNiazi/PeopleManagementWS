@@ -2,16 +2,18 @@ var express = require('express');
 var router = express.Router();
 
 const userController = require('./controllers/userController');
-var allowAccess = require('../middlewares/roleBasedAccessMiddleware');
-var constants = require('../utils/constants');
-var { validateRequestBody } = require('../middlewares/validationMiddleware');
-var validationSchema = require('../schemas/userSchemas');
+const allowAccess = require('../middlewares/roleBasedAccessMiddleware');
+const constants = require('../utils/constants');
+const { validateRequestBody, validateQueryParams } = require('../middlewares/validationMiddleware');
+const validationSchema = require('../schemas/userSchemas');
+const { paginationSchema } = require('../schemas/paginationSchemas');
 
 /* GET users listing. */
 router.get('/',
     allowAccess([
         ...constants.userRoleTypes.Staff
     ]),
+    validateQueryParams(paginationSchema),
     userController.GetAllUsers);
 
 /* GET users pending approval */

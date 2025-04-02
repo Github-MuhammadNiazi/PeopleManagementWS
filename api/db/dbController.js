@@ -301,10 +301,11 @@ const CreateSystemUser = async (user, createdBy) => {
 };
 
 /**
- * Function to get all users
- * @returns {Promise}
+ * Function to get all users with pagination
+ * @param {Object} pagination - The pagination object containing limit and offset
+ * @returns {Promise} - Resolves with a list of users
  */
-const GetAllUsers = async () => {
+const GetAllUsers = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Users as u')
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
@@ -315,6 +316,8 @@ const GetAllUsers = async () => {
                 'su.CreatedOn', 'su.CreatedBy', 'su.ModifiedOn', 'su.ModifiedBy'
             )
             .where('su.IsDeleted', false)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
