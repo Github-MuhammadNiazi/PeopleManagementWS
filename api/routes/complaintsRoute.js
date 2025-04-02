@@ -12,6 +12,7 @@ router.get('/',
     allowAccess([
         ...constants.userRoleTypes.Management
     ]),
+    validatePathVariables(validationSchema.getAllComplaintsSchema),
     complaintController.GetAllComplaints);
 
 /* GET complaints by departmentId. */

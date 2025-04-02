@@ -4,6 +4,7 @@ const generateResponseBody = require('../../utils/responseGenerator');
 const winston = require('../../utils/winston');
 const constants = require('../../utils/constants');
 const { getErrorCode, getPostgresErrorCodeMessage } = require('../../utils/converters');
+const paginate = require('../../utils/pagination');
 
 
 /**
@@ -14,8 +15,9 @@ const { getErrorCode, getPostgresErrorCodeMessage } = require('../../utils/conve
  */
 const GetAllComplaints = async (req, res) => {
     try {
+        const pagination = paginate(req.query);
         winston.info(`Fetching all complaints.`, { req });
-        const response = await dbController.GetAllComplaints();
+        const response = await dbController.GetAllComplaints(pagination);
         winston.info(`${messages.complaints.complaintsRetrievedSuccessfully}, Number of Complaints: ${response.length}`, { req });
         return res.send(generateResponseBody(response, !!response.length
             ? messages.complaints.complaintsRetrievedSuccessfully

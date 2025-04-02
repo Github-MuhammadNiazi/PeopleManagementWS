@@ -595,16 +595,16 @@ const CreateEmployeeRole = async (req) => {
 }
 
 /**
- * Function to get all complaints with user details
- * @param {object} req - The request object
- * @param {object} res - The response object
- * @returns {Promise} - Resolves with a list of complaints along with the user's first name, last name, and contact number
+ * Function to get all complaints with pagination
+ * @param {Object} pagination - The pagination object containing limit and offset
+ * @returns {Promise} - Resolves with a list of complaints
  */
-
-const GetAllComplaints = async (req, res) => {
+const GetAllComplaints = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Complaints')
             .select('*')
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
     })
