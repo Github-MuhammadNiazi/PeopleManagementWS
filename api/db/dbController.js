@@ -4,7 +4,7 @@ const { getCurrentDateTime } = require('../utils/calendar');
 const bcrypt = require('bcryptjs');
 const defaultAPIUserCode = 0;
 const constants = require('../utils/constants');
-const { toCamelCase } = require('../utils/caseConverter');
+const { toCamelCase } = require('../utils/converters');
 
 /**
  * Function to begin a transaction
@@ -47,13 +47,15 @@ const Rollback = async () => {
  * @param {string} username
  * @returns {Promise}
  */
-const GetUserByUsername = async (username) => {
+const GetUserByUsername = async (username, checkIfExists = false) => {
     return new Promise((resolve, reject) => {
         db('SystemUsers as su')
-        .join('Users as u', 'su.UserId', 'u.UserId')
+            .join('Users as u', 'su.UserId', 'u.UserId')
             .where('su.Username', username)
             .then((users) => {
-                if (users.length === 0) {
+                if (checkIfExists) {
+                    return resolve(toCamelCase(users[0]));
+                } if (users.length === 0) {
                     return reject({ code: 404, message: messages.generalResponse.noUserFound });
                 } else if (users.length > 1) {
                     return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
@@ -63,6 +65,78 @@ const GetUserByUsername = async (username) => {
             .catch((error) => reject(error));
     });
 };
+
+/**
+ * Function to get user by email
+ * @param {string} email
+ * @returns {Promise} - Resolves with the user if found, rejects with an error message otherwise
+ */
+const GetUserByEmail = async (email, checkIfExists = false) => {
+    return new Promise((resolve, reject) => {
+        db('Users')
+            .where('Email', email)
+            .then((users) => {
+                if (checkIfExists) {
+                    return resolve(toCamelCase(users[0]));
+                } else if (users.length === 0) {
+                    return reject({ code: 404, message: messages.generalResponse.noUserFound });
+                } else if (users.length > 1) {
+                    return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
+                }
+                return resolve(toCamelCase(users[0]));
+            })
+            .catch((error) => reject(error));
+    });
+};
+
+/**
+ * Function to get a user by identification number.
+ * @param {string} identificationNumber - The identification number of the user.
+ * @param {boolean} [checkIfExists=false] - If true, resolves with the user even if multiple users are found.
+ * @returns {Promise} - Resolves with the user if found, rejects with an error message otherwise.
+ */
+
+const GetUserByIdentificationNumber = async (identificationNumber, checkIfExists = false) => {
+    return new Promise((resolve, reject) => {
+        db('Users')
+            .where('IdentificationNumber', identificationNumber)
+            .then((users) => {
+                if (checkIfExists) {
+                    return resolve(toCamelCase(users[0]));
+                } else if (users.length === 0) {
+                    return reject({ code: 404, message: messages.generalResponse.noUserFound });
+                } else if (users.length > 1) {
+                    return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
+                }
+                return resolve(toCamelCase(users[0]));
+            })
+            .catch((error) => reject(error));
+    });
+};
+
+/**
+ * Function to get a user by contact number.
+ * @param {string} contactNumber - The contact number of the user.
+ * @param {boolean} [checkIfExists=false] - If true, resolves with the user even if multiple users are found.
+ * @returns {Promise} - Resolves with the user if found, rejects with an error message otherwise.
+ */
+const GetUserByContactNumber = async (contactNumber, checkIfExists = false) => {
+    return new Promise((resolve, reject) => {
+        db('Users')
+            .where('ContactNumber', contactNumber)
+            .then((users) => {
+                if (checkIfExists) {
+                    return resolve(toCamelCase(users[0]));
+                } else if (users.length === 0) {
+                    return reject({ code: 404, message: messages.generalResponse.noUserFound });
+                } else if (users.length > 1) {
+                    return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
+                }
+                return resolve(toCamelCase(users[0]));
+            })
+            .catch((error) => reject(error));
+    });
+}
 
 /**
  * Function to update reset code
@@ -227,10 +301,11 @@ const CreateSystemUser = async (user, createdBy) => {
 };
 
 /**
- * Function to get all users
- * @returns {Promise}
+ * Function to get all users with pagination
+ * @param {Object} pagination - The pagination object containing limit and offset
+ * @returns {Promise} - Resolves with a list of users
  */
-const GetAllUsers = async () => {
+const GetAllUsers = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Users as u')
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
@@ -241,6 +316,8 @@ const GetAllUsers = async () => {
                 'su.CreatedOn', 'su.CreatedBy', 'su.ModifiedOn', 'su.ModifiedBy'
             )
             .where('su.IsDeleted', false)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
@@ -269,9 +346,10 @@ const GetSystemUserByUserId = async (userId) => {
 
 /**
  * Function to get users pending approval
+ * @param {Object} pagination - The pagination object containing limit and offset
  * @returns {Promise}
  */
-const GetUsersPendingApproval = async () => {
+const GetUsersPendingApproval = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Users as u')
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
@@ -283,6 +361,8 @@ const GetUsersPendingApproval = async () => {
             .where('su.IsDeleted', false)
             .andWhere('su.IsApproved', false)
             .andWhere('su.IsSuspended', false)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
@@ -320,9 +400,10 @@ const ApproveUser = async (userId, userRoleId, modifiedBy) => {
 
 /**
  * Function to get suspended users
+ * @param {Object} pagination - The pagination object containing limit and offset
  * @returns {Promise}
  */
-const GetSuspendedUsers = async () => {
+const GetSuspendedUsers = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Users as u')
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
@@ -332,6 +413,8 @@ const GetSuspendedUsers = async () => {
             )
             .where('su.IsDeleted', false)
             .andWhere('su.IsSuspended', true)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
@@ -364,9 +447,10 @@ const SuspendUser = async (req) => {
 
 /**
  * Function to get deleted users
+ * @param {Object} pagination - The pagination object containing limit and offset
  * @returns {Promise}
  */
-const GetDeletedUsers = async () => {
+const GetDeletedUsers = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Users as u')
             .join('SystemUsers as su', 'u.UserId', 'su.UserId')
@@ -375,6 +459,8 @@ const GetDeletedUsers = async () => {
                 'su.Username', 'su.IsDeleted'
             )
             .where('su.IsDeleted', true)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
     });
@@ -520,17 +606,36 @@ const CreateEmployeeRole = async (req) => {
     });
 }
 
-const GetAllComplaints = async (req, res) => {
+/**
+ * Function to get all complaints with pagination
+ * @param {Object} pagination - The pagination object containing limit and offset
+ * @returns {Promise} - Resolves with a list of complaints
+ */
+const GetAllComplaints = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Complaints as c')
-            .join('SystemUsers as su', 'c.CreatedBy', 'su.SystemUserId')
-            .join('Users as u', 'su.UserId', 'u.UserId')
-            .select('c.*', 'u.FirstName', 'u.LastName', 'u.ContactNumber')
+            .leftJoin('Users as createdBy', 'c.CreatedBy', 'createdBy.UserId') // Join for CreatedBy
+            .leftJoin('Users as assignedTo', 'c.AssignedTo', 'assignedTo.UserId') // Join for AssignedTo
+            .leftJoin('Users as modifiedBy', 'c.ModifiedBy', 'modifiedBy.UserId') // Join for ModifiedBy
+            .select(
+                'c.*', // Select all columns from Complaints
+                db.raw(`CONCAT("createdBy"."FirstName", ' ', "createdBy"."LastName") AS "CreatedByUser"`), // Concatenate CreatedBy's name
+                db.raw(`CASE WHEN "c"."AssignedTo" IS NULL THEN NULL ELSE CONCAT("assignedTo"."FirstName", ' ', "assignedTo"."LastName") END AS "AssignedToUser"`), // Handle null AssignedTo
+                db.raw(`CASE WHEN "c"."ModifiedBy" IS NULL THEN NULL ELSE CONCAT("modifiedBy"."FirstName", ' ', "modifiedBy"."LastName") END AS "ModifiedByUser"`) // Handle null ModifiedBy
+            )
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
-    })
+    });
 };
 
+/**
+ * Function to create a new complaint
+ * @param {*} req - The request object containing the complaint's description, type, department ID, and the user who created it
+ * @param {*} res - The response object
+ * @returns {Promise} - Resolves with the newly created complaint
+ */
 const CreateComplaint = async (req, res) => {
     return new Promise((resolve, reject) => {
         db('Complaints')
@@ -547,19 +652,35 @@ const CreateComplaint = async (req, res) => {
     });
 };
 
-const GetComplaintsByDepartmentId = async (departmentId) => {
+/**
+ * Function to get complaints by department ID
+ * @param {number} departmentId - The department ID to filter by
+ * @param {object} pagination - The pagination object containing the limit and offset
+ * @returns {Promise} - Resolves with a list of complaints related to the specified department
+ */
+const GetComplaintsByDepartmentId = async (departmentId, pagination) => {
     return new Promise((resolve, reject) => {
         db('Complaints')
             .where('ComplaintDepartmentId', departmentId)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
     });
 };
 
-const GetComplaintByUserId = async (userId) => {
+/**
+ * Function to get complaints by user ID
+ * @param {number} userId - The ID of the user whose complaints are to be retrieved
+ * @param {object} pagination - The pagination object containing limit and offset
+ * @returns {Promise} - Resolves with a list of complaints created by the specified user
+ */
+const GetComplaintByUserId = async (userId, pagination) => {
     return new Promise((resolve, reject) => {
         db('Complaints')
             .where('CreatedBy', userId)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
             .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
     });
@@ -570,6 +691,9 @@ module.exports = {
     Commit,
     Rollback,
     GetUserByUsername,
+    GetUserByEmail,
+    GetUserByIdentificationNumber,
+    GetUserByContactNumber,
     UpdateResetCode,
     UpdatePasswordAgainstUsername,
     UpdateResetCodeAgainstUsername,

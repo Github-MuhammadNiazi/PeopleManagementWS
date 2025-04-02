@@ -37,6 +37,8 @@ module.exports = {
             success: 'Signup successful',
             failed: 'Signup failed',
             invalidUserRole: 'Invalid user role',
+            emailAlreadyExists: 'Email already exists',
+            userAlreadyExists: 'User already exists',
         },
         token: {
             noTokenProvided: 'No token provided',
@@ -106,5 +108,6 @@ module.exports = {
         complaintUpdatedSuccessfully: 'Complaint updated successfully',
         failedToUpdateComplaint: 'Failed to update complaint',
         failedToRetrieveComplaintsByUserId: 'Failed to retrieve complaints for user',
+        failedToRetrieveComplaintsByDepartmentId: 'Failed to retrieve complaints for department',
     }
 };

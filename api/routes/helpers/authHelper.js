@@ -9,6 +9,7 @@ const { sendSMS } = require('../../services/smsService');
 const winston = require('../../utils/winston');
 const templates = require('../../services/templateService');
 const Handlebars = require('handlebars');
+const { getErrorCode, getPostgresErrorCodeMessage } = require('../../utils/converters');
 
 /**
  * Function to authenticate the connection
@@ -80,7 +81,7 @@ const Login = async (req, res) => {
 
     } catch (error) {
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.auth.login.failed, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody({}, messages.auth.login.failed, getPostgresErrorCodeMessage(error, req)));
     }
 };
 
@@ -143,10 +144,12 @@ const GenerateResetToken = async (req, res) => {
                     return res.status(200).send(generateResponseBody({ token: ResetCodeToken, result }, response.message))
                 }
                 winston.error(`Error sending reset code to user: ${user.username}`, { req });
-                return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.auth.resetToken.failed));
+                const errorCode = error.status || error.code;
+                return res.status(errorCode >= 100 && errorCode < 600 ? error.code : 500).send(generateResponseBody({}, messages.auth.resetToken.failed));
             }
             winston.error(`Error registering reset code for user: ${req.body.username}`, { req });
-            return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.auth.resetToken.failed));
+            const errorCode = error.status || error.code;
+            return res.status(errorCode >= 100 && errorCode < 600 ? error.code : 500).send(generateResponseBody({}, messages.auth.resetToken.failed));
         } else {
             winston.error(`No user found with username: ${req.body.username}`, { req });
             return res.status(401).send(generateResponseBody({}, messages.generalResponse.noUserFound));
@@ -154,7 +157,7 @@ const GenerateResetToken = async (req, res) => {
     } catch (error) {
         winston.error(`Error generating reset code for user: ${req.body.username}, Error: ${error.message}`, { req });
         winston.error(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.auth.resetToken.failed, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody({}, messages.auth.resetToken.failed, getPostgresErrorCodeMessage(error, req)));
     }
 };
 
@@ -187,7 +190,7 @@ const VerifyResetToken = async (req, res) => {
         }
     } catch (error) {
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.auth.resetToken.tokenVerificationFailed, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody({}, messages.auth.resetToken.tokenVerificationFailed, getPostgresErrorCodeMessage(error, req)));
     }
 };
 
@@ -257,7 +260,8 @@ const ResetPassword = async (req, res) => {
                     winston.error(`Error removing reset code for user: ${user.username}`, { req });
                 }
                 winston.error(`Error updating password for user: ${user.username}`, { req });
-                return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.auth.resetPassword.failed));
+                const errorCode = error.status || error.code;
+                return res.status(errorCode >= 100 && errorCode < 600 ? error.code : 500).send(generateResponseBody({}, messages.auth.resetPassword.failed));
 
             });
         } else {
@@ -269,7 +273,7 @@ const ResetPassword = async (req, res) => {
         transactionStatus && await dbController.Rollback();
         winston.error(`Error resetting password for user: ${req.authorizedUser.username}, Error: ${error.message}`, { req });
         winston.error(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.auth.resetPassword.failed, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody({}, messages.auth.resetPassword.failed, getPostgresErrorCodeMessage(error, req)));
     }
 };
 
@@ -282,6 +286,30 @@ const ResetPassword = async (req, res) => {
 const Signup = async (req, res) => {
     let transactionStatus = false;
     try {
+
+        // Validating if user with same email already exists
+        winston.info(`Checking if user with same email already exists.`, { req });
+        const existingUser = await dbController.GetUserByEmail(req.body.email, true);
+        if (existingUser) {
+            winston.error(`User with same email already exists.`, { req });
+            return res.status(409).send(generateResponseBody({}, messages.auth.signup.emailAlreadyExists));
+        }
+
+        // Validating if user with same identification number already exists
+        winston.info(`Checking if user with same identification already exists.`, { req });
+        const existingUserByIdentificationNumber = await dbController.GetUserByIdentificationNumber(req.body.identificationNumber, true);
+        if (existingUserByIdentificationNumber) {
+            winston.error(`User with same identification number already exists.`, { req });
+            return res.status(409).send(generateResponseBody({}, messages.auth.signup.userAlreadyExists + `for identification number: ${req.body.identificationNumber}`));
+        }
+
+        // Validating if user with same contact number already exists
+        winston.info(`Checking if user with same contact number already exists.`, { req });
+        const existingUserByContactNumber = await dbController.GetUserByContactNumber(req.body.contactNumber, true);
+        if (existingUserByContactNumber) {
+            winston.error(`User with same contact number already exists.`, { req });
+            return res.status(409).send(generateResponseBody({}, messages.auth.signup.userAlreadyExists + `for contact number: ${req.body.contactNumber}`));
+        }
 
         // Confirming if userRole is valid
         winston.info(`Validating if user role is valid.`, { req });
@@ -302,7 +330,7 @@ const Signup = async (req, res) => {
 
         // Creating User record
         winston.info(`Creating user record.`, { req });
-        const createUserResponse = dbController.CreateUser(req.body);
+        const createUserResponse = await dbController.CreateUser(req.body);
 
         if (createUserResponse) {
             winston.info(`User record created successfully.`, { req });
@@ -328,13 +356,13 @@ const Signup = async (req, res) => {
         }
 
         winston.error(`Error creating user record.`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.auth.signup.failed));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody({}, messages.auth.signup.failed));
 
     } catch (error) {
         transactionStatus && await dbController.Rollback();
-        winston.error(`Error signing up user: ${req.body.username}, Error: ${error.message}`, { req });
+        winston.error(`Error signing up user: ${req.body.identificationNumber}, Error: ${error.message}`, { req });
         winston.error(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.auth.signup.failed, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody({}, messages.auth.signup.failed, getPostgresErrorCodeMessage(error, req)));
     }
 };
 module.exports = {

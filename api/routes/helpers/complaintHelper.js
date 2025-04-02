@@ -3,6 +3,8 @@ const messages = require('../../utils/messages');
 const generateResponseBody = require('../../utils/responseGenerator');
 const winston = require('../../utils/winston');
 const constants = require('../../utils/constants');
+const { getErrorCode, getPostgresErrorCodeMessage } = require('../../utils/converters');
+const paginate = require('../../utils/pagination');
 
 
 /**
@@ -14,7 +16,7 @@ const constants = require('../../utils/constants');
 const GetAllComplaints = async (req, res) => {
     try {
         winston.info(`Fetching all complaints.`, { req });
-        const response = await dbController.GetAllComplaints();
+        const response = await dbController.GetAllComplaints(req.pagination);
         winston.info(`${messages.complaints.complaintsRetrievedSuccessfully}, Number of Complaints: ${response.length}`, { req });
         return res.send(generateResponseBody(response, !!response.length
             ? messages.complaints.complaintsRetrievedSuccessfully
@@ -22,7 +24,7 @@ const GetAllComplaints = async (req, res) => {
     } catch (error) {
         winston.error(`${messages.complaints.failedToRetrieveAllComplaints} Error: ${error.message}`, { req });
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.complaints.failedToRetrieveAllComplaints, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.complaints.failedToRetrieveAllComplaints, getPostgresErrorCodeMessage(error, req)));
     }
 };
 
@@ -41,7 +43,7 @@ const CreateComplaint = async (req, res) => {
     } catch (error) {
         winston.error(`${messages.complaints.failedToCreateComplaint} Error: ${error.message}`, { req });
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.complaints.failedToCreateComplaint, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.complaints.failedToCreateComplaint, getPostgresErrorCodeMessage(error, req)));
     }
 };
 
@@ -53,8 +55,8 @@ const CreateComplaint = async (req, res) => {
  */
 const GetComplaintsByDepartmentId = async (req, res) => {
     try {
-        winston.info(`Fetching complaints by department ID: ${req.params.departmentId}.`, { req });
-        const response = await dbController.GetComplaintsByDepartmentId(req.params.departmentId);
+        winston.info(`Fetching complaints by department ID: ${req.params.id}.`, { req });
+        const response = await dbController.GetComplaintsByDepartmentId(req.params.id, req.pagination);
         winston.info(`${messages.complaints.complaintsRetrievedSuccessfully}, Number of Complaints: ${response.length}`, { req });
         return res.send(generateResponseBody(response, !!response.length
             ? messages.complaints.complaintsRetrievedSuccessfully
@@ -62,7 +64,7 @@ const GetComplaintsByDepartmentId = async (req, res) => {
     } catch (error) {
         winston.error(`${messages.complaints.failedToRetrieveComplaintsByDepartmentId} Error: ${error.message}`, { req });
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.complaints.failedToRetrieveComplaintsByDepartmentId, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.complaints.failedToRetrieveComplaintsByDepartmentId, getPostgresErrorCodeMessage(error, req)));
     }
 };
 
@@ -75,7 +77,7 @@ const GetComplaintsByDepartmentId = async (req, res) => {
 const GetComplaintByUserId = async (req, res) => {
     try {
         winston.info(`Fetching complaints by user ID: ${req.authorizedUser.userId}.`, { req });
-        const response = await dbController.GetComplaintByUserId(req.authorizedUser.userId);
+        const response = await dbController.GetComplaintByUserId(req.authorizedUser.userId, req.pagination);
         winston.info(`${messages.complaints.complaintsRetrievedSuccessfully}, Number of Complaints: ${response.length}`, { req });
         return res.send(generateResponseBody(response, !!response.length
             ? messages.complaints.complaintsRetrievedSuccessfully
@@ -83,7 +85,7 @@ const GetComplaintByUserId = async (req, res) => {
     } catch (error) {
         winston.error(`${messages.complaints.failedToRetrieveComplaintsByUserId} Error: ${error.message}`, { req });
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.complaints.failedToRetrieveComplaintsByUserId, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.complaints.failedToRetrieveComplaintsByUserId, getPostgresErrorCodeMessage(error, req)));
     }
 };
 

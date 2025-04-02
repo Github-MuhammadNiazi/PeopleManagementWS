@@ -3,6 +3,7 @@ const messages = require('../../utils/messages');
 const generateResponseBody = require('../../utils/responseGenerator');
 const winston = require('../../utils/winston');
 const constants = require('../../utils/constants');
+const { getErrorCode, getPostgresErrorCodeMessage } = require('../../utils/converters');
 
 /**
  * Function to get all users
@@ -13,13 +14,13 @@ const constants = require('../../utils/constants');
 const GetAllUsers = async (req, res) => {
     try {
         winston.info(`Fetching all users.`, { req });
-        const response = await dbController.GetAllUsers();
+        const response = await dbController.GetAllUsers(req.pagination);
         winston.info(`${messages.users.usersRetrievedSuccessfully}, Number of Users: ${response.length}`, { req });
         return res.send(generateResponseBody(response, messages.users.usersRetrievedSuccessfully))
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, getPostgresErrorCodeMessage(error, req)));
     }
 };
 
@@ -32,7 +33,7 @@ const GetAllUsers = async (req, res) => {
 const GetUsersPendingApproval = async (req, res) => {
     try {
         winston.info(`Fetching all users pending approval.`, { req });
-        const response = await dbController.GetUsersPendingApproval();
+        const response = await dbController.GetUsersPendingApproval(req.pagination);
         winston.info(`${messages.users.usersRetrievedSuccessfully}, Number of Users: ${response.length}`, { req });
         return res.send(generateResponseBody(
             response,
@@ -43,7 +44,7 @@ const GetUsersPendingApproval = async (req, res) => {
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, getPostgresErrorCodeMessage(error, req)));
     }
 }
 
@@ -76,7 +77,7 @@ const ApproveUser = async (req, res) => {
         }
     } catch (error) {
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.users.failedToApproveUser, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody({}, messages.users.failedToApproveUser, getPostgresErrorCodeMessage(error, req)));
     }
 }
 
@@ -89,7 +90,7 @@ const ApproveUser = async (req, res) => {
 const GetSuspendedUsers = async (req, res) => {
     try {
         winston.info(`Fetching all suspended users.`, { req });
-        const response = await dbController.GetSuspendedUsers();
+        const response = await dbController.GetSuspendedUsers(req.pagination);
         winston.info(`${messages.users.usersRetrievedSuccessfully}, Number of Users: ${response.length}`, { req });
         return res.send(generateResponseBody(
             response,
@@ -100,7 +101,7 @@ const GetSuspendedUsers = async (req, res) => {
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, getPostgresErrorCodeMessage(error, req)));
     }
 }
 
@@ -124,7 +125,7 @@ const SuspendUser = async (req, res) => {
         }
     } catch (error) {
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.users.failedToSuspendUser, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody({}, messages.users.failedToSuspendUser, getPostgresErrorCodeMessage(error, req)));
     }
 }
 
@@ -137,7 +138,7 @@ const SuspendUser = async (req, res) => {
 const GetDeletedUsers = async (req, res) => {
     try {
         winston.info(`Fetching all deleted users.`, { req });
-        const response = await dbController.GetDeletedUsers();
+        const response = await dbController.GetDeletedUsers(req.pagination);
         winston.info(`${messages.users.usersRetrievedSuccessfully}, Number of Users: ${response.length}`, { req });
         return res.send(generateResponseBody(
             response,
@@ -148,7 +149,7 @@ const GetDeletedUsers = async (req, res) => {
     } catch (error) {
         winston.error(`${messages.users.failedToRetrieveAllUsers} Error: ${error.message}`, { req });
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.users.failedToRetrieveAllUsers, getPostgresErrorCodeMessage(error, req)));
     }
 }
 
@@ -172,7 +173,7 @@ const DeleteUser = async (req, res) => {
         }
     } catch (error) {
         winston.debug(`Error Stack: ${error.stack}`, { req });
-        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.users.failedToDeleteUser, error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody({}, messages.users.failedToDeleteUser, getPostgresErrorCodeMessage(error, req)));
     }
 }
 
@@ -217,11 +218,11 @@ const CreateEmployee = async (req, res) => {
                 return res.status(201).send(generateResponseBody({ ...systemUserResponse, password: randomPassword }, messages.employee.employeeCreatedSuccessfully));
             }
         }
-        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.users.failedToCreateUser));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody({}, messages.users.failedToCreateUser));
 
     } catch (error) {
         transactionStatus && await dbController.Rollback();
-        return res.status(error.status || error.code || 500).send(generateResponseBody({}, messages.employee.failedToCreateEmployee, error.detail || error.message));
+        return res.status(getErrorCode(error, req)).send(generateResponseBody({}, messages.employee.failedToCreateEmployee, getPostgresErrorCodeMessage(error, req)));
     }
 }
 

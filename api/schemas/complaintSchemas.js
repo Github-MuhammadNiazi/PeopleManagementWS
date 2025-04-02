@@ -1,6 +1,7 @@
 const Joi = require('joi');
 const constants = require('../utils/constants');
 
+
 const createComplaintSchema = Joi.object({
     complaintType: Joi.string().required().valid(...Object.values(constants.complaints.Type)).messages({
         'any.required': 'Complaint type is required',
@@ -18,7 +19,7 @@ const createComplaintSchema = Joi.object({
 });
 
 const getComplaintsByDepartmentIdSchema = Joi.object({
-    departmentId: Joi.number().required().messages({
+    id: Joi.number().required().messages({
         'any.required': 'Department ID is required',
         'number.base': 'Department ID must be a number',
     }),
