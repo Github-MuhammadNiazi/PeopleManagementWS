@@ -294,6 +294,7 @@ const Signup = async (req, res) => {
             winston.error(`User with same email already exists.`, { req });
             return res.status(409).send(generateResponseBody({}, messages.auth.signup.emailAlreadyExists));
         }
+        winston.info(`User with same email does not exist.`, { req });
 
         // Validating if user with same identification number already exists
         winston.info(`Checking if user with same identification already exists.`, { req });
@@ -302,6 +303,7 @@ const Signup = async (req, res) => {
             winston.error(`User with same identification number already exists.`, { req });
             return res.status(409).send(generateResponseBody({}, messages.auth.signup.userAlreadyExists + `for identification number: ${req.body.identificationNumber}`));
         }
+        winston.info(`User with same identification number does not exist.`, { req });
 
         // Validating if user with same contact number already exists
         winston.info(`Checking if user with same contact number already exists.`, { req });
@@ -310,6 +312,7 @@ const Signup = async (req, res) => {
             winston.error(`User with same contact number already exists.`, { req });
             return res.status(409).send(generateResponseBody({}, messages.auth.signup.userAlreadyExists + `for contact number: ${req.body.contactNumber}`));
         }
+        winston.info(`User with same contact number does not exist.`, { req });
 
         // Confirming if userRole is valid
         winston.info(`Validating if user role is valid.`, { req });

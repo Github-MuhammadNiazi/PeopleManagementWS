@@ -42,4 +42,11 @@ router.get('/user',
     validateQueryParams(paginationSchema),
     complaintController.GetComplaintByUserId);
 
+router.post('/assign',
+    allowAccess([
+        ...constants.userRoleTypes.Staff,
+    ]),
+    validateRequestBody(validationSchema.assignComplaintSchema),
+    complaintController.AssignComplaint);
+
 module.exports = router;
