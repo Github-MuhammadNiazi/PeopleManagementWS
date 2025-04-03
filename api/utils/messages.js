@@ -97,6 +97,7 @@ module.exports = {
         },
     },
     complaints: {
+        complaintNotFound: 'Complaint not found',
         allComplaintsRetrieved: 'All complaints retrieved successfully',
         noComplaints: 'No complaints found',
         failedToRetrieveAllComplaints: 'Failed to retrieve all complaints',
@@ -109,5 +110,8 @@ module.exports = {
         failedToUpdateComplaint: 'Failed to update complaint',
         failedToRetrieveComplaintsByUserId: 'Failed to retrieve complaints for user',
         failedToRetrieveComplaintsByDepartmentId: 'Failed to retrieve complaints for department',
+        failedToAssignComplaint: 'Failed to assign complaint',
+        complaintAssignedSuccessfully: 'Complaint assigned successfully',
+        complaintsCanOnlyBeAssignedToEmployees: 'Complaints can only be assigned to employees',
     }
 };

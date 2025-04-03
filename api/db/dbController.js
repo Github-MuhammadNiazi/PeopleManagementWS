@@ -43,6 +43,31 @@ const Rollback = async () => {
 };
 
 /**
+ * Function to get a user by userId
+ * @param {number} userId - The ID of the user to be retrieved
+ * @param {boolean} [checkIfExists=false] - If true, resolves with the user even if multiple users are found
+ * @returns {Promise} - Resolves with the user if found, rejects with an error message otherwise
+ */
+const GetUserByUserId = async (userId, checkIfExists = false) => {
+    return new Promise((resolve, reject) => {
+        db('SystemUsers as su')
+            .join('Users as u', 'su.UserId', 'u.UserId')
+            .where('u.UserId', userId)
+            .then((users) => {
+                if (checkIfExists) {
+                    return resolve(toCamelCase(users[0]));
+                } else if (users.length === 0) {
+                    return reject({ code: 404, message: messages.generalResponse.noUserFound });
+                } else if (users.length > 1) {
+                    return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
+                }
+                return resolve(toCamelCase(users[0]));
+            })
+            .catch((error) => reject(error));
+    });
+};
+
+/**
  * Function to get user by username
  * @param {string} username
  * @returns {Promise}
@@ -686,10 +711,57 @@ const GetComplaintByUserId = async (userId, pagination) => {
     });
 };
 
+/**
+ * Function to get a complaint by complaint ID
+ * @param {number} complaintId - The ID of the complaint to be retrieved
+ * @param {boolean} [checkIfExists=false] - Whether to check if the complaint exists or not
+ * @returns {Promise} - Resolves with the complaint if found, rejects with a 404 status if not found and checkIfExists is false, or a 406 status if multiple complaints are found
+ */
+const GetComplaintByComplaintId = async (complaintId, checkIfExists = false) => {
+    return new Promise((resolve, reject) => {
+        db('Complaints')
+            .where('ComplaintId', complaintId)
+            .then((complaints) => {
+                if (checkIfExists) {
+                    return resolve(toCamelCase(complaints[0]));
+                } else if (complaints.length === 0) {
+                    return reject({ code: 404, message: messages.generalResponse.noComplaintFound });
+                } else if (complaints.length > 1) {
+                    return reject({ code: 406, message: messages.generalResponse.multipleComplaintsFound });
+                }
+                return resolve(toCamelCase(complaints[0]));
+            })
+            .catch((error) => reject(error));
+    });
+};
+
+/**
+ * Function to assign a complaint to a user
+ * @param {number} complaintId - The ID of the complaint to be assigned
+ * @param {number} userId - The ID of the user to whom the complaint is to be assigned
+ * @param {number} modifiedById - The ID of the user who is performing the assignment
+ * @returns {Promise} - Resolves with the updated complaint if successful, rejects with an error if not
+ */
+const AssignComplaint = async (complaintId, userId, modifiedById) => {
+    return new Promise((resolve, reject) => {
+        db('Complaints')
+            .where('ComplaintId', complaintId)
+            .update({
+                AssignedTo: userId,
+                ModifiedOn: getCurrentDateTime(),
+                ModifiedBy: modifiedById
+            })
+            .returning('*')
+            .then((complaints) => resolve(toCamelCase(complaints[0])))
+            .catch((error) => reject(error));
+    });
+};
+
 module.exports = {
     Begin,
     Commit,
     Rollback,
+    GetUserByUserId,
     GetUserByUsername,
     GetUserByEmail,
     GetUserByIdentificationNumber,
@@ -720,4 +792,6 @@ module.exports = {
     CreateComplaint,
     GetComplaintsByDepartmentId,
     GetComplaintByUserId,
+    GetComplaintByComplaintId,
+    AssignComplaint,
 };

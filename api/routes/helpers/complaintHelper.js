@@ -89,9 +89,50 @@ const GetComplaintByUserId = async (req, res) => {
     }
 };
 
+/**
+ * Function to assign a complaint to a user
+ * @param {*} req - The request object containing the complaint ID and the user ID to whom the complaint is to be assigned
+ * @param {*} res - The response object
+ * @returns {Promise} - Resolves with the assigned complaint if successful, rejects with an error if not
+ */
+const AssignComplaint = async (req, res) => {
+    try {
+        winston.info(`Verifying if Complaint exists with ID: ${req.body.complaintId}.`, { req });
+        const complaint = await dbController.GetComplaintByComplaintId(req.body.complaintId, true);
+        if (!complaint) {
+            winston.error(`${messages.complaints.failedToAssignComplaint} Complaint ID: ${req.body.complaintId} not found.`, { req });
+            return res.status(404).send(generateResponseBody([], messages.complaints.complaintNotFound));
+        }
+        winston.info(`Complaint found with ID: ${req.body.complaintId}.`, { req });
+
+        winston.info(`Verifying if User exists with ID: ${req.body.userId}.`, { req });
+        const user = await dbController.GetUserByUserId(req.body.userId, true);
+        if (!user) {
+            winston.error(`${messages.complaints.failedToAssignComplaint} User ID: ${req.body.userId} not found.`, { req });
+            return res.status(404).send(generateResponseBody([], messages.users.noUsersFound));
+        }
+        if (user.employeeRoleId === null) {
+            winston.error(`${messages.complaints.failedToAssignComplaint} User ID: ${req.body.userId} is not an employee.`, { req });
+            return res.status(404).send(generateResponseBody([], messages.complaints.complaintsCanOnlyBeAssignedToEmployees));
+        }
+
+        winston.info(`Employee found with ID: ${req.body.userId}.`, { req });
+
+        winston.info(`Assigning complaint ID: ${req.body.complaintId} to user ID: ${req.body.userId}.`, { req });
+        const response = await dbController.AssignComplaint(req.body.complaintId, req.body.userId, req.authorizedUser.userId);
+        winston.info(`${messages.complaints.complaintAssignedSuccessfully}, Complaint ID: ${response.ComplaintId}`, { req });
+        return res.send(generateResponseBody(response, messages.complaints.complaintAssignedSuccessfully));
+    } catch (error) {
+        winston.error(`${messages.complaints.failedToAssignComplaint} Error: ${error.message}`, { req });
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.complaints.failedToAssignComplaint, getPostgresErrorCodeMessage(error, req)));
+    }
+};
+
 module.exports = {
     GetAllComplaints,
     CreateComplaint,
     GetComplaintsByDepartmentId,
     GetComplaintByUserId,
+    AssignComplaint,
 };
