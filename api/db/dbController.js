@@ -120,7 +120,6 @@ const GetUserByEmail = async (email, checkIfExists = false) => {
  * @param {boolean} [checkIfExists=false] - If true, resolves with the user even if multiple users are found.
  * @returns {Promise} - Resolves with the user if found, rejects with an error message otherwise.
  */
-
 const GetUserByIdentificationNumber = async (identificationNumber, checkIfExists = false) => {
     return new Promise((resolve, reject) => {
         db('Users')
@@ -736,6 +735,23 @@ const GetComplaintByComplaintId = async (complaintId, checkIfExists = false) => 
 };
 
 /**
+ * Function to get complaints assigned to a specific employee
+ * @param {number} employeeId - The ID of the employee to whom the complaints are assigned
+ * @param {object} pagination - The pagination object containing limit and offset
+ * @returns {Promise} - Resolves with a list of complaints assigned to the specified employee
+ */
+const GetAssignedComplaintsByEmployeeId = async (employeeId, pagination) => {
+    return new Promise((resolve, reject) => {
+        db('Complaints')
+            .where('AssignedTo', employeeId)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
+            .then((complaints) => resolve(toCamelCase(complaints)))
+            .catch((error) => reject(error));
+    });
+};
+
+/**
  * Function to assign a complaint to a user
  * @param {number} complaintId - The ID of the complaint to be assigned
  * @param {number} userId - The ID of the user to whom the complaint is to be assigned
@@ -793,5 +809,6 @@ module.exports = {
     GetComplaintsByDepartmentId,
     GetComplaintByUserId,
     GetComplaintByComplaintId,
+    GetAssignedComplaintsByEmployeeId,
     AssignComplaint,
 };

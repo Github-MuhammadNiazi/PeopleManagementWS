@@ -43,6 +43,16 @@ const GetComplaintByUserId = (req, res) => {
 }
 
 /**
+ * Function to get complaints assigned to an employee
+ * @param {*} req - The request object containing the employee ID as a parameter
+ * @param {*} res - The response object
+ * @returns {} - The complaints assigned to the specified employee
+ */
+const GetAssignedComplaintsByEmployeeId = (req, res) => {
+    return complaintHelper.GetAssignedComplaintsByEmployeeId(req, res);
+}
+
+/**
  * Function to assign a complaint to a user
  * @param {*} req - The request object containing the user ID as a parameter
  * @param {*} res - The response object
@@ -57,5 +67,6 @@ module.exports = {
     CreateComplaint,
     GetComplaintsByDepartmentId,
     GetComplaintByUserId,
+    GetAssignedComplaintsByEmployeeId,
     AssignComplaint,
 };

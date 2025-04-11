@@ -36,8 +36,16 @@ const assignComplaintSchema = Joi.object({
     }),
 });
 
+const getAssignedComplaintsByEmployeeIdSchema = Joi.object({
+    id: Joi.number().required().messages({
+        'any.required': 'Employee ID is required',
+        'number.base': 'Employee ID must be a number',
+    }),
+})
+
 module.exports = {
     createComplaintSchema,
     getComplaintsByDepartmentIdSchema,
     assignComplaintSchema,
+    getAssignedComplaintsByEmployeeIdSchema,
 };

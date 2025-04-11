@@ -49,4 +49,13 @@ router.post('/assign',
     validateRequestBody(validationSchema.assignComplaintSchema),
     complaintController.AssignComplaint);
 
+/* GET complaints assigned to an employee. */
+router.get('/assigned/:id(\\d+)',
+    allowAccess([
+        ...constants.userRoleTypes.Staff
+    ]),
+    validatePathVariables(validationSchema.getAssignedComplaintsByEmployeeIdSchema),
+    validateQueryParams(paginationSchema),
+    complaintController.GetAssignedComplaintsByEmployeeId);
+
 module.exports = router;
