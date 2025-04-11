@@ -4,8 +4,6 @@ const generateResponseBody = require('../../utils/responseGenerator');
 const winston = require('../../utils/winston');
 const constants = require('../../utils/constants');
 const { getErrorCode, getPostgresErrorCodeMessage } = require('../../utils/converters');
-const paginate = require('../../utils/pagination');
-
 
 /**
  * Function to get all complaints

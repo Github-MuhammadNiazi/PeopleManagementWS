@@ -14,8 +14,8 @@ const defaultConfigurations = {
     },
     pagination: {
         page: 1,
-        limit: 10,
-        maxLimit: 100,
+        stepCount: 10,
+        maxStepCount: 100,
     },
     allowedPlatforms: [
         'web',

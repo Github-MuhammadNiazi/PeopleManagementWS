@@ -2,13 +2,13 @@ const constants = require('../utils/constants');
 
 const paginationMiddleware = (req, res, next) => {
     const page = parseInt(req.query.page, 10) || constants.defaultConfigurations.pagination.page;
-    const limit = parseInt(req.query.limit, 10) || constants.defaultConfigurations.pagination.limit;
-    const maxLimit = constants.defaultConfigurations.pagination.maxLimit;
+    const stepCount = parseInt(req.query.stepCount, 10) || constants.defaultConfigurations.pagination.stepCount;
+    const maxStepCount = constants.defaultConfigurations.pagination.maxStepCount;
 
     req.pagination = {
         page,
-        limit: limit > maxLimit ? maxLimit : limit,
-        offset: (page - 1) * (limit > maxLimit ? maxLimit : limit),
+        stepCount: stepCount > maxStepCount ? maxStepCount : stepCount,
+        offset: (page - 1) * (stepCount > maxStepCount ? maxStepCount : stepCount),
     };
     next();
 };
