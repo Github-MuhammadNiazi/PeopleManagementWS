@@ -109,6 +109,7 @@ module.exports = {
         complaintUpdatedSuccessfully: 'Complaint updated successfully',
         failedToUpdateComplaint: 'Failed to update complaint',
         failedToRetrieveComplaintsByUserId: 'Failed to retrieve complaints for user',
+        failedToRetrieveComplaintsByEmployeeId: 'Failed to retrieve complaints for employee',
         failedToRetrieveComplaintsByDepartmentId: 'Failed to retrieve complaints for department',
         failedToAssignComplaint: 'Failed to assign complaint',
         complaintAssignedSuccessfully: 'Complaint assigned successfully',

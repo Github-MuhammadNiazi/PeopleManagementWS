@@ -120,7 +120,6 @@ const GetUserByEmail = async (email, checkIfExists = false) => {
  * @param {boolean} [checkIfExists=false] - If true, resolves with the user even if multiple users are found.
  * @returns {Promise} - Resolves with the user if found, rejects with an error message otherwise.
  */
-
 const GetUserByIdentificationNumber = async (identificationNumber, checkIfExists = false) => {
     return new Promise((resolve, reject) => {
         db('Users')
@@ -341,7 +340,7 @@ const GetAllUsers = async (pagination) => {
                 'su.CreatedOn', 'su.CreatedBy', 'su.ModifiedOn', 'su.ModifiedBy'
             )
             .where('su.IsDeleted', false)
-            .limit(pagination.limit)
+            .limit(pagination.stepCount)
             .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
@@ -386,7 +385,7 @@ const GetUsersPendingApproval = async (pagination) => {
             .where('su.IsDeleted', false)
             .andWhere('su.IsApproved', false)
             .andWhere('su.IsSuspended', false)
-            .limit(pagination.limit)
+            .limit(pagination.stepCount)
             .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
@@ -438,7 +437,7 @@ const GetSuspendedUsers = async (pagination) => {
             )
             .where('su.IsDeleted', false)
             .andWhere('su.IsSuspended', true)
-            .limit(pagination.limit)
+            .limit(pagination.stepCount)
             .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
@@ -484,7 +483,7 @@ const GetDeletedUsers = async (pagination) => {
                 'su.Username', 'su.IsDeleted'
             )
             .where('su.IsDeleted', true)
-            .limit(pagination.limit)
+            .limit(pagination.stepCount)
             .offset(pagination.offset)
             .then((users) => resolve(toCamelCase(users)))
             .catch((error) => reject(error));
@@ -648,7 +647,7 @@ const GetAllComplaints = async (pagination) => {
                 db.raw(`CASE WHEN "c"."AssignedTo" IS NULL THEN NULL ELSE CONCAT("assignedTo"."FirstName", ' ', "assignedTo"."LastName") END AS "AssignedToUser"`), // Handle null AssignedTo
                 db.raw(`CASE WHEN "c"."ModifiedBy" IS NULL THEN NULL ELSE CONCAT("modifiedBy"."FirstName", ' ', "modifiedBy"."LastName") END AS "ModifiedByUser"`) // Handle null ModifiedBy
             )
-            .limit(pagination.limit)
+            .limit(pagination.stepCount)
             .offset(pagination.offset)
             .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
@@ -687,7 +686,7 @@ const GetComplaintsByDepartmentId = async (departmentId, pagination) => {
     return new Promise((resolve, reject) => {
         db('Complaints')
             .where('ComplaintDepartmentId', departmentId)
-            .limit(pagination.limit)
+            .limit(pagination.stepCount)
             .offset(pagination.offset)
             .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
@@ -704,7 +703,7 @@ const GetComplaintByUserId = async (userId, pagination) => {
     return new Promise((resolve, reject) => {
         db('Complaints')
             .where('CreatedBy', userId)
-            .limit(pagination.limit)
+            .limit(pagination.stepCount)
             .offset(pagination.offset)
             .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
@@ -731,6 +730,23 @@ const GetComplaintByComplaintId = async (complaintId, checkIfExists = false) => 
                 }
                 return resolve(toCamelCase(complaints[0]));
             })
+            .catch((error) => reject(error));
+    });
+};
+
+/**
+ * Function to get complaints assigned to a specific employee
+ * @param {number} employeeId - The ID of the employee to whom the complaints are assigned
+ * @param {object} pagination - The pagination object containing limit and offset
+ * @returns {Promise} - Resolves with a list of complaints assigned to the specified employee
+ */
+const GetAssignedComplaintsByEmployeeId = async (employeeId, pagination) => {
+    return new Promise((resolve, reject) => {
+        db('Complaints')
+            .where('AssignedTo', employeeId)
+            .limit(pagination.stepCount)
+            .offset(pagination.offset)
+            .then((complaints) => resolve(toCamelCase(complaints)))
             .catch((error) => reject(error));
     });
 };
@@ -793,5 +809,6 @@ module.exports = {
     GetComplaintsByDepartmentId,
     GetComplaintByUserId,
     GetComplaintByComplaintId,
+    GetAssignedComplaintsByEmployeeId,
     AssignComplaint,
 };

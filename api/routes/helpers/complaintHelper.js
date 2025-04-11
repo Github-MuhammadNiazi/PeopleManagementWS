@@ -4,8 +4,6 @@ const generateResponseBody = require('../../utils/responseGenerator');
 const winston = require('../../utils/winston');
 const constants = require('../../utils/constants');
 const { getErrorCode, getPostgresErrorCodeMessage } = require('../../utils/converters');
-const paginate = require('../../utils/pagination');
-
 
 /**
  * Function to get all complaints
@@ -90,6 +88,27 @@ const GetComplaintByUserId = async (req, res) => {
 };
 
 /**
+ * Function to get complaints assigned to an employee
+ * @param {*} req - The request object containing the user ID as a parameter
+ * @param {*} res - The response object
+ * @returns {} - The complaints assigned to the specified employee
+ */
+const GetAssignedComplaintsByEmployeeId = async (req, res) => {
+    try {
+        winston.info(`Fetching complaints by employee ID: ${req.params.id}.`, { req });
+        const response = await dbController.GetAssignedComplaintsByEmployeeId(req.params.id, req.pagination);
+        winston.info(`${messages.complaints.complaintsRetrievedSuccessfully}, Number of Complaints: ${response.length}`, { req });
+        return res.send(generateResponseBody(response, !!response.length
+            ? messages.complaints.complaintsRetrievedSuccessfully
+            : messages.complaints.noComplaints));
+    } catch (error) {
+        winston.error(`${messages.complaints.failedToRetrieveComplaintsByEmployeeId} Error: ${error.message}`, { req });
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.complaints.failedToRetrieveComplaintsByEmployeeId, getPostgresErrorCodeMessage(error, req)));
+    }
+};
+
+/**
  * Function to assign a complaint to a user
  * @param {*} req - The request object containing the complaint ID and the user ID to whom the complaint is to be assigned
  * @param {*} res - The response object
@@ -134,5 +153,6 @@ module.exports = {
     CreateComplaint,
     GetComplaintsByDepartmentId,
     GetComplaintByUserId,
+    GetAssignedComplaintsByEmployeeId,
     AssignComplaint,
 };
