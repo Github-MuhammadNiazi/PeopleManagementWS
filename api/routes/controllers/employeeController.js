@@ -17,7 +17,7 @@ const GetAllEmployees = (req, res) => {
  * @returns {}
  */
 const CreateEmployee = (req, res) => {
-    return userHelper.CreateEmployee(req, res);
+    return employeeHelper.CreateEmployee(req, res);
 };
 
 module.exports = {
