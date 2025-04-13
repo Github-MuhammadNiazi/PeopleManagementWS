@@ -638,14 +638,47 @@ const CreateEmployeeRole = async (req) => {
 const GetAllComplaints = async (pagination) => {
     return new Promise((resolve, reject) => {
         db('Complaints as c')
-            .leftJoin('Users as createdBy', 'c.CreatedBy', 'createdBy.UserId') // Join for CreatedBy
-            .leftJoin('Users as assignedTo', 'c.AssignedTo', 'assignedTo.UserId') // Join for AssignedTo
-            .leftJoin('Users as modifiedBy', 'c.ModifiedBy', 'modifiedBy.UserId') // Join for ModifiedBy
+            .leftJoin('Users as uc', 'c.CreatedBy', 'uc.UserId')
+            .leftJoin('Users as ua', 'c.AssignedTo', 'ua.UserId')
+            .leftJoin('Users as um', 'c.ModifiedBy', 'um.UserId')
             .select(
-                'c.*', // Select all columns from Complaints
-                db.raw(`CONCAT("createdBy"."FirstName", ' ', "createdBy"."LastName") AS "CreatedByUser"`), // Concatenate CreatedBy's name
-                db.raw(`CASE WHEN "c"."AssignedTo" IS NULL THEN NULL ELSE CONCAT("assignedTo"."FirstName", ' ', "assignedTo"."LastName") END AS "AssignedToUser"`), // Handle null AssignedTo
-                db.raw(`CASE WHEN "c"."ModifiedBy" IS NULL THEN NULL ELSE CONCAT("modifiedBy"."FirstName", ' ', "modifiedBy"."LastName") END AS "ModifiedByUser"`) // Handle null ModifiedBy
+                'c.ComplaintId', 'c.ComplaintDescription', 'c.CurrentStatus', 'c.ComplaintType',
+                'c.IsResolved', 'c.Resolution', 'c.ComplaintDepartmentId', 'c.NeedsApproval',
+                db.raw(`
+                    (SELECT json_build_object(
+                        'UserId', "uc"."UserId",
+                        'name', CONCAT("uc"."FirstName", ' ', "uc"."LastName"),
+                        'Email', "uc"."Email",
+                        'ContactNumber', "uc"."ContactNumber"
+                    )
+                    FROM "Users" "uc"
+                    WHERE "uc"."UserId" = "c"."CreatedBy"
+                    LIMIT 1) AS "CreatedByUser"
+                `),
+                'c.CreatedOn',
+                db.raw(`
+                    (SELECT json_build_object(
+                        'UserId', "ua"."UserId",
+                        'name', CONCAT("ua"."FirstName", ' ', "ua"."LastName"),
+                        'Email', "ua"."Email",
+                        'ContactNumber', "ua"."ContactNumber"
+                    )
+                    FROM "Users" "ua"
+                    WHERE "ua"."UserId" = "c"."AssignedTo"
+                    LIMIT 1) AS "AssignedToUser"
+                `),
+                db.raw(`
+                    (SELECT json_build_object(
+                        'UserId', "um"."UserId",
+                        'name', CONCAT("um"."FirstName", ' ', "um"."LastName"),
+                        'Email', "um"."Email",
+                        'ContactNumber', "um"."ContactNumber"
+                    )
+                    FROM "Users" "um"
+                    WHERE "um"."UserId" = "c"."ModifiedBy"
+                    LIMIT 1) AS "ModifiedByUser"
+                `),
+                'c.ModifiedOn',
             )
             .limit(pagination.stepCount)
             .offset(pagination.offset)
@@ -773,10 +806,14 @@ const AssignComplaint = async (complaintId, userId, modifiedById) => {
     });
 };
 
+
 /**
- * Function to get all employees with pagination
- * @param {Object} pagination - The pagination object containing limit and offset
- * @returns {Promise} - Resolves with a list of employees who are not deleted and have an employee role
+ * Retrieves a list of all employees with optional filters for manager status and department ID.
+ * 
+ * @param {Object} pagination - Pagination details including stepCount and offset.
+ * @param {boolean} [isManager=false] - Filter to retrieve only managers if true; defaults to false for staff.
+ * @param {number|null} [departmentId=null] - Optional department ID filter; retrieves employees from the specified department if provided.
+ * @returns {Promise} - Resolves with an array of employees, each containing user details, roles, and associated metadata.
  */
 const GetAllEmployees = async (pagination, isManager = false, departmentId = null) => {
     return new Promise((resolve, reject) => {
@@ -792,9 +829,9 @@ const GetAllEmployees = async (pagination, isManager = false, departmentId = nul
             })
             .whereIn('SystemUsers.UserRoleId', isManager ? constants.userRoleTypes.Management : constants.userRoleTypes.Staff)
             .select(
-                'Users.UserId', 'Users.FirstName', 'Users.LastName', 'Users.Email', 'EmployeeRoles.DepartmentId',
-                'SystemUsers.Username', 'SystemUsers.IsApproved', 'SystemUsers.IsSuspended',
-                'SystemUsers.IsDeleted', 'SystemUsers.CreatedOn',
+                'Users.UserId', 'Users.FirstName', 'Users.LastName', 'Users.Email', 'EmployeeRoles.DepartmentId', 'SystemUsers.Username',
+                'SystemUsers.IsApproved', 'SystemUsers.IsSuspended', 'SystemUsers.IsDeleted',
+                'SystemUsers.CreatedOn',
                 db.raw(`
                     (SELECT json_build_object(
                         'UserId', "u"."UserId",
@@ -827,6 +864,69 @@ const GetAllEmployees = async (pagination, isManager = false, departmentId = nul
             .limit(pagination.stepCount)
             .offset(pagination.offset)
             .then((employees) => resolve(toCamelCase(employees)))
+            .catch((error) => reject(error));
+    });
+};
+
+/**
+ * Function to get the history of a complaint
+ * @param {number} complaintId - The ID of the complaint whose history is to be retrieved
+ * @returns {Promise} - Resolves with the history of the specified complaint
+ */
+const GetComplaintHistory = async (complaintId) => {
+    return new Promise((resolve, reject) => {
+        db('ComplaintHistory')
+            .where('ComplaintId', complaintId)
+            .then((history) => resolve(toCamelCase(history)))
+            .catch((error) => reject(error));
+    });
+};
+
+/**
+ * Function to update a complaint
+ * @param {number} complaintId - The ID of the complaint to be updated
+ * @param {Object} data - The updated values for the complaint
+ * @param {number} modifiedById - The ID of the user making the update
+ * @returns {Promise} - Resolves with the updated complaint
+ */
+const UpdateComplaint = async (complaintId, data, modifiedById) => {
+    return new Promise((resolve, reject) => {
+        db('Complaints')
+            .where('ComplaintId', complaintId)
+            .update({
+                ComplaintType: data.complaintType,
+                ComplaintDepartmentId: data.complaintDepartmentId,
+                CurrentStatus: data.currentStatus,
+                ModifiedOn: getCurrentDateTime(),
+                ModifiedBy: modifiedById
+            })
+            .returning('ComplaintId')
+            .then((complaints) => resolve(toCamelCase(complaints[0])))
+            .catch((error) => reject(error));
+    });
+};
+
+/**
+ * Function to create a new entry in the complaint history table
+ * 
+ * @param {Object} req - The request object containing the updated complaint details
+ * @param {Object} oldComplaint - The old complaint object to log its previous status
+ * @returns {Promise} - Resolves with the newly created complaint history entry
+ */
+
+const CreateComplaintHistory = async (req, oldComplaint) => {
+    return new Promise((resolve, reject) => {
+        db('ComplaintHistory')
+            .insert({
+                ComplaintId: oldComplaint.complaintId,
+                PreviousStatus: oldComplaint.currentStatus,
+                CurrentStatus: req.body.currentStatus,
+                ChangeDescription: req.body.changeDescription,
+                CreatedOn: getCurrentDateTime(),
+                CreatedBy: req.authorizedUser.userId,
+            })
+            .returning('ComplaintId')
+            .then((complaintHistory) => resolve(toCamelCase(complaintHistory[0])))
             .catch((error) => reject(error));
     });
 };
@@ -870,4 +970,7 @@ module.exports = {
     GetAssignedComplaintsByEmployeeId,
     AssignComplaint,
     GetAllEmployees,
+    GetComplaintHistory,
+    UpdateComplaint,
+    CreateComplaintHistory,
 };

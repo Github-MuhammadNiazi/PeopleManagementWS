@@ -11,7 +11,7 @@ const { paginationSchema } = require('../schemas/paginationSchemas');
 /* GET employees listing. */
 router.get('/',
     allowAccess([
-        constants.userRoles.Admin,
+        constants.userRoleTypes.Staff,
     ]),
     validateQueryParams(paginationSchema),
     validateQueryParams(validationSchema.getAllEmployeesSchema),

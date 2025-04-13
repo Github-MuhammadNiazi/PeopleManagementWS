@@ -62,6 +62,26 @@ const AssignComplaint = (req, res) => {
     return complaintHelper.AssignComplaint(req, res);
 };
 
+/**
+ * Function to get the history of a complaint
+ * @param {*} req - The request object containing the complaint ID as a parameter
+ * @param {*} res - The response object
+ * @returns {} - The history of the specified complaint
+ */
+const GetComplaintHistory = (req, res) => {
+    return complaintHelper.GetComplaintHistory(req, res);
+};
+
+/**
+ * Function to update a complaint
+ * @param {*} req - The request object containing the updated details of the complaint
+ * @param {*} res - The response object
+ * @returns {} - The updated complaint
+ */
+const UpdateComplaintByComplaintId = (req, res) => {
+    return complaintHelper.UpdateComplaintByComplaintId(req, res);
+};
+
 module.exports = {
     GetAllComplaints,
     CreateComplaint,
@@ -69,4 +89,6 @@ module.exports = {
     GetComplaintByUserId,
     GetAssignedComplaintsByEmployeeId,
     AssignComplaint,
+    GetComplaintHistory,
+    UpdateComplaintByComplaintId,
 };

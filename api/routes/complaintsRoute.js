@@ -42,6 +42,7 @@ router.get('/user',
     validateQueryParams(paginationSchema),
     complaintController.GetComplaintByUserId);
 
+/* POST assign a complaint to a user. */
 router.post('/assign',
     allowAccess([
         ...constants.userRoleTypes.Staff,
@@ -57,5 +58,21 @@ router.get('/assigned/:id(\\d+)',
     validatePathVariables(validationSchema.getAssignedComplaintsByEmployeeIdSchema),
     validateQueryParams(paginationSchema),
     complaintController.GetAssignedComplaintsByEmployeeId);
+
+/* GET complaint history. */
+router.get('/history',
+    allowAccess([
+        ...constants.userRoleTypes.All,
+    ]),
+    validateQueryParams(validationSchema.getComplaintHistorySchema),
+    complaintController.GetComplaintHistory);
+
+router.post('/update/:id(\\d+)',
+    allowAccess([
+        ...constants.userRoleTypes.Staff,
+    ]),
+    validatePathVariables(validationSchema.updateComplaintSchema),
+    validateRequestBody(validationSchema.updateComplaintBodySchema),
+    complaintController.UpdateComplaintByComplaintId);
 
 module.exports = router;

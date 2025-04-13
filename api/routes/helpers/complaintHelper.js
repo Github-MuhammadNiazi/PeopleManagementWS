@@ -4,6 +4,7 @@ const generateResponseBody = require('../../utils/responseGenerator');
 const winston = require('../../utils/winston');
 const constants = require('../../utils/constants');
 const { getErrorCode, getPostgresErrorCodeMessage } = require('../../utils/converters');
+const { create } = require('handlebars');
 
 /**
  * Function to get all complaints
@@ -36,7 +37,7 @@ const CreateComplaint = async (req, res) => {
     try {
         winston.info(`Creating a new complaint.`, { req });
         const response = await dbController.CreateComplaint(req);
-        winston.info(`${messages.complaints.complaintCreatedSuccessfully}, Complaint ID: ${response.ComplaintId}`, { req });
+        winston.info(`${messages.complaints.complaintCreatedSuccessfully}, Complaint ID: ${response.complaintId}`, { req });
         return res.send(generateResponseBody(response, messages.complaints.complaintCreatedSuccessfully));
     } catch (error) {
         winston.error(`${messages.complaints.failedToCreateComplaint} Error: ${error.message}`, { req });
@@ -139,12 +140,111 @@ const AssignComplaint = async (req, res) => {
 
         winston.info(`Assigning complaint ID: ${req.body.complaintId} to user ID: ${req.body.userId}.`, { req });
         const response = await dbController.AssignComplaint(req.body.complaintId, req.body.userId, req.authorizedUser.userId);
-        winston.info(`${messages.complaints.complaintAssignedSuccessfully}, Complaint ID: ${response.ComplaintId}`, { req });
-        return res.send(generateResponseBody(response, messages.complaints.complaintAssignedSuccessfully));
+        winston.info(`${messages.complaints.complaintAssignedSuccessfully}, Complaint ID: ${response.complaintId}`, { req });
+        return res.send(generateResponseBody({}, messages.complaints.complaintAssignedSuccessfully));
     } catch (error) {
         winston.error(`${messages.complaints.failedToAssignComplaint} Error: ${error.message}`, { req });
         winston.debug(`Error Stack: ${error.stack}`, { req });
         return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.complaints.failedToAssignComplaint, getPostgresErrorCodeMessage(error, req)));
+    }
+};
+
+/**
+ * Function to get the history of a complaint
+ * @param {*} req - The request object containing the complaint ID as a parameter
+ * @param {*} res - The response object
+ * @returns {} - The history of the specified complaint
+ */
+const GetComplaintHistory = async (req, res) => {
+    try {
+        winston.info(`Fetching complaints by complaint ID: ${req.query.id}.`, { req });
+        const response = await dbController.GetComplaintByComplaintId(req.query.id, req.pagination, true);
+        winston.info(`${messages.complaints.complaintRetrievedSuccessfully}`, { req });
+        if (![...constants.userRoleTypes.Admin, ...constants.userRoleTypes.Staff].includes(req.authorizedUser.userRoleId)
+            && response.userId !== req.authorizedUser.userId) {
+            winston.error(`${messages.complaints.failedToRetrieveComplaintHistory} User ID: ${req.authorizedUser.userId} is not authorized to perform this action.`, { req });
+            return res.status(403).send(generateResponseBody([], messages.complaints.notAuthorizedToViewThisComplaint));
+        }
+        if (!response) {
+            winston.error(`${messages.complaints.failedToRetrieveComplaintHistory}, Complaint with ID: ${req.query.id} not found.`, { req });
+            return res.status(404).send(generateResponseBody([], messages.complaints.complaintNotFound));
+        }
+        const history = await dbController.GetComplaintHistory(req.query.id);
+        winston.info(`${messages.complaints.complaintHistoryRetrievedSuccessfully}, Number of Change Logs: ${history.length}`, { req });
+        return res.send(generateResponseBody(history, !!history.length
+            ? messages.complaints.complaintHistoryRetrievedSuccessfully
+            : messages.complaints.noHistory));
+    } catch (error) {
+        winston.error(`${messages.complaints.failedToRetrieveComplaintHistory} Error: ${error.message}`, { req });
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.complaints.failedToRetrieveComplaintHistory, getPostgresErrorCodeMessage(error, req)));
+    }
+};
+
+/**
+ * Function to create a new complaint history
+ * @param {*} req - The request object containing the new history details
+ * @param {*} res - The response object
+ * @param {*} oldComplaint - The old complaint object
+ * @returns {} - The newly created complaint history
+ */
+const CreateComplaintHistory = async (req, res, oldComplaint) => {
+    try {
+        winston.info(`Creating complaint history.`, { req });
+        const response = await dbController.CreateComplaintHistory(req, oldComplaint);
+        winston.info(`${messages.complaints.complaintHistoryCreatedSuccessfully}, Complaint ID: ${response.complaintId}`, { req });
+        await dbController.Commit();
+        return res.send(generateResponseBody({}, messages.complaints.complaintHistoryCreatedSuccessfully));
+    } catch (error) {
+        await dbController.Rollback();
+        winston.error(`${messages.complaints.failedToCreateComplaintHistory} Error: ${error.message}`, { req });
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.complaints.failedToCreateComplaintHistory, getPostgresErrorCodeMessage(error, req)));
+    }
+}
+
+/**
+ * Function to update a complaint by complaint ID
+ * @param {*} req - The request object containing the complaint ID as a parameter and the updated values in the body
+ * @param {*} res - The response object
+ * @returns {} - The updated complaint
+ */
+const UpdateComplaintByComplaintId = async (req, res) => {
+    try {
+        winston.info(`Verifying if Complaint exists with ID: ${req.params.id}.`, { req });
+        const complaint = await dbController.GetComplaintByComplaintId(req.params.id, true);
+        if (!complaint) {
+            winston.error(`${messages.complaints.failedToUpdateComplaint}, Complaint with ID: ${req.params.id} not found.`, { req });
+            return res.status(404).send(generateResponseBody([], messages.complaints.complaintNotFound));
+        }
+        winston.info(`Complaint found with ID: ${req.params.id}. Detecting changes.`, { req });
+        let changesDetected = false;
+        if (complaint.complaintType !== req.body.complaintType) {
+            req.body.changeDescription = `Complaint type changed from ${complaint.complaintType} to ${req.body.complaintType}. ` + (req.body.changeDescription || '');
+            changesDetected = true;
+        }
+        if (complaint.complaintDepartmentId !== req.body.complaintDepartmentId) {
+            req.body.changeDescription = `Complaint department changed from ${complaint.complaintDepartmentId} to ${req.body.complaintDepartmentId}. ` + (req.body.changeDescription || '');
+            changesDetected = true;
+        }
+        if (complaint.currentStatus !== req.body.currentStatus) {
+            req.body.changeDescription = `Complaint status changed from ${complaint.currentStatus} to ${req.body.currentStatus}. ` + (req.body.changeDescription || '');
+            changesDetected = true;
+        }
+        if (!changesDetected) {
+            winston.info(`No changes detected.`, { req });
+            return res.status(400).send(generateResponseBody([], messages.complaints.failedToUpdateComplaint, 'No changes detected.'));
+        }
+        winston.info(`Updating complaint by complaint ID: ${req.params.id}.`, { req });
+        await dbController.Begin();
+        const response = await dbController.UpdateComplaint(req.params.id, req.body, req.authorizedUser.userId);
+        winston.info(`${messages.complaints.complaintUpdatedSuccessfully}, Complaint ID: ${response.complaintId}`, { req });
+        await CreateComplaintHistory(req, res, complaint);
+    } catch (error) {
+        await dbController.Rollback();
+        winston.error(`${messages.complaints.failedToUpdateComplaint} Error: ${error.message}`, { req });
+        winston.debug(`Error Stack: ${error.stack}`, { req });
+        return res.status(getErrorCode(error, req)).send(generateResponseBody([], messages.complaints.failedToUpdateComplaint, getPostgresErrorCodeMessage(error, req)));
     }
 };
 
@@ -155,4 +255,6 @@ module.exports = {
     GetComplaintByUserId,
     GetAssignedComplaintsByEmployeeId,
     AssignComplaint,
+    GetComplaintHistory,
+    UpdateComplaintByComplaintId,
 };
