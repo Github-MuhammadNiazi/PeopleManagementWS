@@ -773,6 +773,60 @@ const AssignComplaint = async (complaintId, userId, modifiedById) => {
     });
 };
 
+/**
+ * Function to get all employees with pagination
+ * @param {Object} pagination - The pagination object containing limit and offset
+ * @returns {Promise} - Resolves with a list of employees who are not deleted and have an employee role
+ */
+const GetAllEmployees = async (pagination, isManager = false) => {
+    return new Promise((resolve, reject) => {
+        db('Users')
+            .join('SystemUsers', 'Users.UserId', 'SystemUsers.UserId')
+            .where('SystemUsers.IsDeleted', false)
+            .whereNotNull('SystemUsers.EmployeeRoleId')
+            .whereIn('SystemUsers.UserRoleId', isManager ? constants.userRoleTypes.Management : constants.userRoleTypes.Staff)
+            .select(
+                'Users.UserId', 'Users.FirstName', 'Users.LastName', 'Users.Email',
+                'SystemUsers.Username', 'SystemUsers.IsApproved', 'SystemUsers.IsSuspended',
+                'SystemUsers.IsDeleted', 'SystemUsers.CreatedOn',
+                db.raw(`
+                    (SELECT json_build_object(
+                        'UserId', "u"."UserId",
+                        'FirstName', "u"."FirstName",
+                        'LastName', "u"."LastName",
+                        'Email', "u"."Email",
+                        'IsDeleted', "su"."IsDeleted",
+                        'ContactNumber', "u"."ContactNumber"
+                    )
+                    FROM "Users" "u"
+                    JOIN "SystemUsers" "su" ON "u"."UserId" = "su"."UserId"
+                    WHERE "u"."UserId" = "SystemUsers"."CreatedBy"
+                    LIMIT 1) AS "CreatedByUser"
+                `),
+                'SystemUsers.ModifiedOn',
+                db.raw(`
+                    (SELECT json_build_object(
+                        'UserId', "u"."UserId",
+                        'FirstName', "u"."FirstName",
+                        'LastName', "u"."LastName",
+                        'Email', "u"."Email",
+                        'IsDeleted', "su"."IsDeleted",
+                        'ContactNumber', "u"."ContactNumber"
+                    )
+                    FROM "Users" "u"
+                    JOIN "SystemUsers" "su" ON "u"."UserId" = "su"."UserId"
+                    WHERE "u"."UserId" = "SystemUsers"."ModifiedBy"
+                    LIMIT 1) AS "ModifiedByUser"
+                `),
+                'SystemUsers.EmployeeRoleId', 'SystemUsers.UserRoleId'
+            )
+            .limit(pagination.stepCount)
+            .offset(pagination.offset)
+            .then((employees) => resolve(toCamelCase(employees)))
+            .catch((error) => reject(error));
+    });
+};
+
 module.exports = {
     Begin,
     Commit,
@@ -811,4 +865,5 @@ module.exports = {
     GetComplaintByComplaintId,
     GetAssignedComplaintsByEmployeeId,
     AssignComplaint,
+    GetAllEmployees,
 };
