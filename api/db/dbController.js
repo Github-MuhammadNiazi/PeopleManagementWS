@@ -778,7 +778,7 @@ const AssignComplaint = async (complaintId, userId, modifiedById) => {
  * @param {Object} pagination - The pagination object containing limit and offset
  * @returns {Promise} - Resolves with a list of employees who are not deleted and have an employee role
  */
-const GetAllEmployees = async (pagination, isManager = false, depparam = null) => {
+const GetAllEmployees = async (pagination, isManager = false, departmentId = null) => {
     return new Promise((resolve, reject) => {
         db('Users')
             .join('SystemUsers', 'Users.UserId', 'SystemUsers.UserId')
@@ -786,8 +786,8 @@ const GetAllEmployees = async (pagination, isManager = false, depparam = null) =
             .where('SystemUsers.IsDeleted', false)
             .whereNotNull('SystemUsers.EmployeeRoleId')
             .modify((queryBuilder) => {
-                if (depparam !== null) {
-                    queryBuilder.where('EmployeeRoles.DepartmentId', depparam);
+                if (departmentId !== null) {
+                    queryBuilder.where('EmployeeRoles.DepartmentId', departmentId);
                 }
             })
             .whereIn('SystemUsers.UserRoleId', isManager ? constants.userRoleTypes.Management : constants.userRoleTypes.Staff)
