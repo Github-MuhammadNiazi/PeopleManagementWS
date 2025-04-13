@@ -81,7 +81,7 @@ const complaints = {
         resolved: 'Resolved',
         closed: 'Closed',
     },
-    Type: {
+    type: {
         complaint: 'Complaint',
         suggestion: 'Suggestion',
         inquiry: 'Inquiry',

@@ -61,15 +61,12 @@ const Login = async (req, res) => {
             const token = jwt.sign({
                 userId: user.userId,
                 username: user.username,
-                role: user.userRoleId,
+                userRoleId: user.userRoleId,
                 employeeRoleId: user.employeeRoleId,
             }, process.env.JWT_SECRET, { expiresIn: constants.defaultConfigurations.tokenExpiry.accessToken });
 
             winston.info(`Token generated successfully for user: ${user.username}`, { req });
             return res.status(200).send(generateResponseBody({
-                userId: user.userId,
-                username: user.username,
-                role: user.userRoleId,
                 isEmployee: user.employeeRoleId ? true : false,
                 token
             }, messages.auth.login.success));

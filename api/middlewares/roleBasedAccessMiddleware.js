@@ -5,7 +5,7 @@ const constants = require('../utils/constants');
 
 const allowAccess = (requiredRole) => {
     return (req, res, next) => {
-        if (req.authorizedUser.role === constants.userRoles.Admin || requiredRole.includes(req.authorizedUser.role)) {
+        if (req.authorizedUser.userRoleId === constants.userRoles.Admin || requiredRole.includes(req.authorizedUser.userRoleId)) {
             next();
         } else {
             winston.info(`Unauthorized access blocked`, { req });

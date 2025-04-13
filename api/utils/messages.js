@@ -42,7 +42,7 @@ module.exports = {
         },
         token: {
             noTokenProvided: 'No token provided',
-            failedToAuthenticateToken: 'Failed to authenticate jwt token',
+            failedToAuthenticateToken: 'Failed to verify user. Please login again!',
         },
     },
     users: {
@@ -114,5 +114,10 @@ module.exports = {
         failedToAssignComplaint: 'Failed to assign complaint',
         complaintAssignedSuccessfully: 'Complaint assigned successfully',
         complaintsCanOnlyBeAssignedToEmployees: 'Complaints can only be assigned to employees',
+        complaintAlreadyAssignedToThisEmployee: 'Complaint already assigned to this employee',
+        failedToRetrieveComplaintHistory: 'Failed to retrieve complaint history',
+        notAuthorizedToViewThisComplaint: 'You are not authorized to view this complaint',
+        complaintHistoryRetrievedSuccessfully: 'Complaint history retrieved successfully',
+        noHistory: 'No history found',
     }
 };

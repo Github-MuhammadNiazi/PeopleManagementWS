@@ -3,7 +3,7 @@ const constants = require('../utils/constants');
 
 
 const createComplaintSchema = Joi.object({
-    complaintType: Joi.string().required().valid(...Object.values(constants.complaints.Type)).messages({
+    complaintType: Joi.string().required().valid(...Object.values(constants.complaints.type)).messages({
         'any.required': 'Complaint type is required',
         'string.base': 'Complaint type must be a string',
         'any.only': 'Unknown complaint type',
@@ -43,9 +43,52 @@ const getAssignedComplaintsByEmployeeIdSchema = Joi.object({
     }),
 })
 
+const getComplaintHistorySchema = Joi.object({
+    id: Joi.number().required().messages({
+        'any.required': 'Complaint ID is required',
+        'number.base': 'Complaint ID must be a number',
+    }),
+});
+
+const updateComplaintSchema = Joi.object({
+    id: Joi.number().required().messages({
+        'any.required': 'Complaint ID is required',
+        'number.base': 'Complaint ID must be a number',
+    }),
+});
+
+const updateComplaintBodySchema = Joi.object({
+    complaintType: Joi.string().required().valid(...Object.values(constants.complaints.type)).messages({
+        'string.base': 'Complaint type must be a string',
+        'any.required': 'Complaint type is required',
+    }),
+    updateComment: Joi.string().required().messages({
+        'string.base': 'Update comment must be a string',
+        'any.required': 'Update comment is required',
+    }),
+    complaintDepartmentId: Joi.number().required().messages({
+        'number.base': 'Complaint department id must be a number',
+        'any.required': 'Complaint department id is required',
+    }),
+    currentStatus: Joi.string().required().valid(...Object.values(constants.complaints.status)).messages({
+        'string.base': 'Current status must be a string',
+        'any.required': 'Current status is required',
+    }),
+    resolution: Joi.string().optional().messages({
+        'string.base': 'Resolution must be a string',
+    }),
+    needsApproval: Joi.boolean().optional().messages({
+        'boolean.base': 'Needs approval must be a boolean',
+    }),
+});
+
+
 module.exports = {
     createComplaintSchema,
     getComplaintsByDepartmentIdSchema,
     assignComplaintSchema,
     getAssignedComplaintsByEmployeeIdSchema,
+    getComplaintHistorySchema,
+    updateComplaintSchema,
+    updateComplaintBodySchema,
 };
