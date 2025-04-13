@@ -14,7 +14,7 @@ const { getErrorCode, getPostgresErrorCodeMessage } = require('../../utils/conve
 const GetAllEmployees = async (req, res) => {
     try {
         winston.info(`Fetching all employees.`, { req });
-        const response = await dbController.GetAllEmployees(req.pagination);
+        const response = await dbController.GetAllEmployees(req.pagination, req.query.isManager, req.query.departmentId || null);
         winston.info(`${messages.employee.allEmployeesRetrieved}, Number of Employees: ${response.length}`, { req });
         return res.send(generateResponseBody(response, response.length ? messages.employee.allEmployeesRetrieved : messages.employee.noEmployeesFound));
     } catch (error) {

@@ -778,22 +778,27 @@ const AssignComplaint = async (complaintId, userId, modifiedById) => {
  * @param {Object} pagination - The pagination object containing limit and offset
  * @returns {Promise} - Resolves with a list of employees who are not deleted and have an employee role
  */
-const GetAllEmployees = async (pagination, isManager = false) => {
+const GetAllEmployees = async (pagination, isManager = false, departmentId = null) => {
     return new Promise((resolve, reject) => {
         db('Users')
             .join('SystemUsers', 'Users.UserId', 'SystemUsers.UserId')
+            .join('EmployeeRoles', 'SystemUsers.EmployeeRoleId', 'EmployeeRoles.EmployeeRoleId')
             .where('SystemUsers.IsDeleted', false)
             .whereNotNull('SystemUsers.EmployeeRoleId')
+            .modify((queryBuilder) => {
+                if (departmentId !== null) {
+                    queryBuilder.where('EmployeeRoles.DepartmentId', departmentId);
+                }
+            })
             .whereIn('SystemUsers.UserRoleId', isManager ? constants.userRoleTypes.Management : constants.userRoleTypes.Staff)
             .select(
-                'Users.UserId', 'Users.FirstName', 'Users.LastName', 'Users.Email',
+                'Users.UserId', 'Users.FirstName', 'Users.LastName', 'Users.Email', 'EmployeeRoles.DepartmentId',
                 'SystemUsers.Username', 'SystemUsers.IsApproved', 'SystemUsers.IsSuspended',
                 'SystemUsers.IsDeleted', 'SystemUsers.CreatedOn',
                 db.raw(`
                     (SELECT json_build_object(
                         'UserId', "u"."UserId",
-                        'FirstName', "u"."FirstName",
-                        'LastName', "u"."LastName",
+                        'name', CONCAT("u"."FirstName", ' ', "u"."LastName"),
                         'Email', "u"."Email",
                         'IsDeleted', "su"."IsDeleted",
                         'ContactNumber', "u"."ContactNumber"
@@ -807,8 +812,7 @@ const GetAllEmployees = async (pagination, isManager = false) => {
                 db.raw(`
                     (SELECT json_build_object(
                         'UserId', "u"."UserId",
-                        'FirstName', "u"."FirstName",
-                        'LastName', "u"."LastName",
+                        'name', CONCAT("u"."FirstName", ' ', "u"."LastName"),
                         'Email', "u"."Email",
                         'IsDeleted', "su"."IsDeleted",
                         'ContactNumber', "u"."ContactNumber"
