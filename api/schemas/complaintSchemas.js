@@ -62,9 +62,9 @@ const updateComplaintBodySchema = Joi.object({
         'string.base': 'Complaint type must be a string',
         'any.required': 'Complaint type is required',
     }),
-    updateComment: Joi.string().required().messages({
-        'string.base': 'Update comment must be a string',
-        'any.required': 'Update comment is required',
+    changeDescription: Joi.string().required().messages({
+        'string.base': 'Change Description must be a string',
+        'any.required': 'Change description is required',
     }),
     complaintDepartmentId: Joi.number().required().messages({
         'number.base': 'Complaint department id must be a number',

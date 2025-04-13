@@ -78,8 +78,8 @@ const GetComplaintHistory = (req, res) => {
  * @param {*} res - The response object
  * @returns {} - The updated complaint
  */
-const UpdateComplaint = (req, res) => {
-    return complaintHelper.UpdateComplaint(req, res);
+const UpdateComplaintByComplaintId = (req, res) => {
+    return complaintHelper.UpdateComplaintByComplaintId(req, res);
 };
 
 module.exports = {
@@ -90,5 +90,5 @@ module.exports = {
     GetAssignedComplaintsByEmployeeId,
     AssignComplaint,
     GetComplaintHistory,
-    UpdateComplaint,
+    UpdateComplaintByComplaintId,
 };

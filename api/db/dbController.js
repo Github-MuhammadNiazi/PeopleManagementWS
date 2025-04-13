@@ -890,9 +890,6 @@ const GetComplaintHistory = async (complaintId) => {
  * @returns {Promise} - Resolves with the updated complaint
  */
 const UpdateComplaint = async (complaintId, data, modifiedById) => {
-    console.log('complaintId', complaintId);
-    console.log('data', data);
-    console.log('modifiedById', modifiedById);
     return new Promise((resolve, reject) => {
         db('Complaints')
             .where('ComplaintId', complaintId)
@@ -905,6 +902,31 @@ const UpdateComplaint = async (complaintId, data, modifiedById) => {
             })
             .returning('ComplaintId')
             .then((complaints) => resolve(toCamelCase(complaints[0])))
+            .catch((error) => reject(error));
+    });
+};
+
+/**
+ * Function to create a new entry in the complaint history table
+ * 
+ * @param {Object} req - The request object containing the updated complaint details
+ * @param {Object} oldComplaint - The old complaint object to log its previous status
+ * @returns {Promise} - Resolves with the newly created complaint history entry
+ */
+
+const CreateComplaintHistory = async (req, oldComplaint) => {
+    return new Promise((resolve, reject) => {
+        db('ComplaintHistory')
+            .insert({
+                ComplaintId: oldComplaint.complaintId,
+                PreviousStatus: oldComplaint.currentStatus,
+                CurrentStatus: req.body.currentStatus,
+                ChangeDescription: req.body.changeDescription,
+                CreatedOn: getCurrentDateTime(),
+                CreatedBy: req.authorizedUser.userId,
+            })
+            .returning('ComplaintId')
+            .then((complaintHistory) => resolve(toCamelCase(complaintHistory[0])))
             .catch((error) => reject(error));
     });
 };
@@ -950,4 +972,5 @@ module.exports = {
     GetAllEmployees,
     GetComplaintHistory,
     UpdateComplaint,
+    CreateComplaintHistory,
 };

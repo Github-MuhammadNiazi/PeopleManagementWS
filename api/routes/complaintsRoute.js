@@ -73,6 +73,6 @@ router.post('/update/:id(\\d+)',
     ]),
     validatePathVariables(validationSchema.updateComplaintSchema),
     validateRequestBody(validationSchema.updateComplaintBodySchema),
-    complaintController.UpdateComplaint);
+    complaintController.UpdateComplaintByComplaintId);
 
 module.exports = router;

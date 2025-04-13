@@ -119,5 +119,7 @@ module.exports = {
         notAuthorizedToViewThisComplaint: 'You are not authorized to view this complaint',
         complaintHistoryRetrievedSuccessfully: 'Complaint history retrieved successfully',
         noHistory: 'No history found',
+        complaintHistoryCreatedSuccessfully: 'Complaint history created successfully',
+        failedToCreateComplaintHistory: 'Failed to create complaint history',
     }
 };
