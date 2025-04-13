@@ -14,6 +14,7 @@ router.get('/',
         constants.userRoles.Admin,
     ]),
     validateQueryParams(paginationSchema),
+    validateQueryParams(validationSchema.getAllEmployeesSchema),
     employeeController.GetAllEmployees);
 
 router.post('/',

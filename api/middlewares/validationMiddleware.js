@@ -62,7 +62,7 @@ const validateQueryParams = (schema) => {
                 error: null
             });
         }
-        const { error } = schema.validate(req.query);
+        const { error } = schema.validate(req.query, { abortEarly: false, allowUnknown: true });
         if (error) {
             return res.status(400).send({
                 success: false,
