@@ -218,13 +218,20 @@ const UpdateComplaintByComplaintId = async (req, res) => {
             return res.status(404).send(generateResponseBody([], messages.complaints.complaintNotFound));
         }
         winston.info(`Complaint found with ID: ${req.params.id}. Detecting changes.`, { req });
+        let changesDetected = false;
         if (complaint.complaintType !== req.body.complaintType) {
-            req.body.changeDescription = `Complaint type changed from ${complaint.complaintType} to ${req.body.complaintType}. ` + req.body.changeDescription;
-        } else if (complaint.complaintDepartmentId !== req.body.complaintDepartmentId) {
-            req.body.changeDescription = `Complaint department changed from ${complaint.complaintDepartmentId} to ${req.body.complaintDepartmentId}. ` + req.body.changeDescription;
-        } else if (complaint.currentStatus !== req.body.currentStatus) {
-            req.body.changeDescription = `Complaint status changed from ${complaint.currentStatus} to ${req.body.currentStatus}. ` + req.body.changeDescription;
-        } else {
+            req.body.changeDescription = `Complaint type changed from ${complaint.complaintType} to ${req.body.complaintType}. ` + (req.body.changeDescription || '');
+            changesDetected = true;
+        }
+        if (complaint.complaintDepartmentId !== req.body.complaintDepartmentId) {
+            req.body.changeDescription = `Complaint department changed from ${complaint.complaintDepartmentId} to ${req.body.complaintDepartmentId}. ` + (req.body.changeDescription || '');
+            changesDetected = true;
+        }
+        if (complaint.currentStatus !== req.body.currentStatus) {
+            req.body.changeDescription = `Complaint status changed from ${complaint.currentStatus} to ${req.body.currentStatus}. ` + (req.body.changeDescription || '');
+            changesDetected = true;
+        }
+        if (!changesDetected) {
             winston.info(`No changes detected.`, { req });
             return res.status(400).send(generateResponseBody([], messages.complaints.failedToUpdateComplaint, 'No changes detected.'));
         }
@@ -232,7 +239,7 @@ const UpdateComplaintByComplaintId = async (req, res) => {
         await dbController.Begin();
         const response = await dbController.UpdateComplaint(req.params.id, req.body, req.authorizedUser.userId);
         winston.info(`${messages.complaints.complaintUpdatedSuccessfully}, Complaint ID: ${response.complaintId}`, { req });
-        CreateComplaintHistory(req, res, complaint);
+        await CreateComplaintHistory(req, res, complaint);
     } catch (error) {
         await dbController.Rollback();
         winston.error(`${messages.complaints.failedToUpdateComplaint} Error: ${error.message}`, { req });
