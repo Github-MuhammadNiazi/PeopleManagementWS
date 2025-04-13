@@ -64,11 +64,4 @@ router.delete('/delete',
     validateRequestBody(validationSchema.deleteUserSchema),
     userController.DeleteUser);
 
-router.post('/employee',
-    allowAccess([
-        ...constants.userRoleTypes.Management
-    ]),
-    validateRequestBody(validationSchema.createEmployeeSchema),
-    userController.CreateEmployee);
-
 module.exports = router;
