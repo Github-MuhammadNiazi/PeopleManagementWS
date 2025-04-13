@@ -71,7 +71,7 @@ const CreateEmployee = async (req, res) => {
                 return res.status(201).send(generateResponseBody({ ...systemUserResponse, password: randomPassword }, messages.employee.employeeCreatedSuccessfully));
             }
         }
-        return res.status(getErrorCode(error, req)).send(generateResponseBody({}, messages.users.failedToCreateUser));
+        return res.status(400).send(generateResponseBody({}, messages.users.failedToCreateUser));
 
     } catch (error) {
         transactionStatus && await dbController.Rollback();
