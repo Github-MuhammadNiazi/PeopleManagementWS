@@ -38,14 +38,57 @@ const GetComplaintsByDepartmentId = (req, res) => {
  * @param {*} res - The response object
  * @returns {} - The complaint related to the specified user
  */
-
 const GetComplaintByUserId = (req, res) => {
     return complaintHelper.GetComplaintByUserId(req, res);
 }
+
+/**
+ * Function to get complaints assigned to an employee
+ * @param {*} req - The request object containing the employee ID as a parameter
+ * @param {*} res - The response object
+ * @returns {} - The complaints assigned to the specified employee
+ */
+const GetAssignedComplaintsByEmployeeId = (req, res) => {
+    return complaintHelper.GetAssignedComplaintsByEmployeeId(req, res);
+}
+
+/**
+ * Function to assign a complaint to a user
+ * @param {*} req - The request object containing the user ID as a parameter
+ * @param {*} res - The response object
+ * @returns {} - The complaint after assignment
+ */
+const AssignComplaint = (req, res) => {
+    return complaintHelper.AssignComplaint(req, res);
+};
+
+/**
+ * Function to get the history of a complaint
+ * @param {*} req - The request object containing the complaint ID as a parameter
+ * @param {*} res - The response object
+ * @returns {} - The history of the specified complaint
+ */
+const GetComplaintHistory = (req, res) => {
+    return complaintHelper.GetComplaintHistory(req, res);
+};
+
+/**
+ * Function to update a complaint
+ * @param {*} req - The request object containing the updated details of the complaint
+ * @param {*} res - The response object
+ * @returns {} - The updated complaint
+ */
+const UpdateComplaintByComplaintId = (req, res) => {
+    return complaintHelper.UpdateComplaintByComplaintId(req, res);
+};
 
 module.exports = {
     GetAllComplaints,
     CreateComplaint,
     GetComplaintsByDepartmentId,
     GetComplaintByUserId,
+    GetAssignedComplaintsByEmployeeId,
+    AssignComplaint,
+    GetComplaintHistory,
+    UpdateComplaintByComplaintId,
 };

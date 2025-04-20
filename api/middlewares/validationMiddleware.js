@@ -1,6 +1,9 @@
+const winston = require('../utils/winston');
+
 const validateRequestBody = (schema) => {
     return (req, res, next) => {
         if (!req.body) {
+            winston.error('Request body is missing', { req });
             return res.status(400).send({
                 success: false,
                 message: 'Request body is missing',
@@ -9,6 +12,7 @@ const validateRequestBody = (schema) => {
             });
         }
         if (!schema) {
+            winston.error('Schema is missing', { req });
             return res.status(500).send({
                 success: false,
                 message: 'Schema is missing',
@@ -18,6 +22,7 @@ const validateRequestBody = (schema) => {
         }
         const { error } = schema.validate(req.body);
         if (error) {
+            winston.error(`Validation error: ${error.details[0].message}`, { req });
             return res.status(400).send({
                 success: false,
                 message: error.details[0].message.replace(/['"]/g, ''),
@@ -62,7 +67,7 @@ const validateQueryParams = (schema) => {
                 error: null
             });
         }
-        const { error } = schema.validate(req.query);
+        const { error } = schema.validate(req.query, { abortEarly: false, allowUnknown: true });
         if (error) {
             return res.status(400).send({
                 success: false,

@@ -177,55 +177,6 @@ const DeleteUser = async (req, res) => {
     }
 }
 
-const CreateEmployee = async (req, res) => {
-    let transactionStatus = false;
-    try {
-
-        // Confirming if userRole is valid
-        const userRole = await dbController.GetUserRoleByRoleId(req.body.userRoleId);
-
-        const EmployeeRole = await dbController.GetEmployeeRoleByRoleId(req.body.employeeRoleId);
-
-        // Preventing any high level account creation
-        if (!userRole || !EmployeeRole) {
-            return res.status(400).send(generateResponseBody({}, messages.employee.invalidEmployeeRole));
-        }
-
-        // Starting transaction
-        await dbController.Begin();
-        transactionStatus = true;
-
-        // Creating User record
-        const createUserResponse = await dbController.CreateUser(req.body);
-
-        if (createUserResponse) {
-
-            const randomPassword = Math.random().toString(36).slice(-8);
-
-            // Creating SystemUser record
-            const systemUserResponse = await dbController.CreateSystemUser({
-                userId: createUserResponse.UserId,
-                userRoleId: req.body.userRoleId,
-                username: req.body.identificationNumber,
-                password: randomPassword,
-                employeeRoleId: req.body.employeeRoleId,
-            }, req?.authorizedUser?.userId || null);
-
-            if (systemUserResponse) {
-
-                // Committing transaction if all operations are successful
-                await dbController.Commit();
-                return res.status(201).send(generateResponseBody({ ...systemUserResponse, password: randomPassword }, messages.employee.employeeCreatedSuccessfully));
-            }
-        }
-        return res.status(getErrorCode(error, req)).send(generateResponseBody({}, messages.users.failedToCreateUser));
-
-    } catch (error) {
-        transactionStatus && await dbController.Rollback();
-        return res.status(getErrorCode(error, req)).send(generateResponseBody({}, messages.employee.failedToCreateEmployee, getPostgresErrorCodeMessage(error, req)));
-    }
-}
-
 module.exports = {
     GetAllUsers,
     GetUsersPendingApproval,
@@ -234,5 +185,4 @@ module.exports = {
     SuspendUser,
     GetDeletedUsers,
     DeleteUser,
-    CreateEmployee,
 };

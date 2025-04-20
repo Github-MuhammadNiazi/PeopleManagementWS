@@ -14,8 +14,8 @@ const defaultConfigurations = {
     },
     pagination: {
         page: 1,
-        limit: 10,
-        maxLimit: 100,
+        stepCount: 10,
+        maxStepCount: 100,
     },
     allowedPlatforms: [
         'web',
@@ -54,13 +54,6 @@ const contactDetails = {
     },
 }
 
-const userRoleTypes = {
-    All: [1, 2, 3, 4, 5, 6],
-    Residents: [1, 4],
-    Staff: [1, 2, 3],
-    Management: [1, 2],
-}
-
 const userRoles = {
     Admin: 1,
     ManagementUser: 2,
@@ -68,6 +61,14 @@ const userRoles = {
     ResidentUser: 4,
     RegisteredUser: 5,
     UnregisteredUser: 6,
+}
+
+const userRoleTypes = {
+    All: [userRoles.Admin, userRoles.ManagementUser, userRoles.OperatingUser, userRoles.ResidentUser, userRoles.RegisteredUser, userRoles.UnregisteredUser],
+    Admin: [userRoles.Admin],
+    Management: [userRoles.ManagementUser],
+    Staff: [userRoles.OperatingUser, userRoles.ManagementUser],
+    Residents: [userRoles.ResidentUser],
 }
 
 const complaints = {
@@ -80,7 +81,7 @@ const complaints = {
         resolved: 'Resolved',
         closed: 'Closed',
     },
-    Type: {
+    type: {
         complaint: 'Complaint',
         suggestion: 'Suggestion',
         inquiry: 'Inquiry',
