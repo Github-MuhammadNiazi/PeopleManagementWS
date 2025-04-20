@@ -1,44 +1,94 @@
+
+
 .login-container {
-    width: 20%;
-    align-items: center;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #000000;
-  }
-  
-  .login-container h2 {
-    text-align: center;
-    margin-bottom: 1rem;
-  }
-  
-  .form-group {
-    margin-bottom: 1rem;
-    margin-left: 1rem;
-    margin-right: 1rem;
-  }
-  
-  .form-group label {
-    margin-bottom: 0.5rem;
-  }
-  
-  .form-group input {
-    width: 65%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  button {
-    width: 100%;
-    padding: 0.75rem;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.login-left {
+  flex: 1;
+  background: linear-gradient(to bottom left, var(--primary-color), var(--secondary-color));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-left .graphic {
+  width: 80%;
+  height: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.login-left .graphic img {
+  width: 50%;
+  height: 50%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.login-right {
+  flex: 1;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-box {
+  width: 80%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.logo span {
+  color: var(--view-scheme-inverse);
+}
+
+.logo .xt {
+  color: var(--secondary-color);
+}
+
+.login-btn {
+  padding: 12px;
+  background-color: var(--primary-color);
+  color: var(--view-scheme-main);
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: var(--primary-color-hover);
+}
+
+.forgot-password, .or {
+  text-align: center;
+  font-size: 14px;
+  color: var(--link-color);
+  margin-top: 10px;
+}
+
+.switch-label {
+  font-size: 14px;
+  color: var(--text-color);
+  margin-left: 5px;
+}
