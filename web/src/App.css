@@ -3,3 +3,21 @@
   min-height: 100%;
   text-align: center;
 }
+
+.text-left {
+  text-align: left;
+}
+.text-right {
+  text-align: right;
+}
+.text-center {
+  text-align: center;
+}
+
+.subtitle {
+  color: var(--text-color);
+}
+
+.p-inputtext {
+  border-radius: 25px;
+}
