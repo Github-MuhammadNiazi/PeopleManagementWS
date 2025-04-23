@@ -2,15 +2,32 @@ import './Login.css';
 import logo from '../../assets/appLogo.png';
 import { PrimeReactProvider } from 'primereact/api';
 import { InputText } from 'primereact/inputtext';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
+
+// Service import
+import { authenticateConnection } from '../../api/services/authService';
 
 const Login = () => {
   const [isForeigner, setIsForeigner] = useState(false);
   const [loading, setLoading] = useState(false);
   const toast = useRef<Toast>(null);
+  const hasAuthenticated = useRef(false); // To Prevent duplicate calls
+
+  useEffect(() => {
+    if (!hasAuthenticated.current) {
+      hasAuthenticated.current = true;
+      authenticateConnection()
+        .catch((error) => {
+          toast.current?.show({ severity: 'error', summary: 'Connection Error', detail: 'Failed to connect to the server!' });
+        })
+        .finally(() => {
+          hasAuthenticated.current = false;
+        });
+    }
+  }, []);
 
   const login = () => {
     // TODO: Perform login logic here
