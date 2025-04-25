@@ -6,6 +6,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var winston = require('./utils/winston');
+const cors = require('cors');
 
 // Import custom modules and routes
 var routes = require('./routes/index');
@@ -16,6 +17,12 @@ const { paginationMiddleware } = require('./middlewares/utilMiddleware');
 
 // Initialize Express app
 var app = express();
+
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'platform'],
+}));
 
 // Use middleware for logging, parsing JSON and URL-encoded data, and handling cookies
 app.use(express.json());
