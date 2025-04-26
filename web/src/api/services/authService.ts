@@ -6,6 +6,7 @@ const authenticateConnection = async () => {
         return response.data;
     } catch (error) {
         console.error('Error in authenticateConnection:', error);
+        throw error;
     }
 };
 
