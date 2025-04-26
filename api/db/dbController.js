@@ -57,7 +57,7 @@ const GetUserByUserId = async (userId, checkIfExists = false) => {
                 if (checkIfExists) {
                     return resolve(toCamelCase(users[0]));
                 } else if (users.length === 0) {
-                    return reject({ code: 404, message: messages.generalResponse.noUserFound });
+                    return resolve(null);
                 } else if (users.length > 1) {
                     return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
                 }
@@ -81,7 +81,7 @@ const GetUserByUsername = async (username, checkIfExists = false) => {
                 if (checkIfExists) {
                     return resolve(toCamelCase(users[0]));
                 } if (users.length === 0) {
-                    return reject({ code: 404, message: messages.generalResponse.noUserFound });
+                    return resolve(null);
                 } else if (users.length > 1) {
                     return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
                 }
@@ -104,7 +104,7 @@ const GetUserByEmail = async (email, checkIfExists = false) => {
                 if (checkIfExists) {
                     return resolve(toCamelCase(users[0]));
                 } else if (users.length === 0) {
-                    return reject({ code: 404, message: messages.generalResponse.noUserFound });
+                    return resolve(null);
                 } else if (users.length > 1) {
                     return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
                 }
@@ -128,7 +128,7 @@ const GetUserByIdentificationNumber = async (identificationNumber, checkIfExists
                 if (checkIfExists) {
                     return resolve(toCamelCase(users[0]));
                 } else if (users.length === 0) {
-                    return reject({ code: 404, message: messages.generalResponse.noUserFound });
+                    return resolve(null);
                 } else if (users.length > 1) {
                     return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
                 }
@@ -152,7 +152,7 @@ const GetUserByContactNumber = async (contactNumber, checkIfExists = false) => {
                 if (checkIfExists) {
                     return resolve(toCamelCase(users[0]));
                 } else if (users.length === 0) {
-                    return reject({ code: 404, message: messages.generalResponse.noUserFound });
+                    return resolve(null);
                 } else if (users.length > 1) {
                     return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
                 }
@@ -262,9 +262,9 @@ const GetUserRoleByRoleId = async (roleId) => {
             .where('UserRoleId', roleId)
             .then((roles) => {
                 if (roles.length === 0) {
-                    return reject({ code: 404, message: messages.generalResponse.noRoleFound });
+                    return resolve(null);
                 } else if (roles.length > 1) {
-                    return reject({ code: 406, message: messages.generalResponse.multipleRolesFound });
+                    return reject({ code: 406, message: messages.properties.userRoles.noUserRoles });
                 }
                 return resolve(roles[0]);
             })
@@ -358,7 +358,7 @@ const GetSystemUserByUserId = async (userId) => {
             .where('UserId', userId)
             .then((users) => {
                 if (users.length === 0) {
-                    return reject({ code: 404, message: messages.generalResponse.noUserFound });
+                    return resolve(null);
                 } else if (users.length > 1) {
                     return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
                 }
@@ -414,7 +414,7 @@ const ApproveUser = async (userId, userRoleId, modifiedBy) => {
             .returning('*')
             .then((users) => {
                 if (users.length === 0 || users.length > 1) {
-                    return reject({ code: 404, message: messages.users.failedToApproveUser });
+                    return resolve(null);
                 }
                 return resolve({ message: messages.users.userApprovedSuccessfully });
             })
@@ -461,7 +461,7 @@ const SuspendUser = async (req) => {
             .returning('*')
             .then((users) => {
                 if (users.length === 0 || users.length > 1) {
-                    return reject({ code: 404, message: messages.users.failedToSuspendUser });
+                    return resolve(null);
                 }
                 return resolve({ message: messages.users.userSuspendedSuccessfully });
             })
@@ -507,7 +507,7 @@ const DeleteUser = async (req) => {
             .returning('*')
             .then((users) => {
                 if (users.length === 0 || users.length > 1) {
-                    return reject({ code: 404, message: messages.users.failedToDeleteUser });
+                    return resolve(null);
                 }
                 return resolve({ message: messages.users.userDeletedSuccessfully });
             })
@@ -757,7 +757,7 @@ const GetComplaintByComplaintId = async (complaintId, checkIfExists = false) => 
                 if (checkIfExists) {
                     return resolve(toCamelCase(complaints[0]));
                 } else if (complaints.length === 0) {
-                    return reject({ code: 404, message: messages.generalResponse.noComplaintFound });
+                    return resolve(null);
                 } else if (complaints.length > 1) {
                     return reject({ code: 406, message: messages.generalResponse.multipleComplaintsFound });
                 }

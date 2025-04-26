@@ -6,10 +6,12 @@ services:
       dockerfile: web/Dockerfile
     ports:
       - "4200:80"
-  
+    restart: unless-stopped
+
   api:
     build:
       context: .
       dockerfile: api/Dockerfile
     ports:
       - "3000:3000"
+    restart: unless-stopped
