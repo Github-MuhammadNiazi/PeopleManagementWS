@@ -264,7 +264,7 @@ const GetUserRoleByRoleId = async (roleId) => {
                 if (roles.length === 0) {
                     return resolve(null);
                 } else if (roles.length > 1) {
-                    return reject({ code: 406, message: messages.generalResponse.multipleUsersFound });
+                    return reject({ code: 406, message: messages.properties.userRoles.noUserRoles });
                 }
                 return resolve(roles[0]);
             })
