@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import Loader from '../common/Loader'; // Import the Loader component
 
@@ -21,8 +21,11 @@ const Login = () => {
   const hasAuthenticated = useRef(false);
 
   const validationSchema = Yup.object({
-    username: Yup.string().required('Username is required'),
-    password: Yup.string().required('Password is required'),
+    username: Yup.string()
+      .required('Username is required'),
+    password: Yup.string()
+      .required('Password is required')
+      .min(8, 'Password must be at least 8 characters long'),
   });
 
   useEffect(() => {
@@ -72,7 +75,7 @@ const Login = () => {
               validationSchema={validationSchema}
               onSubmit={handleSubmit}
             >
-              {({ isSubmitting, isValid }) => (
+              {({ dirty, isSubmitting, isValid }) => (
                 <Form className='flex flex-column'>
                   <div style={{ padding: '0.5rem' }}>
                     <Field
@@ -100,7 +103,7 @@ const Login = () => {
                       label="Login"
                       type="submit"
                       loading={loading || isSubmitting}
-                      disabled={loading || isSubmitting || !isValid}
+                      disabled={loading || isSubmitting || !dirty || !isValid}
                     />
                   </div>
                 </Form>
