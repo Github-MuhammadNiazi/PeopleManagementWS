@@ -6,10 +6,12 @@ import { useEffect, useRef, useState } from 'react';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import Loader from '../common/Loader'; // Import the Loader component
 
 // Service import
-import { authenticateConnection } from '../../api/services/authService';
+import { authenticateConnection, login } from '../../api/services/authService';
 
 const Login = () => {
   const [isForeigner, setIsForeigner] = useState(false);
@@ -17,6 +19,11 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const toast = useRef<Toast>(null);
   const hasAuthenticated = useRef(false);
+
+  const validationSchema = Yup.object({
+    username: Yup.string().required('Username is required'),
+    password: Yup.string().required('Password is required'),
+  });
 
   useEffect(() => {
     if (!hasAuthenticated.current) {
@@ -32,13 +39,17 @@ const Login = () => {
     }
   }, []);
 
-  const login = () => {
+  const handleSubmit = async (values: { username: string; password: string }) => {
     setLoading(true);
-    // Simulate an API call
-    setTimeout(() => {
+    try {
+      const response = await login(values);
+      console.log('Login response:', response);
+      // TODO: handle successful login (e.g., redirect to dashboard, store token, etc.)
+    } catch (error: any) {
+      toast.current?.show({ severity: 'error', summary: 'Failed to Login', detail: error?.status < 500 ? "Username or password is incorrect" : 'Server error' });
+    } finally {
       setLoading(false);
-      toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Login successful!' });
-    }, 2000);
+    }
   };
 
   return (
@@ -56,19 +67,45 @@ const Login = () => {
             <h2 className="logo">
               People <span>Management <span className="xt">WS</span></span>
             </h2>
-            <div className="flex flex-column gap-2" style={{ width: '70%' }}>
-              <InputText id="username" placeholder={isForeigner ? 'Passport Number' : 'ID Card Number'} />
-            </div>
-            <div className="flex flex-column gap-2 mt-2" style={{ width: '70%' }}>
-              <InputText id="password" type="password" placeholder="Password" />
-            </div>
-            <div className="card flex justify-content-center">
-              <InputSwitch checked={isForeigner} onChange={(e) => setIsForeigner(e.value)} />
-              <span className="switch-label">I am a foreigner</span>
-            </div>
-            <div className="card flex flex-wrap justify-content-center gap-3">
-              <Button label="Login" loading={loading} onClick={login} />
-            </div>
+            <Formik
+              initialValues={{ username: '', password: '' }}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+            >
+              {({ isSubmitting, isValid }) => (
+                <Form className='flex flex-column'>
+                  <div style={{ padding: '0.5rem' }}>
+                    <Field
+                      as={InputText}
+                      id="username"
+                      name="username"
+                      placeholder={isForeigner ? 'Passport Number' : 'ID Card Number'}
+                    />
+                  </div>
+                  <div style={{ padding: '0.5rem' }}>
+                    <Field
+                      as={InputText}
+                      id="password"
+                      name="password"
+                      type="password"
+                      placeholder="Password"
+                    />
+                  </div>
+                  <div style={{ padding: '0.5rem' }}>
+                    <InputSwitch checked={isForeigner} onChange={(e) => setIsForeigner(e.value)} />
+                    <span className="flex flex-justify-center switch-label">I am a foreigner</span>
+                  </div>
+                  <div style={{ padding: '0.5rem' }}>
+                    <Button
+                      label="Login"
+                      type="submit"
+                      loading={loading || isSubmitting}
+                      disabled={loading || isSubmitting || !isValid}
+                    />
+                  </div>
+                </Form>
+              )}
+            </Formik>
             <a href="#" className="forgot-password">Forgot Password?</a>
           </div>
         </div>
