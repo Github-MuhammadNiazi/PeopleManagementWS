@@ -15,6 +15,7 @@ const authenticateConnection = async (): Promise<void> => {
 const login = async (requestBody: LoginRequest): Promise<LoginResponse> => {
     try {
         const response = await apiClient.post<LoginResponse>(endpoints.auth.login, requestBody);
+        // TODO: Store the token in local storage or context
         return response.data;
     } catch (error) {
         console.error('Error in login:', error);
