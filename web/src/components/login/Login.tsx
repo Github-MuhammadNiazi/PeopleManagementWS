@@ -1,24 +1,20 @@
 import './Login.css';
 import logo from '../../assets/appLogo.png';
-import { PrimeReactProvider } from 'primereact/api';
 import { InputText } from 'primereact/inputtext';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
-import Loader from '../common/Loader'; // Import the Loader component
 
 // Service import
-import { authenticateConnection, login } from '../../api/services/authService';
+import { login } from '../../api/services/authService';
 
 const Login = () => {
   const [isForeigner, setIsForeigner] = useState(false);
-  const [isRendered, setIsRendered] = useState(false);
   const [loading, setLoading] = useState(false);
   const toast = useRef<Toast>(null);
-  const hasAuthenticated = useRef(false);
 
   const validationSchema = Yup.object({
     username: Yup.string()
@@ -27,20 +23,6 @@ const Login = () => {
       .required('Password is required')
       .min(8, 'Password must be at least 8 characters long'),
   });
-
-  useEffect(() => {
-    if (!hasAuthenticated.current) {
-      hasAuthenticated.current = true;
-      authenticateConnection()
-        .catch((error) => {
-          toast.current?.show({ severity: 'error', summary: 'Server error', detail: error.message });
-        })
-        .finally(() => {
-          hasAuthenticated.current = false;
-          setIsRendered(true);
-        });
-    }
-  }, []);
 
   const handleSubmit = async (values: { username: string; password: string }) => {
     setLoading(true);
@@ -56,9 +38,6 @@ const Login = () => {
   };
 
   return (
-    <PrimeReactProvider>
-      {!isRendered && <Loader />}
-      <Toast ref={toast} />
       <div className="login-container">
         <div className="login-left">
           <div className="graphic">
@@ -113,7 +92,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-    </PrimeReactProvider>
   );
 };
 
